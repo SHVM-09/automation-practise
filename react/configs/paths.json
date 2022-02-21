@@ -1,0 +1,14 @@
+{
+    "docsPath": "../../docs",
+    "packagePath": "../../package",
+    "demoURL": "/demo/react-master",
+    "basePathJSX": "../../jsx-version",
+    "basePathTSX": "../../tsx-version",
+    "docsURL": "/demo/react-master/docs",
+    "starterKitTSXPath": "../../tsx-version/starter-kit",
+    "starterKitJSXPath": "../../jsx-version/starter-kit",
+    "demoConfigsPathTSX": "../../tsx-version/demo-configs",
+    "demoConfigsPathJSX": "../../jsx-version/demo-configs",
+    "fullVersionTSXPath": "../../tsx-version/full-version",
+    "fullVersionJSXPath": "../../jsx-version/full-version"
+}
