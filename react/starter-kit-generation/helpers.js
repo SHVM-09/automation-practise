@@ -28,8 +28,6 @@ const appbarVerticalPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/compo
 const appbarVerticalPathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/components/vertical/AppBarContent.js`
 const appbarHorizontalPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/components/horizontal/AppBarContent.tsx`
 const appbarHorizontalPathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/components/horizontal/AppBarContent.js`
-const UserDropdownPathTSX = `${pathConfig.starterKitTSXPath}/src/@core/layouts/components/shared-components/UserDropdown.tsx`
-const UserDropdownPathJSX = `${pathConfig.starterKitJSXPath}/src/@core/layouts/components/shared-components/UserDropdown.js`
 
 const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/public`,
@@ -156,6 +154,10 @@ const filesToReplace = [
   {
     src: `${pathConfig.fullVersionTSXPath}/src/pages/pages/auth/register-v2/index.tsx`,
     dest: `${pathConfig.starterKitTSXPath}/src/pages/register/index.tsx`
+  },
+  {
+    src: `${pathConfig.fullVersionJSXPath}/src/pages/pages/auth/register-v2/index.js`,
+    dest: `${pathConfig.starterKitJSXPath}/src/pages/register/index.js`
   },
   {
     src: `${pathConfig.fullVersionJSXPath}/src/pages/pages/auth/login-v2/index.js`,
@@ -358,6 +360,8 @@ const dataToReplace = [
         from: "import { useTranslation } from 'react-i18next'",
         to: ''
       },
+      { from: new RegExp(/\/\/ \*\* Third Party Import/), to: '' },
+      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
       {
         from: 'const { t } = useTranslation()',
         to: ''
@@ -375,6 +379,8 @@ const dataToReplace = [
         from: "import { useTranslation } from 'react-i18next'",
         to: ''
       },
+      { from: new RegExp(/\/\/ \*\* Third Party Import/), to: '' },
+      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
       {
         from: 'const { t } = useTranslation()',
         to: ''
@@ -382,80 +388,6 @@ const dataToReplace = [
       {
         from: '{`${t(text)}`}',
         to: '{text}'
-      },
-    ]
-  },
-  {
-    file: UserDropdownPathTSX,
-    replacements: [
-      {
-        from: "import { useAuth } from 'src/hooks/useAuth'",
-        to: ''
-      },
-      {
-        from: new RegExp(/\/\/ \*\* Context/),
-        to: ''
-      },
-      {
-        from: 'const { logout } = useAuth()',
-        to: ''
-      },
-      {
-        from: 'logout()',
-        to: ''
-      },
-      {
-        from: /if (url) [\s\S]*? setAnchorEl/,
-        to: 'setAnchorEl'
-      },
-      {
-        from: new RegExp(/(handleDropdownClose\(')(.*)('.*\))/, 'g'),
-        to: 'handleDropdownClose()'
-      },
-      {
-        from: 'onClick={handleLogout}',
-        to: "onClick={() => handleDropdownClose('/login')}"
-      },
-      {
-        from: new RegExp(/const handleLogout = \(\) => {[\s\S]*? }/),
-        to: ''
-      },
-    ]
-  },
-  {
-    file: UserDropdownPathJSX,
-    replacements: [
-      {
-        from: "import { useAuth } from 'src/hooks/useAuth'",
-        to: ''
-      },
-      {
-        from: new RegExp(/\/\/ \*\* Context/),
-        to: ''
-      },
-      {
-        from: 'const { logout } = useAuth()',
-        to: ''
-      },
-      {
-        from: 'logout()',
-        to: ''
-      },
-      {
-        from: /if (url) [\s\S]*? setAnchorEl/,
-        to: 'setAnchorEl'
-      },
-      {
-        from: new RegExp(/(handleDropdownClose\(')(.*)('.*\))/, 'g'),
-        to: 'handleDropdownClose()'
-      },
-      {
-        from: 'onClick={handleLogout}',
-        to: "onClick={() => handleDropdownClose('/login')}"
-      },
-      {
-        from: new RegExp(/const handleLogout = \(\) => {[\s\S]*? }/),
-        to: ''
       },
     ]
   },
@@ -565,6 +497,75 @@ const dataToReplace = [
 
     ]
   },
+  {
+    file: `${pathConfig.starterKitTSXPath}/src/next.d.ts`,
+    replacements: [
+      {
+        from: "import type { ACLObj } from 'src/configs/acl'",
+        to: ''
+      },
+      {
+        from: 'acl?: ACLObj',
+        to: ''
+      },
+      {
+        from: 'authGuard?: boolean',
+        to: ''
+      },
+      {
+        from: 'guestGuard?: boolean',
+        to: ''
+      },
+    ]
+  },
+  {
+    file: `${pathConfig.starterKitTSXPath}/src/layouts/components/vertical/AppBarContent.tsx`,
+    replacements: [
+      {
+        from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
+        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+      }
+    ]
+  },
+  {
+    file: `${pathConfig.starterKitTSXPath}/src/layouts/components/horizontal/AppBarContent.tsx`,
+    replacements: [
+      {
+        from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
+        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+      }
+    ]
+  },
+  {
+    file: `${pathConfig.starterKitJSXPath}/src/layouts/components/vertical/AppBarContent.js`,
+    replacements: [
+      {
+        from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
+        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+      }
+    ]
+  },
+  {
+    file: `${pathConfig.starterKitJSXPath}/src/layouts/components/horizontal/AppBarContent.js`,
+    replacements: [
+      {
+        from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
+        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+      }
+    ]
+  }
+]
+
+const filesToRemove = [
+  BuyNowComponentPathTSX,
+  BuyNowComponentPathJSX,
+  `${pathConfig.starterKitTSXPath}/src/configs/acl.ts`,
+  `${pathConfig.starterKitJSXPath}/src/configs/acl.js`,
+  `${pathConfig.starterKitTSXPath}/src/configs/auth.ts`,
+  `${pathConfig.starterKitJSXPath}/src/configs/auth.js`,
+  `${pathConfig.starterKitTSXPath}/src/configs/i18n.ts`,
+  `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`,
+
 ]
 
 module.exports = {
@@ -572,6 +573,7 @@ module.exports = {
   AppPathJSX,
   LoginPathTSX,
   LoginPathJSX,
+  filesToRemove,
   filesToCopyTSX,
   filesToCopyJSX,
   filesToReplace,
@@ -592,8 +594,6 @@ module.exports = {
   foldersToRemoveJSX,
   TranslationsPathTSX,
   TranslationsPathJSX,
-  UserDropdownPathTSX,
-  UserDropdownPathJSX,
   appbarVerticalPathTSX,
   appbarVerticalPathJSX,
   BuyNowComponentPathTSX,

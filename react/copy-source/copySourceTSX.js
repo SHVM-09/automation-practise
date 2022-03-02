@@ -48,7 +48,7 @@ const generateTSXSourceCode = () => {
               '`}' +
               '</code>' +
               '</pre>' +
-              ') \n'
+              ') \n\n'
 
             fs.writeFile(sourceToReadTSX, '', err => {
               if (err) {
@@ -78,7 +78,7 @@ const generateTSXSourceCode = () => {
                   '`}' +
                   '</code>' +
                   '</pre>' +
-                  ') \n'
+                  ') \n\n'
                 if (sourceToReadTSX) {
                   fs.appendFile(sourceToReadTSX, codeJSX, err => {
                     if (err) {
@@ -90,7 +90,7 @@ const generateTSXSourceCode = () => {
             })
           }
         } else {
-          console.log('JSX Version does not exist')
+          console.log('Javascript version does not exist')
         }
       }
     }
@@ -111,7 +111,7 @@ if (!doesJSXVersionExits) {
           console.log(err);
           return
         } else {
-          const arr = []
+          const linesToReplace = []
           let result = data
           const splitData = data.split('\r\n')
 
@@ -119,12 +119,12 @@ if (!doesJSXVersionExits) {
             if (line.trim().includes('jsx: null')) {
               const replaced = splitData[index - 1] ? splitData[index - 1].replace('tsx: ', '').replace('TSXCode', 'JSXCode').replace(',', '').trim() : null
 
-              arr.push({ line: line.trim(), replacement: replaced ? line.trim().replace('null', replaced) : '' })
+              linesToReplace.push({ line: line.trim(), replacement: replaced ? line.trim().replace('null', replaced) : '' })
             }
           })
 
 
-          arr.forEach(r => {
+          linesToReplace.forEach(r => {
             result = result.replace(r.line, r.replacement)
           })
 

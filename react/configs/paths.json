@@ -1,14 +1,16 @@
 {
-    "docsPath": "../../docs",
-    "packagePath": "../../package",
-    "demoURL": "/demo/react-master",
-    "basePathJSX": "../../jsx-version",
-    "basePathTSX": "../../tsx-version",
-    "docsURL": "/demo/react-master/docs",
-    "starterKitTSXPath": "../../tsx-version/starter-kit",
-    "starterKitJSXPath": "../../jsx-version/starter-kit",
-    "demoConfigsPathTSX": "../../tsx-version/demo-configs",
-    "demoConfigsPathJSX": "../../jsx-version/demo-configs",
-    "fullVersionTSXPath": "../../tsx-version/full-version",
-    "fullVersionJSXPath": "../../jsx-version/full-version"
+  "docsPath": "../../../master-react-mui-nextjs/docs",
+  "packagePath": "../../../master-react-mui-nextjs/package",
+  "demoURL": "/demo/react-master",
+  "basePathJSX": "../../../master-react-mui-nextjs/javascript-version",
+  "basePathTSX": "../../../master-react-mui-nextjs/typescript-version",
+  "docsURL": "/demo/react-master/docs",
+  "starterKitTSXPath": "../../../master-react-mui-nextjs/typescript-version/starter-kit",
+  "starterKitJSXPath": "../../../master-react-mui-nextjs/javascript-version/starter-kit",
+  "demoConfigsPathTSX": "../../../master-react-mui-nextjs/typescript-version/demo-configs",
+  "demoConfigsPathJSX": "../../../master-react-mui-nextjs/javascript-version/demo-configs",
+  "fullVersionTSXPath": "../../../master-react-mui-nextjs/typescript-version/full-version",
+  "fullVersionJSXPath": "../../../master-react-mui-nextjs/javascript-version/full-version",
+  "packageJSXPath": "../../../master-react-mui-nextjs/package/javascript-version/full-version",
+  "packageTSXPath": "../../../master-react-mui-nextjs/package/typescript-version/full-version"
 }

@@ -25,7 +25,7 @@ if (passedArgs[0] !== undefined) {
 
 
 // ** Generates second page in src/pages folder
-const generateSecondPage = (parentFolder, fileToRead, fileToWrite) => { 
+const generateSecondPage = (parentFolder, fileToRead, fileToWrite) => {
   fs.mkdir(`${parentFolder}/src/pages/second-page`, err => {
     if (err) {
       console.log(err)
@@ -47,6 +47,17 @@ const generateSecondPage = (parentFolder, fileToRead, fileToWrite) => {
   })
 }
 
+// ** Generates second page in src/layouts/components folder
+const copyUserDropdown = (parentFolder, version, fileToCopy, fileToUpdate) => {
+  fs.copyFile(`${fileToCopy}`, `${parentFolder}/src/layouts/components/UserDropdown.${version}`, err => {
+    if (err) {
+      console.log(err)
+
+      return
+    }
+  })
+}
+
 // ** Generates TSX StarterKit
 const generateTSXStarter = () => {
 
@@ -57,23 +68,23 @@ const generateTSXStarter = () => {
       return
     } else {
       filesToCopyTSX.map(file => {
-        
-        
-        const dest = file.replace('full-version', 'starter-kit')        
+
+
+        const dest = file.replace('full-version', 'starter-kit')
 
         copyRecursiveSync(file, dest)
       })
 
       foldersToRemoveTSX.map(folder => {
-        try{
+        try {
           fs.rm(folder, { recursive: true, force: true }, err => {
             err ? console.log(err) : null
           })
-        }catch{
+        } catch {
           console.log(`Error while deleting ${folder}`);
         }
       })
-      
+
 
       fs.rm(`${pathConfig.starterKitTSXPath}/src/pages`, { recursive: true, force: true }, err => {
         if (err) {
@@ -90,8 +101,10 @@ const generateTSXStarter = () => {
               foldersToKeepTSX.map(file => {
                 copyRecursiveSync(`${pathConfig.fullVersionTSXPath}/src/${file}`, `${pathConfig.starterKitTSXPath}/src/${file}`)
               })
-                           
+
               generateSecondPage(pathConfig.starterKitTSXPath, './components/tsx/second-page/index.tsx', `${pathConfig.starterKitTSXPath}/src/pages/second-page/index.tsx`)
+              copyUserDropdown(pathConfig.starterKitTSXPath, 'tsx', './components/tsx/UserDropdown.tsx')
+              copyUserDropdown(pathConfig.starterKitTSXPath, 'tsx', './components/tsx/UserDropdown.tsx')
             }
           })
         }
@@ -116,67 +129,69 @@ const generateTSXStarter = () => {
 // ** Generates JSX StarterKit
 const generateJSXStarter = () => {
 
-  if(fs.existsSync(pathConfig.basePathJSX)){
+  if (fs.existsSync(pathConfig.basePathJSX)) {
     const createStarter = () => fs.mkdir(pathConfig.starterKitJSXPath, err => {
-    if (err) {
-      console.log(err)
+      if (err) {
+        console.log(err)
 
-      return
+        return
+      } else {
+        filesToCopyJSX.map(file => {
+          const dest = file.replace('full-version', 'starter-kit')
+
+          copyRecursiveSync(file, dest)
+        })
+
+        foldersToRemoveJSX.map(folder => {
+          try {
+            fs.rm(folder, { recursive: true, force: true }, err => {
+              err ? console.log(err) : null
+            })
+          } catch {
+            console.log(`Error while deleting ${folder}`);
+          }
+        })
+
+        fs.rm(`${pathConfig.starterKitJSXPath}/src/pages`, { recursive: true, force: true }, err => {
+          if (err) {
+            console.log(err)
+
+            return
+          } else {
+            fs.mkdir(`${pathConfig.starterKitJSXPath}/src/pages`, err => {
+              if (err) {
+                console.log(err)
+
+                return
+              } else {
+                foldersToKeepJSX.map(file => {
+                  copyRecursiveSync(`${pathConfig.fullVersionJSXPath}/src/${file}`, `${pathConfig.starterKitJSXPath}/src/${file}`)
+                })
+
+
+
+                generateSecondPage(pathConfig.starterKitJSXPath, './components/jsx/second-page/index.js', `${pathConfig.starterKitJSXPath}/src/pages/second-page/index.js`)
+                copyUserDropdown(pathConfig.starterKitJSXPath, 'js', './components/jsx/UserDropdown.js')
+                copyUserDropdown(pathConfig.starterKitJSXPath, 'js', './components/jsx/UserDropdown.js')
+              }
+            })
+          }
+        })
+      }
+    })
+
+    if (!fs.existsSync(pathConfig.starterKitJSXPath)) {
+      createStarter()
+
     } else {
-      filesToCopyJSX.map(file => {
-        const dest = file.replace('full-version', 'starter-kit')
-
-        copyRecursiveSync(file, dest)
-      })
-
-      foldersToRemoveJSX.map(folder => {
-        try{
-          fs.rm(folder, { recursive: true, force: true }, err => {
-            err ? console.log(err) : null
-          })
-        }catch{
-          console.log(`Error while deleting ${folder}`);
-        }
-      })
-
-      fs.rm(`${pathConfig.starterKitJSXPath}/src/pages`, { recursive: true, force: true }, err => {
+      fs.rm(pathConfig.starterKitJSXPath, { recursive: true, force: true }, err => {
         if (err) {
           console.log(err)
-
-          return
         } else {
-          fs.mkdir(`${pathConfig.starterKitJSXPath}/src/pages`, err => {
-            if (err) {
-              console.log(err)
-
-              return
-            } else {
-              foldersToKeepJSX.map(file => {
-                copyRecursiveSync(`${pathConfig.fullVersionJSXPath}/src/${file}`, `${pathConfig.starterKitJSXPath}/src/${file}`)
-              })
-              
-             
-
-              generateSecondPage(pathConfig.starterKitJSXPath, './components/jsx/second-page/index.js', `${pathConfig.starterKitJSXPath}/src/pages/second-page/index.js`)
-            }
-          })
+          createStarter()
         }
       })
     }
-  })
-
-  if (!fs.existsSync(pathConfig.starterKitJSXPath)) {
-    createStarter()
-
-  } else {
-    fs.rm(pathConfig.starterKitJSXPath, { recursive: true, force: true }, err => {
-      if (err) {
-        console.log(err)
-      } else {
-        createStarter()
-      }
-    })
-  }
   }
 }
 

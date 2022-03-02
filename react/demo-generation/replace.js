@@ -1,12 +1,20 @@
 const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../configs/paths.json')
+const {
+  i18nPath,
+  copyDirectory,
+  nextConfigPath,
+  themeConfigPath,
+  filesWithTestObj,
+  testFoldersToCopy,
+  settingsContextFile,
+  testFoldersToModify,
+} = require('./helpers')
+
 
 let demo = 'demo-1'
-const i18nPath = `${pathConfig.fullVersionTSXPath}/src/configs/i18n.ts`
-const nextConfigPath = `${pathConfig.fullVersionTSXPath}/next.config.js`
-const themeConfigPath = `${pathConfig.fullVersionTSXPath}/src/configs/themeConfig.ts`
-const settingsContextFile = `${pathConfig.fullVersionTSXPath}/src/@core/context/settingsContext.tsx`
+
 
 const demoArgs = process.argv.slice(2)
 
@@ -31,19 +39,6 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
 
           return
         } else {
-          // const splitData = data.split('\r\n')
-          // const lineIndex = splitData.findIndex(i => i.includes('/images/'))
-          // splitData[lineIndex] ? splitData[lineIndex].replace('/images/', `${pathConfig.demoURL}/${demo}/images/`) : null
-          // if(splitData[lineIndex]){
-          //   splitData[lineIndex] = splitData[lineIndex].replace('/images/', `${pathConfig.demoURL}/${demo}/images/`) 
-          //   fs.writeFile(path.join(__dirname, dirPath, '/', file), splitData.join('\n'), err => {
-          //     if (err) {
-          //       console.error(err)
-
-          //       return
-          //     }
-          //   })
-          // }
 
           const result = data.replace(new RegExp('/images/', 'g'), `${pathConfig.demoURL}/${demo}/images/`)
 
@@ -119,7 +114,7 @@ if (fs.existsSync(nextConfigPath)) {
   const removedBasePathIfAny = nextConfigData.filter(line => {
     return line.indexOf('basePath') === -1
   }).join('\n')
-  const result = removedBasePathIfAny.replace('reactStrictMode: false,', `reactStrictMode: false, \n basePath: '${pathConfig.demoURL}/${demo}',`)
+  const result = removedBasePathIfAny.replace('reactStrictMode: false,', `reactStrictMode: false,\n  basePath: '${pathConfig.demoURL}/${demo}',`)
 
   fs.writeFile(nextConfigPath, result, err => {
     if (err) {
@@ -165,3 +160,67 @@ if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
 } else {
   console.log("themeConfigPath file & demoConfigPath file doesn't exist");
 }
+
+const removeTest = () => {
+  const removePromise = testFoldersToModify.map(folder => {
+
+    return new Promise(resolve => {
+
+      if (fs.existsSync(folder.from)) {
+        
+        copyDirectory(folder.from, folder.to)
+      }
+
+      resolve()
+    })
+
+
+  })
+
+  Promise.all(removePromise).then(() => {
+    testFoldersToModify.map(folder => {
+      if (fs.existsSync(folder.from)) {
+        fs.rm(folder.from, { recursive: true }, (err) => {
+          if(err){
+            console.log(err);
+          }
+        })
+      }
+    })
+  }).then(() => {
+    filesWithTestObj.map(file => {
+      if (fs.existsSync(file)) {
+        fs.readFile(file, 'utf-8', (err, data) => {
+          if (err) {
+            console.log(err);
+          } else {
+            const updatedData = data
+              .replace(/title: 'Test',/g, '')
+              .replace("path: '/components/test'", '')
+              .replace("path: '/forms/form-elements/test'", '')
+              .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+            fs.writeFile(file, '', err => {
+              if (err) {
+                console.log(err);
+              }
+               
+              fs.writeFile(file, updatedData, err => {
+                if (err) {
+                  console.log(err);
+                }
+              })
+            })
+          }
+        })
+      }
+    })
+  }).then(() => {
+    testFoldersToCopy.map(folder => {
+      if (fs.existsSync(folder.from)) {            
+        copyDirectory(folder.from, folder.to)
+      }
+    })
+  })
+}
+
+removeTest()

@@ -30,7 +30,12 @@ const removeTypeFiles = function (dir, callback) {
   })
 }
 
+const removeTypesFolder = () => {
+  fs.rmSync(`${pathConfig.fullVersionJSXPath}/src/types`, { force: true, recursive: true })
+}
+
 removeTypeFiles(srcDirPath, () => console.log('Removed Type Files'))
+removeTypesFolder()
 
 // ** Remove ts and tsx extensions from yarn format and yarn lint commands from package.json file
 if (fs.existsSync(packageFilePath)) {

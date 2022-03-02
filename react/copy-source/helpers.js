@@ -8,7 +8,7 @@ const formsPathTSX = `${pathConfig.fullVersionTSXPath}/src/views/forms/form-elem
 const componentsPathJSX = `${pathConfig.fullVersionJSXPath}/src/views/components/`
 const formsPathJSX = `${pathConfig.fullVersionJSXPath}/src/views/forms/form-elements/`
 
-// ** Checks for jsx-version directory and returns boolean
+// ** Checks for javascript-version directory and returns boolean
 const doesJSXVersionExits = fs.existsSync(basePathJSX)
 
 // ** Returns files with source code.
@@ -49,7 +49,7 @@ const getAllSourceFilesTSX = arr => {
   return files
 }
 
-// ** Returns array of files with source code if jsx-version directory exists.
+// ** Returns array of files with source code if javascript-version directory exists.
 const getAllSourceFilesJSX = arr => {
   const files = []
 

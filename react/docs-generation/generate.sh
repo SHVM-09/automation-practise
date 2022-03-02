@@ -1,6 +1,6 @@
 # Replace necessary content
 node replace.js
-cd ../../docs
+cd ../../../master-react-mui-nextjs/docs
 
 # Build docs
 yarn build

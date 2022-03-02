@@ -1,6 +1,5 @@
 const fs = require('fs')
-const pathConfig = require('../configs/paths.json')
-const { dataToReplace,filesToReplace, BuyNowComponentPathJSX, BuyNowComponentPathTSX } = require('./helpers')
+const { dataToReplace,filesToReplace } = require('./helpers')
 
 // ** Replace Content in files
 const replaceFileContent = () => {
@@ -54,52 +53,7 @@ const replaceFiles = () => {
   })
 }
 
-// ** Delete Files
-const deleteFiles = () => {
-      // ** Delete BuyNow Component in TSX
-    if(fs.existsSync(BuyNowComponentPathTSX)){
-        fs.unlink(BuyNowComponentPathTSX, err => {
-            if(err){
-                console.log(err);
 
-                return
-            }
-        })
-    } 
-    // ** Delete BuyNow Component in JSX      
-    if(fs.existsSync(BuyNowComponentPathJSX)){
-        fs.unlink(BuyNowComponentPathJSX, err => {
-            if(err){
-                console.log(err);
-
-                return
-            }
-        })
-    }       
-
-    // ** Delete ACL Config in TSX
-    if(fs.existsSync(`${pathConfig.starterKitTSXPath}/src/configs/acl.ts`)){
-        fs.unlink(`${pathConfig.starterKitTSXPath}/src/configs/acl.ts`, err => {
-            if(err){
-                console.log(err);
-
-                return
-            }
-        })
-    }
-
-    // ** Delete ACL Config in JSX
-    if(fs.existsSync(`${pathConfig.starterKitJSXPath}/src/configs/acl.js`)){
-        fs.unlink(`${pathConfig.starterKitJSXPath}/src/configs/acl.js`, err => {
-            if(err){
-                console.log(err);
-
-                return
-            }
-        })
-    }
-}
 
 replaceFiles()
 replaceFileContent()
-deleteFiles()
