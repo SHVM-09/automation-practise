@@ -1,10 +1,10 @@
 {
+  "demoURL": "/master-react-mui-nextjs",
+  "docsURL": "/master-react-mui-nextjs/documentation",
   "docsPath": "../../../master-react-mui-nextjs/docs",
   "packagePath": "../../../master-react-mui-nextjs/package",
-  "demoURL": "/master-react-mui-nextjs",
   "basePathJSX": "../../../master-react-mui-nextjs/javascript-version",
   "basePathTSX": "../../../master-react-mui-nextjs/typescript-version",
-  "docsURL": "/master-react-mui-nextjs/docs",
   "starterKitTSXPath": "../../../master-react-mui-nextjs/typescript-version/starter-kit",
   "starterKitJSXPath": "../../../master-react-mui-nextjs/javascript-version/starter-kit",
   "demoConfigsPathTSX": "../../../master-react-mui-nextjs/typescript-version/demo-configs",
