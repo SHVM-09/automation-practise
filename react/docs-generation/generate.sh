@@ -6,13 +6,14 @@ cd ../../../master-react-mui-nextjs/docs
 yarn build
 
 # Move out generated folder
-mv .vuepress/dist ../docs-build
-# Zip generated folder
-zip -r ../docs.zip ../docs-build
+mv ./.vuepress/dist documentation
+mv ./documentation ../
 cd ../
+# Zip generated folder
+zip -r documentation.zip documentation
 # Remove generated folder
-rm -rf docs-build
+rm -rf documentation
 
 # Reset replaced content
-cd scripts/docs-generation
+cd ../automation-scripts/react/docs-generation
 node reset
