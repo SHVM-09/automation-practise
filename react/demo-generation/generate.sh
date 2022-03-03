@@ -3,7 +3,7 @@ set -e
 node generate-demo-configs.js
 
 # Demo generation loop
-for i in {1..2}
+for i in {1..6}
 do
 # Replace necessary in src folder
 	node replace.js demo-$i
@@ -15,8 +15,8 @@ do
   mv out ../../../master-react-mui-nextjs/demo-$i
   cd ../../../automation-scripts/react/demo-generation
 # Zip and remove demo folder 
-  # zip -r demo-$i.zip demo-$i
-  # rm -rf demo-$i
+  zip -r ../../../master-react-mui-nextjs/demo-$i.zip ../../../master-react-mui-nextjs/demo-$i
+  rm -rf ../../../master-react-mui-nextjs/demo-$i
 # Reset the replaced content before
   node reset.js demo-$i
 done
