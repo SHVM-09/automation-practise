@@ -31,12 +31,12 @@ yarn lint
 yarn format
 
 # Copy SourceCode
-cd ../../scripts/copy-source
+cd ../../../automation-scripts/react/copy-source
 node copySourceTSX.js
 node copySourceJSX.js
 
 # Generate DemoConfigs
-cd ../../scripts/demo-generation
+cd ../demo-generation
 node generate-demo-configs.js
 
 # Format typescript-version

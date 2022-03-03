@@ -170,9 +170,14 @@ const copyRecursiveSync = (src, dest) => {
   const stats = exists && fs.statSync(src)
   const isDirectory = exists && stats.isDirectory()
   if (isDirectory) {
-    !fs.existsSync(dest) ? fs.mkdirSync(dest, { recursive: true, force: true }) : null
+    !fs.existsSync(dest)
+      ? fs.mkdirSync(dest, { recursive: true, force: true })
+      : null
     fs.readdirSync(src).forEach(function (childItemName) {
-      copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
+      copyRecursiveSync(
+        path.join(src, childItemName),
+        path.join(dest, childItemName)
+      )
     })
   } else {
     fs.copyFileSync(src, dest)
@@ -186,8 +191,14 @@ const appDataToReplace = [
   { from: "import { defaultACLObj } from 'src/configs/acl'", to: '' },
   { from: "import AclGuard from 'src/@core/components/auth/AclGuard'", to: '' },
   { from: "import { AuthProvider } from 'src/context/AuthContext'", to: '' },
-  { from: "import AuthGuard from 'src/@core/components/auth/AuthGuard'", to: '' },
-  { from: "import GuestGuard from 'src/@core/components/auth/GuestGuard'", to: '' },
+  {
+    from: "import AuthGuard from 'src/@core/components/auth/AuthGuard'",
+    to: ''
+  },
+  {
+    from: "import GuestGuard from 'src/@core/components/auth/GuestGuard'",
+    to: ''
+  },
   { from: "import Spinner from 'src/@core/components/spinner'", to: '' },
   { from: "import { store } from 'src/store'", to: '' },
   { from: "import { Provider } from 'react-redux'", to: '' },
@@ -195,11 +206,17 @@ const appDataToReplace = [
   { from: ' </Provider>', to: '' },
   { from: '<AuthProvider>', to: '' },
   { from: '</AuthProvider>', to: '' },
-  { from: '<AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>', to: '' },
+  {
+    from: '<AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>',
+    to: ''
+  },
   { from: '</AclGuard>', to: '' },
   { from: '<Guard authGuard={authGuard} guestGuard={guestGuard}>', to: '' },
   { from: '</Guard>', to: '' },
-  { from: new RegExp(/const Guard[\s\S]*?<\/AuthGuard>[\s\S]*?}[\s\S]*?}/), to: '' },
+  {
+    from: new RegExp(/const Guard[\s\S]*?<\/AuthGuard>[\s\S]*?}[\s\S]*?}/),
+    to: ''
+  },
   { from: new RegExp(/type GuardProps[\s\S]*?ReactNode[\s\S]*?}/), to: '' },
   { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
   { from: new RegExp(/\/\/ \*\* Store Imports/), to: '' },
@@ -226,39 +243,83 @@ const dataToReplace = [
   {
     file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavGroup.tsx`,
     replacements: [
-      { from: "import { ReactNode, useContext } from 'react'", to: "import { ReactNode } from 'react'" },
-      { from: "import { NavGroup, NavLink } from 'src/@core/layouts/types'", to: "import { NavGroup } from 'src/@core/layouts/types'" },
+      {
+        from: "import { ReactNode, useContext } from 'react'",
+        to: "import { ReactNode } from 'react'"
+      },
+      {
+        from: "import { NavGroup, NavLink } from 'src/@core/layouts/types'",
+        to: "import { NavGroup } from 'src/@core/layouts/types'"
+      },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navGroup } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navGroup } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: new RegExp(/const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/), to: '' },
-      { from: "return canViewMenuGroup(navGroup) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: new RegExp(
+          /const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/
+        ),
+        to: ''
+      },
+      {
+        from: 'return canViewMenuGroup(navGroup) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
     file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavLink.tsx`,
     replacements: [
-      { from: "import { ReactNode, useContext } from 'react'", to: "import { ReactNode } from 'react'" },
+      {
+        from: "import { ReactNode, useContext } from 'react'",
+        to: "import { ReactNode } from 'react'"
+      },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navLink } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navLink } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: "return ability && ability.can(navLink.action, navLink.subject) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: 'return ability && ability.can(navLink.action, navLink.subject) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
     file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavSectionTitle.tsx`,
     replacements: [
-      { from: "import { ReactNode, useContext } from 'react'", to: "import { ReactNode } from 'react'" },
+      {
+        from: "import { ReactNode, useContext } from 'react'",
+        to: "import { ReactNode } from 'react'"
+      },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navTitle } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navTitle } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: "return ability && ability.can(navTitle.action, navTitle.subject) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: 'return ability && ability.can(navTitle.action, navTitle.subject) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
@@ -267,12 +328,26 @@ const dataToReplace = [
       { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
       { from: "import { useContext } from 'react'", to: '' },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navGroup } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navGroup } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: new RegExp(/const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/), to: '' },
-      { from: "return canViewMenuGroup(navGroup) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: new RegExp(
+          /const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/
+        ),
+        to: ''
+      },
+      {
+        from: 'return canViewMenuGroup(navGroup) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
@@ -281,11 +356,20 @@ const dataToReplace = [
       { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
       { from: "import { useContext } from 'react'", to: '' },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navLink } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navLink } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: "return ability && ability.can(navLink.action, navLink.subject) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: 'return ability && ability.can(navLink.action, navLink.subject) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
@@ -294,11 +378,20 @@ const dataToReplace = [
       { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
       { from: "import { useContext } from 'react'", to: '' },
       { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      { from: "import { AbilityContext } from 'src/layouts/components/acl/Can'", to: '' },
-      { from: "const { children, navTitle } = props", to: 'const { children } = props' },
+      {
+        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
+        to: ''
+      },
+      {
+        from: 'const { children, navTitle } = props',
+        to: 'const { children } = props'
+      },
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: "const ability = useContext(AbilityContext)", to: '' },
-      { from: "return ability && ability.can(navTitle.action, navTitle.subject) ? <>{children}</> : null", to: 'return <>{children}</>' },
+      { from: 'const ability = useContext(AbilityContext)', to: '' },
+      {
+        from: 'return ability && ability.can(navTitle.action, navTitle.subject) ? <>{children}</> : null',
+        to: 'return <>{children}</>'
+      }
     ]
   },
   {
@@ -311,7 +404,7 @@ const dataToReplace = [
       {
         from: '<BuyNowButton />',
         to: ''
-      },
+      }
     ]
   },
   {
@@ -324,7 +417,7 @@ const dataToReplace = [
       {
         from: '<BuyNowButton />',
         to: ''
-      },
+      }
     ]
   },
   {
@@ -337,7 +430,7 @@ const dataToReplace = [
       {
         from: '~',
         to: ''
-      },
+      }
     ]
   },
   {
@@ -350,7 +443,7 @@ const dataToReplace = [
       {
         from: '~',
         to: ''
-      },
+      }
     ]
   },
   {
@@ -369,7 +462,7 @@ const dataToReplace = [
       {
         from: '{`${t(text)}`}',
         to: '{text}'
-      },
+      }
     ]
   },
   {
@@ -388,7 +481,7 @@ const dataToReplace = [
       {
         from: '{`${t(text)}`}',
         to: '{text}'
-      },
+      }
     ]
   },
   {
@@ -435,8 +528,7 @@ const dataToReplace = [
       {
         from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
         to: newLoginBtn
-      },
-
+      }
     ]
   },
   {
@@ -457,8 +549,7 @@ const dataToReplace = [
       {
         from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
         to: newLoginBtn
-      },
-
+      }
     ]
   },
   {
@@ -475,8 +566,7 @@ const dataToReplace = [
       {
         from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
         to: newRegisterBtn
-      },
-
+      }
     ]
   },
   {
@@ -493,8 +583,7 @@ const dataToReplace = [
       {
         from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
         to: newRegisterBtn
-      },
-
+      }
     ]
   },
   {
@@ -515,7 +604,7 @@ const dataToReplace = [
       {
         from: 'guestGuard?: boolean',
         to: ''
-      },
+      }
     ]
   },
   {
@@ -564,8 +653,31 @@ const filesToRemove = [
   `${pathConfig.starterKitTSXPath}/src/configs/auth.ts`,
   `${pathConfig.starterKitJSXPath}/src/configs/auth.js`,
   `${pathConfig.starterKitTSXPath}/src/configs/i18n.ts`,
-  `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`,
+  `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`
+]
 
+const imgFilesToKeep = [
+  '/images/pages/401.png',
+  '/images/pages/404.png',
+  '/images/pages/500.png',
+  '/images/avatars/1.png',
+  '/images/pages/tree.png',
+  '/images/pages/tree-2.png',
+  '/images/pages/tree-3.png',
+  '/images/pages/auth-v1-tree.png',
+  '/images/pages/auth-v1-tree-2.png',
+  '/images/pages/misc-mask-dark.png',
+  '/images/pages/misc-mask-light.png',
+  '/images/pages/auth-v2-mask-dark.png',
+  '/images/pages/auth-v1-mask-dark.png',
+  '/images/pages/auth-v1-mask-light.png',
+  '/images/pages/auth-v2-mask-light.png',
+  '/images/pages/auth-v2-login-illustration-dark.png',
+  '/images/pages/auth-v2-login-illustration-light.png',
+  '/images/pages/auth-v2-register-illustration-dark.png',
+  '/images/pages/auth-v2-register-illustration-light.png',
+  '/images/pages/auth-v2-forgot-password-illustration-dark.png',
+  '/images/pages/auth-v2-forgot-password-illustration-light.png'
 ]
 
 module.exports = {
@@ -574,6 +686,7 @@ module.exports = {
   LoginPathTSX,
   LoginPathJSX,
   filesToRemove,
+  imgFilesToKeep,
   filesToCopyTSX,
   filesToCopyJSX,
   filesToReplace,
