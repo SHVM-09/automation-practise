@@ -185,37 +185,6 @@ if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
   return
 }
 
-// ** Resets favicon & apple-touch-icon path
-if (fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`)) {
-  fs.readFile(
-    `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
-    'utf-8',
-    (err, data) => {
-      if (err) {
-        console.log(err)
-      } else {
-        const updatedData = data
-          .replace('./apple-touch-icon.png', '/apple-touch-icon.png')
-          .replace('./favicon.ico', '/favicon.ico')
-        fs.writeFile(
-          `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
-          '',
-          err => {
-            if (err) {
-              console.log(err)
-            } else {
-              fs.writeFileSync(
-                `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
-                updatedData
-              )
-            }
-          }
-        )
-      }
-    }
-  )
-}
-
 // ** Adds Test to components & Form Elements
 const resetTestFolders = () => {
   const resetPromise = testFoldersToModify.map(folder => {
