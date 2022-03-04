@@ -64,14 +64,16 @@ const foldersToRemoveTSX = [
   `${pathConfig.starterKitTSXPath}/src/views`,
   `${pathConfig.starterKitTSXPath}/src/store`,
   `${pathConfig.starterKitTSXPath}/src/@fake-db`,
-  `${pathConfig.starterKitTSXPath}/src/types/apps`
+  `${pathConfig.starterKitTSXPath}/src/types/apps`,
+  `${pathConfig.starterKitTSXPath}/public/locales`
 ]
 
 const foldersToRemoveJSX = [
   `${pathConfig.starterKitJSXPath}/src/views`,
-  `${pathConfig.starterKitJSXPath}/src/@fake-db`,
   `${pathConfig.starterKitJSXPath}/src/store`,
-  `${pathConfig.starterKitJSXPath}/src/types/apps`
+  `${pathConfig.starterKitJSXPath}/src/@fake-db`,
+  `${pathConfig.starterKitJSXPath}/src/types/apps`,
+  `${pathConfig.starterKitJSXPath}/public/locales`
 ]
 
 const foldersToKeepTSX = [
