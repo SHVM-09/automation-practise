@@ -9,7 +9,6 @@ const data = `module.exports = {
   },
   parser: 'babel-eslint',
   extends: ['next/core-web-vitals', 'prettier'],
-  plugins: ['react', 'react-hooks', 'import'],
   parserOptions: {
     ecmaVersion: 11,
     sourceType: 'module',
