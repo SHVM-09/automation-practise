@@ -32,12 +32,17 @@ if [ -d "../../../master-react-mui-nextjs/javascript-version/full-version" ]; th
     yarn format
 fi
 
+mv ../../../master-react-mui-nextjs/package ../../../master-react-mui-nextjs/master-react-mui-nextjs
 
-# # Zip the package
-# cd ../../../master-react-mui-nextjs/
-# zip -r package.zip package
-# # Remove package folder
-# rm -rf package
+wait
+
+# Zip the package
+cd ../../../master-react-mui-nextjs
+zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+# Remove package folder
+rm -rf master-react-mui-nextjs
+
+
 
 # n=0
 # commands=("node ../starter-kit-generation/starter-kit-generation.js" "node package-generation.js $1")
