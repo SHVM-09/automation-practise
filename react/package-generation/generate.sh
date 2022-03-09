@@ -15,6 +15,10 @@ node package-generation.js $1
 
 wait
 
+cp ../../../master-react-mui-nextjs/documentation.html ../../../master-react-mui-nextjs/CHANGELOG.md ../../../master-react-mui-nextjs/package
+
+wait 
+
 if [ -d "../../../master-react-mui-nextjs/package" ]; then
     node remove-test.js
 fi
@@ -22,10 +26,12 @@ fi
 cd ../../../master-react-mui-nextjs/typescript-version/full-version
 yarn format
 
+
 if [ -d "../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
     cd ../../../master-react-mui-nextjs/javascript-version/full-version
     yarn format
 fi
+
 
 # # Zip the package
 # cd ../../../master-react-mui-nextjs/

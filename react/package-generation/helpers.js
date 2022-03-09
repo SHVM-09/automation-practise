@@ -24,7 +24,7 @@ const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/yarn.lock`,
   `${pathConfig.fullVersionTSXPath}/package.json`,
   `${pathConfig.fullVersionTSXPath}/tsconfig.json`,
-  `${pathConfig.fullVersionTSXPath}/package-lock.json`,
+  `${pathConfig.fullVersionTSXPath}/package-lock.json`
 ]
 
 const filesToCopyJSX = [
@@ -41,10 +41,8 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/package.json`,
   `${pathConfig.fullVersionTSXPath}/yarn.lock`,
   `${pathConfig.fullVersionJSXPath}/jsconfig.json`,
-  `${pathConfig.fullVersionTSXPath}/package-lock.json`,
+  `${pathConfig.fullVersionTSXPath}/package-lock.json`
 ]
-
-
 
 module.exports = {
   filesToCopyTSX,
@@ -54,5 +52,5 @@ module.exports = {
   PackageJSONPathTSX,
   PackageJSONPathJSX,
   BuyNowComponentPathTSX,
-  BuyNowComponentPathJSX,
+  BuyNowComponentPathJSX
 }
