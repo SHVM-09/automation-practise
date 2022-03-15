@@ -24,18 +24,18 @@ const copyRecursiveSync = (src, dest) => {
 
 // ** Copy TS Version
 copyRecursiveSync(
-  '../../../materio-mui-react-nextjs-admin-template-free-internal/typescript-version',
+  '../../../master-react-mui-nextjs/typescript-version',
   '../../../materio-mui-react-nextjs-admin-template-free/typescript-version'
 )
 
 // ** Copy JS Version if exists
 if (
   fs.existsSync(
-    '../../../materio-mui-react-nextjs-admin-template-free-internal/javascript-version'
+    '../../../master-react-mui-nextjs/javascript-version'
   )
 ) {
   copyRecursiveSync(
-    '../../../materio-mui-react-nextjs-admin-template-free-internal/javascript-version',
+    '../../../master-react-mui-nextjs/javascript-version',
     '../../../materio-mui-react-nextjs-admin-template-free/javascript-version'
   )
 }
