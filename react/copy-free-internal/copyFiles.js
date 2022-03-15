@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const pathConfig = require('../configs/paths.json')
 
 const copyRecursiveSync = (src, dest) => {
   const exists = fs.existsSync(src)
@@ -24,18 +25,22 @@ const copyRecursiveSync = (src, dest) => {
 
 // ** Copy TS Version
 copyRecursiveSync(
-  '../../../master-react-mui-nextjs/typescript-version',
-  '../../../materio-mui-react-nextjs-admin-template-free/typescript-version'
+  pathConfig.basePathTSX,
+  pathConfig.basePathTSX.replace('free-internal', 'free')
 )
 
 // ** Copy JS Version if exists
-if (
-  fs.existsSync(
-    '../../../master-react-mui-nextjs/javascript-version'
-  )
-) {
+if (fs.existsSync(pathConfig.basePathJSX)) {
   copyRecursiveSync(
-    '../../../master-react-mui-nextjs/javascript-version',
-    '../../../materio-mui-react-nextjs-admin-template-free/javascript-version'
+    pathConfig.basePathJSX,
+    pathConfig.basePathJSX.replace('free-internal', 'free')
+  )
+}
+
+// ** Copy .vscode folder if exists
+if (fs.existsSync(pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'))) {
+  copyRecursiveSync(
+    pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'),
+    pathConfig.basePathTSX.replace('free-internal', 'free').replace('/typescript-version', '/.vscode')
   )
 }
