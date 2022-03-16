@@ -659,6 +659,7 @@ const filesToRemove = [
 ]
 
 const imgFilesToKeep = [
+  '/images/favicon.png',
   '/images/pages/401.png',
   '/images/pages/404.png',
   '/images/pages/500.png',
@@ -666,6 +667,7 @@ const imgFilesToKeep = [
   '/images/pages/tree.png',
   '/images/pages/tree-2.png',
   '/images/pages/tree-3.png',
+  '/images/apple-touch-icon.png',
   '/images/pages/auth-v1-tree.png',
   '/images/pages/auth-v1-tree-2.png',
   '/images/pages/misc-mask-dark.png',
