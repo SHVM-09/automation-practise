@@ -1,6 +1,6 @@
 # Replace necessary content
 node replace.js
-cd ../../../materio-mui-react-nextjs-admin-template-free/docs
+cd ../../../master-react-mui-nextjs/docs
 
 # Build docs
 yarn build
