@@ -38,9 +38,28 @@ if (fs.existsSync(pathConfig.basePathJSX)) {
 }
 
 // ** Copy .vscode folder if exists
-if (fs.existsSync(pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'))) {
+if (
+  fs.existsSync(
+    pathConfig.basePathTSX.replace('/typescript-version', '/.vscode')
+  )
+) {
   copyRecursiveSync(
     pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'),
-    pathConfig.basePathTSX.replace('free-internal', 'free').replace('/typescript-version', '/.vscode')
+    pathConfig.basePathTSX
+      .replace('free-internal', 'free')
+      .replace('/typescript-version', '/.vscode')
+  )
+}
+
+// ** Copy Package.json from ts version to root
+if (fs.existsSync(`${pathConfig.basePathTSX}/package.json`)) {
+  fs.copyFile(
+    `${pathConfig.basePathTSX}/package.json`,
+    pathConfig.basePathTSX.replace('/typescript-version'),
+    err => {
+      if (err) {
+        console.log(err)
+      }
+    }
   )
 }
