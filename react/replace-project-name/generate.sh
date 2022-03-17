@@ -1,1 +1,1 @@
-node replace.js $1 $2
+node replace.js $1

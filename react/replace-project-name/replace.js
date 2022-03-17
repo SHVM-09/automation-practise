@@ -5,41 +5,43 @@ const passedArgs = process.argv
 
 const dirsToRead = '../../react'
 
-const replaceProjectName = (dirPath, defaultProjectName, projectName) => {
+const replaceProjectName = (dirPath, projectName) => {
   files = fs.readdirSync(dirPath)
 
   files.forEach(function (file) {
     if (fs.statSync(dirPath + '/' + file).isDirectory()) {
-      replaceProjectName(dirPath + '/' + file, defaultProjectName, projectName)
+      replaceProjectName(dirPath + '/' + file, projectName)
     } else {
-      fs.readFile(
-        path.join(__dirname, dirPath, '/', file),
-        'utf-8',
-        (err, data) => {
-          if (err) {
-            console.error(err)
+      if (!dirPath.includes('replace-project-name')) {
+        fs.readFile(
+          path.join(__dirname, dirPath, '/', file),
+          'utf-8',
+          (err, data) => {
+            if (err) {
+              console.error(err)
 
-            return
-          } else {
-            const result = data.replace(
-              new RegExp(defaultProjectName, 'g'),
-              projectName
-            )
+              return
+            } else {
+              const result = data.replace(
+                new RegExp(/[a-zA-z-_]*-template|master-react-mui-nextjs/, 'g'),
+                projectName
+              )
 
-            fs.writeFile(
-              path.join(__dirname, dirPath, '/', file),
-              result,
-              err => {
-                if (err) {
-                  console.log(err)
+              fs.writeFile(
+                path.join(__dirname, dirPath, '/', file),
+                result,
+                err => {
+                  if (err) {
+                    console.log(err)
 
-                  return
+                    return
+                  }
                 }
-              }
-            )
+              )
+            }
           }
-        }
-      )
+        )
+      }
     }
   })
 }
@@ -47,10 +49,7 @@ const replaceProjectName = (dirPath, defaultProjectName, projectName) => {
 // ** If any args then update arg var
 if (passedArgs[0] !== undefined) {
   const projectName = passedArgs.slice(-1)[0]
-  const defaultProjectName = passedArgs.slice(-2)[0]
-  replaceProjectName(dirsToRead, defaultProjectName, projectName)
+  replaceProjectName(dirsToRead, projectName)
 } else {
-  console.log(
-    'Please pass a default  project name & project name as an argument'
-  )
+  console.log('Please pass a project name as an argument')
 }
