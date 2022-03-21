@@ -15,29 +15,38 @@ node package-generation.js $1
 
 wait
 
-cp ../../../materio-mui-react-nextjs-admin-template/documentation.html ../../../materio-mui-react-nextjs-admin-template/CHANGELOG.md ../../../materio-mui-react-nextjs-admin-template/package
+cp ../../../../materio-mui-react-nextjs-admin-template/documentation.html ../../../../materio-mui-react-nextjs-admin-template/CHANGELOG.md ../../../../materio-mui-react-nextjs-admin-template/package
 
 wait 
 
-if [ -d "../../../materio-mui-react-nextjs-admin-template/package" ]; then
+if [ -d "../../../../materio-mui-react-nextjs-admin-template/package" ]; then
     node remove-test.js
 fi
 
-cd ../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
+cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
 yarn format
 
 
-if [ -d "../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version" ]; then
-    cd ../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version
+if [ -d "../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version" ]; then
+    cd ../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version
     yarn format
 fi
 
-mv ../../../materio-mui-react-nextjs-admin-template/package ../../../materio-mui-react-nextjs-admin-template/materio-mui-react-nextjs-admin-template
+wait
+
+cd ../../../automation-scripts/react/market-place-scripts/package-generation
+
+node replace.js
+
+wait
+
+cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
+mv ../../package ../../materio-mui-react-nextjs-admin-template
 
 wait
 
 # Zip the package
-cd ../../../materio-mui-react-nextjs-admin-template
+cd ../../
 zip -r materio-mui-react-nextjs-admin-template.zip materio-mui-react-nextjs-admin-template
 # Remove package folder
 rm -rf materio-mui-react-nextjs-admin-template

@@ -2,6 +2,6 @@ node generate-package.js
 
 wait
 
-cd ../../../master-react-mui-nextjs/
+cd ../../../materio-mui-react-nextjs-admin-template/
 zip -r package.zip package
 rm -rf package
