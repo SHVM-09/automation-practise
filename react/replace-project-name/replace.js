@@ -23,7 +23,10 @@ const replaceProjectName = (dirPath, projectName) => {
               return
             } else {
               const result = data.replace(
-                new RegExp(/[a-zA-z-_]*-template|master-react-mui-nextjs/, 'g'),
+                new RegExp(
+                  /([a-zA-z-_]*-template-free-internal|[a-zA-z-_]*-template-free|[a-zA-z-_]*-template|master-react-mui-nextjs)/,
+                  'g'
+                ),
                 projectName
               )
 
