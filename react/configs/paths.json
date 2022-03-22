@@ -1,16 +1,16 @@
 {
   "demoURL": "/materio-mui-react-nextjs-admin-template",
   "docsURL": "/materio-mui-react-nextjs-admin-template/documentation",
-  "docsPath": "../../../materio-mui-react-nextjs-admin-template/docs",
-  "packagePath": "../../../materio-mui-react-nextjs-admin-template/package",
-  "basePathJSX": "../../../materio-mui-react-nextjs-admin-template/javascript-version",
-  "basePathTSX": "../../../materio-mui-react-nextjs-admin-template/typescript-version",
-  "starterKitTSXPath": "../../../materio-mui-react-nextjs-admin-template/typescript-version/starter-kit",
-  "starterKitJSXPath": "../../../materio-mui-react-nextjs-admin-template/javascript-version/starter-kit",
-  "demoConfigsPathTSX": "../../../materio-mui-react-nextjs-admin-template/typescript-version/demo-configs",
-  "demoConfigsPathJSX": "../../../materio-mui-react-nextjs-admin-template/javascript-version/demo-configs",
-  "fullVersionTSXPath": "../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version",
-  "fullVersionJSXPath": "../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version",
-  "packageJSXPath": "../../../materio-mui-react-nextjs-admin-template/package/javascript-version/full-version",
-  "packageTSXPath": "../../../materio-mui-react-nextjs-admin-template/package/typescript-version/full-version"
+  "docsPath": "../../../../materio-mui-react-nextjs-admin-template/docs",
+  "packagePath": "../../../../materio-mui-react-nextjs-admin-template/package",
+  "basePathJSX": "../../../../materio-mui-react-nextjs-admin-template/javascript-version",
+  "basePathTSX": "../../../../materio-mui-react-nextjs-admin-template/typescript-version",
+  "starterKitTSXPath": "../../../../materio-mui-react-nextjs-admin-template/typescript-version/starter-kit",
+  "starterKitJSXPath": "../../../../materio-mui-react-nextjs-admin-template/javascript-version/starter-kit",
+  "demoConfigsPathTSX": "../../../../materio-mui-react-nextjs-admin-template/typescript-version/demo-configs",
+  "demoConfigsPathJSX": "../../../../materio-mui-react-nextjs-admin-template/javascript-version/demo-configs",
+  "fullVersionTSXPath": "../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version",
+  "fullVersionJSXPath": "../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version",
+  "packageJSXPath": "../../../../materio-mui-react-nextjs-admin-template/package/javascript-version/full-version",
+  "packageTSXPath": "../../../../materio-mui-react-nextjs-admin-template/package/typescript-version/full-version"
 }
