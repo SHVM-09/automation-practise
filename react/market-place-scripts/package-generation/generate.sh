@@ -6,8 +6,8 @@
 # cd ../package-generation
 
 # # Remove already generated package
-# if [ -d "../../../master-react-mui-nextjs/package" ]; then
-#     rm -rf ../../../master-react-mui-nextjs/package
+# if [ -d "../../../materio-mui-react-nextjs-admin-template/package" ]; then
+#     rm -rf ../../../materio-mui-react-nextjs-admin-template/package
 # fi
 # wait
 # generate package folder
@@ -15,20 +15,20 @@ node package-generation.js $1
 
 wait
 
-cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
+cp ../../../../materio-mui-react-nextjs-admin-template/documentation.html ../../../../materio-mui-react-nextjs-admin-template/CHANGELOG.md ../../../../materio-mui-react-nextjs-admin-template/package
 
 wait 
 
-if [ -d "../../../../master-react-mui-nextjs/package" ]; then
+if [ -d "../../../../materio-mui-react-nextjs-admin-template/package" ]; then
     node remove-test.js
 fi
 
-cd ../../../../master-react-mui-nextjs/typescript-version/full-version
+cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
 yarn format
 
 
-if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
-    cd ../../../../master-react-mui-nextjs/javascript-version/full-version
+if [ -d "../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version" ]; then
+    cd ../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version
     yarn format
 fi
 
@@ -40,16 +40,16 @@ node replace.js
 
 wait
 
-cd ../../../../master-react-mui-nextjs/typescript-version/full-version
-mv ../../package ../../master-react-mui-nextjs
+cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
+mv ../../package ../../materio-mui-react-nextjs-admin-template
 
 wait
 
 # Zip the package
 cd ../../
-zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+zip -r materio-mui-react-nextjs-admin-template.zip materio-mui-react-nextjs-admin-template
 # Remove package folder
-rm -rf master-react-mui-nextjs
+rm -rf materio-mui-react-nextjs-admin-template
 
 
 

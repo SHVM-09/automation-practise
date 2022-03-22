@@ -4,7 +4,7 @@ const pathConfig = require('../../configs/paths.json')
 const {
   i18nPath,
   copyDirectory,
-  dataToReplace,
+  dataToReset,
   demoConfigPath,
   nextConfigPath,
   themeConfigPath,
@@ -103,7 +103,7 @@ const removeBasePathInI18n = () => {
 
 // ** Replace With MarketPlace URLS
 const replaceWithMarketPlace = () => {
-  dataToReplace.map(i => {
+  dataToReset.map(i => {
     if (fs.existsSync(i.file)) {
       fs.readFile(i.file, 'utf-8', (err, data) => {
         if (err) {
@@ -112,7 +112,7 @@ const replaceWithMarketPlace = () => {
           let result = data
 
           i.replacements.map(rep => {
-            result = result.replace(rep.to, rep.from)
+            result = result.replace(rep.from, rep.to)
           })
 
           fs.writeFile(i.file, '', err => {

@@ -15,10 +15,10 @@ if (fs.existsSync(`../${pathConfig.docsPath}`)) {
   configFileData[baseIndex] = `  base: '/marketplace${pathConfig.docsURL}/',`
   configFileData[
     demoIndex
-  ] = `  { text: 'Demo', link: 'https://demos.themeselection.com/marketplace${pathConfig.demoURL}/landing-page/' },`
+  ] = `      { text: 'Demo', link: 'https://demos.themeselection.com/marketplace${pathConfig.demoURL}/landing-page/' },`
   configFileData[
     purchaseIndex
-  ] = `  { text: 'Purchase', link: 'https://mui.com/store/items${pathConfig.demoURL}/' },`
+  ] = `      { text: 'Purchase', link: 'https://mui.com/store/items${pathConfig.demoURL}/' },`
   fs.writeFile(
     `../${pathConfig.docsPath}/.vuepress/config.js`,
     configFileData.join('\n').replace('/favicon.ico', './favicon.ico'),
