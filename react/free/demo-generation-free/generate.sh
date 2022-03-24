@@ -2,7 +2,7 @@ set -e
 
 # Replace necessary in src folder
 	node replace.js
-  cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/
+  cd ../../../../master-react-mui-nextjs/typescript-version/
 # Build the template with replaced content
   yarn build
   yarn next export
