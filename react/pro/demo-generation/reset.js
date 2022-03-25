@@ -15,10 +15,15 @@ const {
 let demo = 'demo-1'
 
 const demoArgs = process.argv.slice(2)
+let URL = pathConfig.demoURL
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
   demo = demoArgs[0]
+}
+
+if (demoArgs.length > 1 && demoArgs.includes('staging')) {
+  URL = pathConfig.stagingDemoURL
 }
 
 // ** Reset replaced Images src
@@ -41,7 +46,7 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
             return
           } else {
             const updatedData = data.replace(
-              new RegExp(`${pathConfig.demoURL}/${demo}/images/`, 'g'),
+              new RegExp(`${URL}/${demo}/images/`, 'g'),
               '/images/'
             )
             fs.writeFile(
@@ -74,10 +79,7 @@ const removeBasePathInI18n = () => {
 
       return
     } else {
-      const updatedData = data.replace(
-        `${pathConfig.demoURL}/${demo}/locales/`,
-        '/locales/'
-      )
+      const updatedData = data.replace(`${URL}/${demo}/locales/`, '/locales/')
       fs.writeFile(i18nPath, '', err => {
         if (err) {
           console.log(err)

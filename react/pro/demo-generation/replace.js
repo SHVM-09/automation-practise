@@ -14,10 +14,15 @@ const {
 
 let demo = 'demo-1'
 const demoArgs = process.argv.slice(2)
+let URL = pathConfig.demoURL
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
   demo = demoArgs[0]
+}
+
+if (demoArgs.length > 1 && demoArgs.includes('staging')) {
+  URL = pathConfig.stagingDemoURL
 }
 
 // ** Replace Images src
@@ -41,7 +46,7 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
           } else {
             const result = data.replace(
               new RegExp('/images/', 'g'),
-              `${pathConfig.demoURL}/${demo}/images/`
+              `${URL}/${demo}/images/`
             )
 
             fs.writeFile(
@@ -77,7 +82,7 @@ const replaceBasePathInI18n = () => {
       if (data.includes('/locales/')) {
         fs.writeFile(
           i18nPath,
-          data.replace('/locales/', `${pathConfig.demoURL}/${demo}/locales/`),
+          data.replace('/locales/', `${URL}/${demo}/locales/`),
           err => {
             if (err) {
               console.log(err)
@@ -129,7 +134,7 @@ if (fs.existsSync(nextConfigPath)) {
     .join('\n')
   const result = removedBasePathIfAny.replace(
     'reactStrictMode: false,',
-    `reactStrictMode: false,\n  basePath: '${pathConfig.demoURL}/${demo}',`
+    `reactStrictMode: false,\n  basePath: '${URL}/${demo}',`
   )
 
   fs.writeFile(nextConfigPath, result, err => {
