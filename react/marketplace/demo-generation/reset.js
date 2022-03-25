@@ -16,10 +16,15 @@ const {
 let demo = 'demo-1'
 
 const demoArgs = process.argv.slice(2)
+let URL = pathConfig.demoURL
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
   demo = demoArgs[0]
+}
+
+if (demoArgs.length > 1 && demoArgs.includes('staging')) {
+  URL = pathConfig.stagingDemoURL
 }
 
 // ** Reset replaced Images src
@@ -43,7 +48,7 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
           } else {
             const updatedData = data.replace(
               new RegExp(
-                `/marketplace${pathConfig.demoURL}/${demo}/images/`,
+                `/marketplace${URL}/${demo}/images/`,
                 'g'
               ),
               '/images/'
@@ -79,7 +84,7 @@ const removeBasePathInI18n = () => {
       return
     } else {
       const updatedData = data.replace(
-        `/marketplace${pathConfig.demoURL}/${demo}/locales/`,
+        `/marketplace${URL}/${demo}/locales/`,
         '/locales/'
       )
       fs.writeFile(i18nPath, '', err => {
@@ -234,8 +239,8 @@ const resetTestFolders = () => {
       })
     })
     .then(() => {
-      if (fs.existsSync(`./${pathConfig.demoURL}`)) {
-        fs.rm(`./${pathConfig.demoURL}`, { recursive: true }, err => {
+      if (fs.existsSync(`./${URL}`)) {
+        fs.rm(`./${URL}`, { recursive: true }, err => {
           if (err) {
             console.log(err)
           }

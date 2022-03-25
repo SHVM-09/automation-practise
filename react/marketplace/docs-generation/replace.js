@@ -1,6 +1,14 @@
 const fs = require('fs')
 const pathConfig = require('../../configs/paths.json')
 
+let URL = pathConfig.docsURL
+
+const demoArgs = process.argv.slice(2)
+
+if (demoArgs[0] !== undefined && demoArgs.includes('staging')) {
+  URL = pathConfig.stagingDocsURL
+}
+
 // ** Replace basePath if docs directory exists
 if (fs.existsSync(`${pathConfig.docsPath}`)) {
   const configFileData = fs
@@ -12,7 +20,7 @@ if (fs.existsSync(`${pathConfig.docsPath}`)) {
   const purchaseIndex = configFileData.findIndex(l =>
     l.includes("text: 'Purchase'")
   )
-  configFileData[baseIndex] = `  base: '/marketplace${pathConfig.docsURL}/',`
+  configFileData[baseIndex] = `  base: '/marketplace${URL}/',`
   configFileData[
     demoIndex
   ] = `      { text: 'Demo', link: 'https://demos.themeselection.com/marketplace${pathConfig.demoURL}/landing-page/' },`

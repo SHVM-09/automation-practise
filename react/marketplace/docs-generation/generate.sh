@@ -1,5 +1,5 @@
 # Replace necessary content
-node replace.js
+node replace.js $1
 
 wait
 
