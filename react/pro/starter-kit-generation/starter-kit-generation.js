@@ -65,64 +65,73 @@ const generateTSXStarter = () => {
 
         return
       } else {
-        filesToCopyTSX.map(file => {
-          const dest = file.replace('full-version', 'starter-kit')
+        const copyPromise = filesToCopyTSX.map(file => {
+          return new Promise(resolve => {
+            const dest = file.replace('full-version', 'starter-kit')
 
-          copyRecursiveSync(file, dest)
+            copyRecursiveSync(file, dest)
+            resolve()
+          })
         })
 
-        foldersToRemoveTSX.map(folder => {
-          try {
-            fs.rm(folder, { recursive: true, force: true }, err => {
-              err ? console.log(err) : null
+        Promise.all(copyPromise)
+          .then(() => {
+            foldersToRemoveTSX.map(folder => {
+              try {
+                fs.rm(folder, { recursive: true, force: true }, err => {
+                  err ? console.log(err) : null
+                })
+              } catch {
+                console.log(`Error while deleting ${folder}`)
+              }
             })
-          } catch {
-            console.log(`Error while deleting ${folder}`)
-          }
-        })
-
-        fs.rm(
-          `${pathConfig.starterKitTSXPath}/src/pages`,
-          { recursive: true, force: true },
-          err => {
-            if (err) {
-              console.log(err)
-
-              return
-            } else {
-              fs.mkdir(`${pathConfig.starterKitTSXPath}/src/pages`, err => {
+          })
+          .then(() => {
+            fs.rm(
+              `${pathConfig.starterKitTSXPath}/src/pages`,
+              { recursive: true, force: true },
+              err => {
                 if (err) {
                   console.log(err)
 
                   return
                 } else {
-                  foldersToKeepTSX.map(file => {
-                    copyRecursiveSync(
-                      `${pathConfig.fullVersionTSXPath}/src/${file}`,
-                      `${pathConfig.starterKitTSXPath}/src/${file}`
-                    )
-                  })
+                  fs.mkdir(`${pathConfig.starterKitTSXPath}/src/pages`, err => {
+                    if (err) {
+                      console.log(err)
 
-                  generateSecondPage(
-                    pathConfig.starterKitTSXPath,
-                    './components/tsx/second-page/index.tsx',
-                    `${pathConfig.starterKitTSXPath}/src/pages/second-page/index.tsx`
-                  )
-                  copyUserDropdown(
-                    pathConfig.starterKitTSXPath,
-                    'tsx',
-                    './components/tsx/UserDropdown.tsx'
-                  )
-                  copyUserDropdown(
-                    pathConfig.starterKitTSXPath,
-                    'tsx',
-                    './components/tsx/UserDropdown.tsx'
-                  )
+                      return
+                    } else {
+                      const foldersPromise = foldersToKeepTSX.map(file => {
+                        return new Promise(resolve => {
+                          copyRecursiveSync(
+                            `${pathConfig.fullVersionTSXPath}/src/${file}`,
+                            `${pathConfig.starterKitTSXPath}/src/${file}`
+                          )
+                          resolve()
+                        })
+                      })
+                      Promise.all(foldersPromise)
+                        .then(() => {
+                          generateSecondPage(
+                            pathConfig.starterKitTSXPath,
+                            './components/tsx/second-page/index.tsx',
+                            `${pathConfig.starterKitTSXPath}/src/pages/second-page/index.tsx`
+                          )
+                        })
+                        .then(() => {
+                          copyUserDropdown(
+                            pathConfig.starterKitTSXPath,
+                            'tsx',
+                            './components/tsx/UserDropdown.tsx'
+                          )
+                        })
+                    }
+                  })
                 }
-              })
-            }
-          }
-        )
+              }
+            )
+          })
       }
     })
 
@@ -153,64 +162,77 @@ const generateJSXStarter = () => {
 
           return
         } else {
-          filesToCopyJSX.map(file => {
-            const dest = file.replace('full-version', 'starter-kit')
+          const copyPromise = filesToCopyJSX.map(file => {
+            return new Promise(resolve => {
+              const dest = file.replace('full-version', 'starter-kit')
 
-            copyRecursiveSync(file, dest)
+              copyRecursiveSync(file, dest)
+              resolve()
+            })
           })
 
-          foldersToRemoveJSX.map(folder => {
-            try {
-              fs.rm(folder, { recursive: true, force: true }, err => {
-                err ? console.log(err) : null
+          Promise.all(copyPromise)
+            .then(() => {
+              foldersToRemoveJSX.map(folder => {
+                try {
+                  fs.rm(folder, { recursive: true, force: true }, err => {
+                    err ? console.log(err) : null
+                  })
+                } catch {
+                  console.log(`Error while deleting ${folder}`)
+                }
               })
-            } catch {
-              console.log(`Error while deleting ${folder}`)
-            }
-          })
-
-          fs.rm(
-            `${pathConfig.starterKitJSXPath}/src/pages`,
-            { recursive: true, force: true },
-            err => {
-              if (err) {
-                console.log(err)
-
-                return
-              } else {
-                fs.mkdir(`${pathConfig.starterKitJSXPath}/src/pages`, err => {
+            })
+            .then(() => {
+              fs.rm(
+                `${pathConfig.starterKitJSXPath}/src/pages`,
+                { recursive: true, force: true },
+                err => {
                   if (err) {
                     console.log(err)
 
                     return
                   } else {
-                    foldersToKeepJSX.map(file => {
-                      copyRecursiveSync(
-                        `${pathConfig.fullVersionJSXPath}/src/${file}`,
-                        `${pathConfig.starterKitJSXPath}/src/${file}`
-                      )
-                    })
+                    fs.mkdir(
+                      `${pathConfig.starterKitJSXPath}/src/pages`,
+                      err => {
+                        if (err) {
+                          console.log(err)
 
-                    generateSecondPage(
-                      pathConfig.starterKitJSXPath,
-                      './components/jsx/second-page/index.js',
-                      `${pathConfig.starterKitJSXPath}/src/pages/second-page/index.js`
-                    )
-                    copyUserDropdown(
-                      pathConfig.starterKitJSXPath,
-                      'js',
-                      './components/jsx/UserDropdown.js'
-                    )
-                    copyUserDropdown(
-                      pathConfig.starterKitJSXPath,
-                      'js',
-                      './components/jsx/UserDropdown.js'
+                          return
+                        } else {
+                          const folderPromise = foldersToKeepJSX.map(file => {
+                            return new Promise(resolve => {
+                              copyRecursiveSync(
+                                `${pathConfig.fullVersionJSXPath}/src/${file}`,
+                                `${pathConfig.starterKitJSXPath}/src/${file}`
+                              )
+                              resolve()
+                            })
+                          })
+
+                          Promise.all(folderPromise)
+                            .then(() => {
+                              generateSecondPage(
+                                pathConfig.starterKitJSXPath,
+                                './components/jsx/second-page/index.js',
+                                `${pathConfig.starterKitJSXPath}/src/pages/second-page/index.js`
+                              )
+                            })
+                            .then(() => {
+                              copyUserDropdown(
+                                pathConfig.starterKitJSXPath,
+                                'js',
+                                './components/jsx/UserDropdown.js'
+                              )
+                            })
+                        }
+                      }
                     )
                   }
-                })
-              }
-            }
-          )
+                }
+              )
+            })
         }
       })
 
@@ -241,8 +263,14 @@ const generate = () => {
       generateJSXStarter()
     }
   } else {
-    generateTSXStarter()
-    generateJSXStarter()
+    const generateTSXPromise = () =>
+      new Promise(resolve => {
+        generateTSXStarter()
+        resolve()
+      })
+    generateTSXPromise().then(() => {
+      generateJSXStarter()
+    })
   }
 }
 

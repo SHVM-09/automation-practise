@@ -347,7 +347,7 @@ const dataToReplace = [
         to: ''
       },
       {
-        from: 'return navGroup && canViewMenuGroup(navGroup) ? <>{children}</> : null',
+        from: 'return canViewMenuGroup(navGroup) ? <>{children}</> : null',
         to: 'return <>{children}</>'
       }
     ]
@@ -369,7 +369,7 @@ const dataToReplace = [
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
       { from: 'const ability = useContext(AbilityContext)', to: '' },
       {
-        from: 'return ability && ability.can(navLink?.action, navLink?.subject) ? <>{children}</> : null',
+        from: 'return ability && ability.can(navLink.action, navLink.subject) ? <>{children}</> : null',
         to: 'return <>{children}</>'
       }
     ]
@@ -391,7 +391,7 @@ const dataToReplace = [
       { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
       { from: 'const ability = useContext(AbilityContext)', to: '' },
       {
-        from: 'return ability && ability.can(navTitle?.action, navTitle?.subject) ? <>{children}</> : null',
+        from: 'return ability && ability.can(navTitle.action, navTitle.subject) ? <>{children}</> : null',
         to: 'return <>{children}</>'
       }
     ]

@@ -45,22 +45,28 @@ const removeUnwantedImgFiles = dirPath => {
 
 // ** Delete Files
 const deleteFiles = () => {
-  filesToRemove.forEach(file => {
-    if (fs.existsSync(file)) {
-      fs.unlink(file, err => {
-        if (err) {
-          console.log(err)
+  return new Promise(resolve => {
+    filesToRemove.forEach(file => {
+      if (fs.existsSync(file)) {
+        fs.unlink(file, err => {
+          if (err) {
+            console.log(err)
 
-          return
-        }
-      })
-    }
+            return
+          }
+        })
+      }
+    })
+    resolve()
   })
 }
 
 deleteFiles()
-removeUnwantedImgFiles(`${pathConfig.starterKitTSXPath}/public/images`)
-
-if (fs.existsSync(`${pathConfig.starterKitJSXPath}/public/images`)) {
-  removeUnwantedImgFiles(`${pathConfig.starterKitJSXPath}/public/images`)
-}
+  .then(() => {
+    removeUnwantedImgFiles(`${pathConfig.starterKitTSXPath}/public/images`)
+  })
+  .then(() => {
+    if (fs.existsSync(`${pathConfig.starterKitJSXPath}/public/images`)) {
+      removeUnwantedImgFiles(`${pathConfig.starterKitJSXPath}/public/images`)
+    }
+  })
