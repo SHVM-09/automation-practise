@@ -24,42 +24,52 @@ const copyRecursiveSync = (src, dest) => {
 }
 
 // ** Copy TS Version
-copyRecursiveSync(
-  pathConfig.basePathTSX,
-  pathConfig.basePathTSX.replace('free-internal', 'free')
-)
-
-// ** Copy JS Version if exists
-if (fs.existsSync(pathConfig.basePathJSX)) {
-  copyRecursiveSync(
-    pathConfig.basePathJSX,
-    pathConfig.basePathJSX.replace('free-internal', 'free')
-  )
+const copyTSVersion = () => {
+  return new Promise(resolve => {
+    copyRecursiveSync(
+      pathConfig.basePathTSX,
+      pathConfig.basePathTSX.replace('free-internal', 'free')
+    )
+    resolve()
+  })
 }
 
-// ** Copy .vscode folder if exists
-if (
-  fs.existsSync(
-    pathConfig.basePathTSX.replace('/typescript-version', '/.vscode')
-  )
-) {
-  copyRecursiveSync(
-    pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'),
-    pathConfig.basePathTSX
-      .replace('free-internal', 'free')
-      .replace('/typescript-version', '/.vscode')
-  )
-}
-
-// ** Copy Package.json from ts version to root
-if (fs.existsSync(`${pathConfig.basePathTSX}/package.json`)) {
-  fs.copyFile(
-    `${pathConfig.basePathTSX}/package.json`,
-    pathConfig.basePathTSX.replace('/typescript-version'),
-    err => {
-      if (err) {
-        console.log(err)
-      }
+copyTSVersion()
+  .then(() => {
+    // ** Copy JS Version if exists
+    if (fs.existsSync(pathConfig.basePathJSX)) {
+      copyRecursiveSync(
+        pathConfig.basePathJSX,
+        pathConfig.basePathJSX.replace('free-internal', 'free')
+      )
     }
-  )
-}
+  })
+  .then(() => {
+    // ** Copy .vscode folder if exists
+    if (
+      fs.existsSync(
+        pathConfig.basePathTSX.replace('/typescript-version', '/.vscode')
+      )
+    ) {
+      copyRecursiveSync(
+        pathConfig.basePathTSX.replace('/typescript-version', '/.vscode'),
+        pathConfig.basePathTSX
+          .replace('free-internal', 'free')
+          .replace('/typescript-version', '/.vscode')
+      )
+    }
+  })
+  .then(() => {
+    // ** Copy Package.json from ts version to root
+    if (fs.existsSync(`${pathConfig.basePathTSX}/package.json`)) {
+      fs.copyFile(
+        `${pathConfig.basePathTSX}/package.json`,
+        pathConfig.basePathTSX.replace('/typescript-version'),
+        err => {
+          if (err) {
+            console.log(err)
+          }
+        }
+      )
+    }
+  })

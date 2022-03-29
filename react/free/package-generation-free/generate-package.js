@@ -29,12 +29,28 @@ const copyRecursiveSync = (src, dest) => {
 }
 
 const copyToPackage = () => {
-  copyRecursiveSync(pathConfig.basePathTSX, `${packagePath}/typescript-version`)
-  copyRecursiveSync(pathConfig.basePathJSX, `${packagePath}/javascript-version`)
-  copyRecursiveSync(
-    pathConfig.basePathTSX.replace('typescript-version', '.vscode'),
-    `${packagePath}/.vscode`
-  )
+  const copyPromise = () => {
+    return new Promise(resolve => {
+      copyRecursiveSync(
+        pathConfig.basePathTSX,
+        `${packagePath}/typescript-version`
+      )
+      resolve()
+    })
+  }
+  copyPromise()
+    .then(() =>
+      copyRecursiveSync(
+        pathConfig.basePathJSX,
+        `${packagePath}/javascript-version`
+      )
+    )
+    .then(() =>
+      copyRecursiveSync(
+        pathConfig.basePathTSX.replace('typescript-version', '.vscode'),
+        `${packagePath}/.vscode`
+      )
+    )
 }
 
 // ** if package folder exists then delete and create new
