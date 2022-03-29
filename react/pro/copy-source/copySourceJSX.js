@@ -22,58 +22,62 @@ const generateJSXSourceCode = () => {
       ...getAllIndexFiles(componentsPath),
       ...getAllIndexFiles(formsPath)
     ]
-    AllFilesJSX.map(fileJSX => {
-      if (
-        !fileJSX.endsWith('SourceCode.js') &&
-        !fileJSX.endsWith('index.js') &&
-        !fileJSX.endsWith('data.js') &&
-        !fileJSX.endsWith('DS_Store')
-      ) {
-        const parentFolderJSX = path.basename(path.dirname(fileJSX))
-        const fileNameJSX = path.basename(fileJSX, '.js')
-        const sourceToReadJSX = sourceFilesJSX.filter(j =>
-          j.includes(parentFolderJSX)
-        )[0]
 
-        if (fileJSX && sourceToReadJSX) {
-          fs.readFile(fileJSX, 'utf8', (err, dataJSX) => {
-            fs.readFile(sourceToReadJSX, 'utf8', (err, source) => {
-              const code =
-                'export const ' +
-                fileNameJSX +
-                'JSXCode = (' +
-                "<pre className='language-jsx'>" +
-                "<code className='language-jsx'>" +
-                '{`' +
-                dataJSX
-                  .replace(/`/g, '')
-                  .replace(/\$/g, '')
-                  .replace(/\\"/, '"')
-                  .replace(/\\"/, '"') +
-                '`}' +
-                '</code>' +
-                '</pre>' +
-                ') \n\n'
-              fs.writeFile(sourceToReadJSX, '', err => {
-                if (err) {
-                  console.log(err)
-                }
-                fs.appendFile(sourceToReadJSX, code, err => {
+    const writeCodePromise = AllFilesJSX.map(fileJSX => {
+      return new Promise(resolve => {
+        if (
+          !fileJSX.endsWith('SourceCode.js') &&
+          !fileJSX.endsWith('index.js') &&
+          !fileJSX.endsWith('data.js') &&
+          !fileJSX.endsWith('DS_Store')
+        ) {
+          const parentFolderJSX = path.basename(path.dirname(fileJSX))
+          const fileNameJSX = path.basename(fileJSX, '.js')
+          const sourceToReadJSX = sourceFilesJSX.filter(j =>
+            j.includes(parentFolderJSX)
+          )[0]
+
+          if (fileJSX && sourceToReadJSX) {
+            fs.readFile(fileJSX, 'utf8', (err, dataJSX) => {
+              fs.readFile(sourceToReadJSX, 'utf8', (err, source) => {
+                const code =
+                  'export const ' +
+                  fileNameJSX +
+                  'JSXCode = (' +
+                  "<pre className='language-jsx'>" +
+                  "<code className='language-jsx'>" +
+                  '{`' +
+                  dataJSX
+                    .replace(/`/g, '')
+                    .replace(/\$/g, '')
+                    .replace(/\\"/, '"')
+                    .replace(/\\"/, '"') +
+                  '`}' +
+                  '</code>' +
+                  '</pre>' +
+                  ') \n\n'
+                fs.writeFile(sourceToReadJSX, '', err => {
                   if (err) {
                     console.log(err)
                   }
+                  fs.appendFile(sourceToReadJSX, code, err => {
+                    if (err) {
+                      console.log(err)
+                    }
+                  })
                 })
               })
             })
-          })
+          }
         }
-      }
-
-      return
+        resolve()
+      })
     })
 
-    // ** Replace tsx code with null to hide it.
-    replaceCodeWithNull(AllIndexFiles, 'tsx')
+    Promise.all(writeCodePromise).then(() => {
+      // ** Replace tsx code with null to hide it.
+      replaceCodeWithNull(AllIndexFiles, 'tsx')
+    })
   } else {
     console.log('Javascript version does not exist')
   }
