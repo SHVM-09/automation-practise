@@ -3,7 +3,7 @@ set -e
 node generate-demo-configs.js
 
 # Demo generation loop
-for i in 1 2 3 4 5 6
+for i in 1 2
 do
 # Replace necessary in src folder
 	node replace.js demo-$i $1

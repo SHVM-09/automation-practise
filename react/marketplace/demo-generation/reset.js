@@ -47,10 +47,7 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
             return
           } else {
             const updatedData = data.replace(
-              new RegExp(
-                `/marketplace${URL}/${demo}/images/`,
-                'g'
-              ),
+              new RegExp(`/marketplace${URL}/${demo}/images/`, 'g'),
               '/images/'
             )
             fs.writeFile(
@@ -77,32 +74,36 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
 
 // ** Reset replaced locales path
 const removeBasePathInI18n = () => {
-  fs.readFile(i18nPath, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
+  return new Promise(resolve => {
+    fs.readFile(i18nPath, 'utf-8', (err, data) => {
+      if (err) {
+        console.log(err)
 
-      return
-    } else {
-      const updatedData = data.replace(
-        `/marketplace${URL}/${demo}/locales/`,
-        '/locales/'
-      )
-      fs.writeFile(i18nPath, '', err => {
-        if (err) {
-          console.log(err)
+        return
+      } else {
+        const updatedData = data.replace(
+          `/marketplace${URL}/${demo}/locales/`,
+          '/locales/'
+        )
+        fs.writeFile(i18nPath, '', err => {
+          if (err) {
+            console.log(err)
 
-          return
-        } else {
-          fs.writeFile(i18nPath, updatedData, err => {
-            if (err) {
-              console.log(err)
+            return
+          } else {
+            fs.writeFile(i18nPath, updatedData, err => {
+              if (err) {
+                console.log(err)
 
-              return
-            }
-          })
-        }
-      })
-    }
+                return
+              }
+            })
+          }
+        })
+      }
+    })
+
+    resolve()
   })
 }
 
@@ -135,118 +136,127 @@ const replaceWithMarketPlace = () => {
 
 removeBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 removeBasePathInI18n()
-replaceWithMarketPlace()
-
-// ** Reset replaced settings in localStorage if settingsContextFile exist
-if (fs.existsSync(settingsContextFile)) {
-  fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-
-      return
-    } else {
-      const result = data.replace(
-        new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
-        `$1settings$4`
-      )
-      fs.writeFile(settingsContextFile, '', err => {
+  .then(() => {
+    replaceWithMarketPlace()
+  })
+  .then(() => {
+    // ** Reset replaced settings in localStorage if settingsContextFile exist
+    if (fs.existsSync(settingsContextFile)) {
+      fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
         if (err) {
           console.log(err)
 
           return
         } else {
-          fs.writeFile(settingsContextFile, result, function (err) {
+          const result = data.replace(
+            new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
+            `$1settings$4`
+          )
+          fs.writeFile(settingsContextFile, '', err => {
             if (err) {
               console.log(err)
 
               return
+            } else {
+              fs.writeFile(settingsContextFile, result, function (err) {
+                if (err) {
+                  console.log(err)
+
+                  return
+                }
+              })
             }
           })
         }
       })
     }
   })
-}
+  .then(() => {
+    // ** Reset replaced basePath if nextConfigPath exist
+    if (fs.existsSync(nextConfigPath)) {
+      const nextConfigData = fs
+        .readFileSync(nextConfigPath)
+        .toString()
+        .split('\n')
 
-// ** Reset replaced basePath if nextConfigPath exist
-if (fs.existsSync(nextConfigPath)) {
-  const nextConfigData = fs.readFileSync(nextConfigPath).toString().split('\n')
+      const result = nextConfigData
+        .filter(line => {
+          return line.indexOf('basePath') === -1
+        })
+        .join('\n')
 
-  const result = nextConfigData
-    .filter(line => {
-      return line.indexOf('basePath') === -1
-    })
-    .join('\n')
+      fs.writeFile(nextConfigPath, result, err => {
+        if (err) {
+          console.log(err)
 
-  fs.writeFile(nextConfigPath, result, err => {
-    if (err) {
-      console.log(err)
-
-      return
+          return
+        }
+      })
+    } else {
+      console.log('NextConfig file Does Not Exists')
     }
   })
-} else {
-  console.log('NextConfig file Does Not Exists')
-}
-
-// ** Reset replaced themeConfig if themeConfigPath & demoConfigPath exist
-if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
-  fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-
-      return
-    } else {
-      fs.writeFile(themeConfigPath, '', err => {
+  .then(() => {
+    // ** Reset replaced themeConfig if themeConfigPath & demoConfigPath exist
+    if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
+      fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
         if (err) {
           console.log(err)
 
           return
         } else {
-          fs.writeFile(themeConfigPath, data, err => {
+          fs.writeFile(themeConfigPath, '', err => {
             if (err) {
               console.log(err)
 
               return
+            } else {
+              fs.writeFile(themeConfigPath, data, err => {
+                if (err) {
+                  console.log(err)
+
+                  return
+                }
+              })
             }
           })
         }
       })
+    } else {
+      console.log('themeConfigPath file & demoConfigPath file Does Not Exists')
     }
   })
-} else {
-  console.log('themeConfigPath file & demoConfigPath file Does Not Exists')
-}
+  .then(() => {
+    // ** Adds Test to components & Form Elements
+    const resetTestFolders = () => {
+      const resetPromise = testFoldersToModify.map(folder => {
+        return new Promise(resolve => {
+          if (fs.existsSync(folder.to)) {
+            copyDirectory(folder.to, folder.from)
+          }
 
-// ** Adds Test to components & Form Elements
-const resetTestFolders = () => {
-  const resetPromise = testFoldersToModify.map(folder => {
-    return new Promise(resolve => {
-      if (fs.existsSync(folder.to)) {
-        copyDirectory(folder.to, folder.from)
-      }
-
-      resolve()
-    })
-  })
-
-  Promise.all(resetPromise)
-    .then(() => {
-      testFoldersToCopy.map(folder => {
-        if (fs.existsSync(folder.to)) {
-          copyDirectory(folder.to, folder.from)
-        }
+          resolve()
+        })
       })
-    })
-    .then(() => {
-      if (fs.existsSync(`./${URL}`)) {
-        fs.rm(`./${URL}`, { recursive: true }, err => {
-          if (err) {
-            console.log(err)
+
+      Promise.all(resetPromise)
+        .then(() => {
+          testFoldersToCopy.map(folder => {
+            if (fs.existsSync(folder.to)) {
+              copyDirectory(folder.to, folder.from)
+            }
+          })
+        })
+        .then(() => {
+          if (fs.existsSync(`./${URL}`)) {
+            fs.rm(`./${URL}`, { recursive: true }, err => {
+              if (err) {
+                console.log(err)
+              }
+            })
           }
         })
-      }
-    })
-}
+    }
 
-resetTestFolders()
+    resetTestFolders()
+  })

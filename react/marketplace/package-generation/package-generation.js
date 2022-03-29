@@ -71,51 +71,65 @@ const updateContent = (
   BuyNowComponentPath,
   PackageJSONPath
 ) => {
-  if (fs.existsSync(userLayoutPath)) {
-    fs.readFile(userLayoutPath, 'utf-8', (err, data) => {
-      if (err) console.log(err)
-      else {
-        const result = data
-          .replace("import BuyNowButton from './components/BuyNowButton'", '')
-          .replace('<BuyNowButton />', '')
-        fs.writeFile(userLayoutPath, result, err => {
+  const userLayoutPromise = () => {
+    return new Promise(resolve => {
+      if (fs.existsSync(userLayoutPath)) {
+        fs.readFile(userLayoutPath, 'utf-8', (err, data) => {
           if (err) console.log(err)
+          else {
+            const result = data
+              .replace(
+                "import BuyNowButton from './components/BuyNowButton'",
+                ''
+              )
+              .replace('<BuyNowButton />', '')
+            fs.writeFile(userLayoutPath, result, err => {
+              if (err) console.log(err)
+            })
+          }
         })
-      }
-    })
-  } else {
-    console.log('UserLayout File Does Not Exist!')
+      } else {
+        console.log('UserLayout File Does Not Exist!')
 
-    return
+        return
+      }
+
+      resolve()
+    })
   }
-  if (fs.existsSync(BuyNowComponentPath)) {
-    fs.unlink(BuyNowComponentPath, err => {
-      if (err) {
-        console.log(err)
+  userLayoutPromise()
+    .then(() => {
+      if (fs.existsSync(BuyNowComponentPath)) {
+        fs.unlink(BuyNowComponentPath, err => {
+          if (err) {
+            console.log(err)
+
+            return
+          }
+        })
+      } else {
+        console.log('BuyNow Component File Does Not Exist!')
 
         return
       }
     })
-  } else {
-    console.log('BuyNow Component File Does Not Exist!')
-
-    return
-  }
-  if (fs.existsSync(PackageJSONPath)) {
-    fs.readFile(PackageJSONPath, 'utf-8', (err, data) => {
-      if (err) console.log(err)
-      else {
-        const result = data.replace(/\^/g, '').replace('~', '')
-        fs.writeFile(PackageJSONPath, result, err => {
+    .then(() => {
+      if (fs.existsSync(PackageJSONPath)) {
+        fs.readFile(PackageJSONPath, 'utf-8', (err, data) => {
           if (err) console.log(err)
+          else {
+            const result = data.replace(/\^/g, '').replace('~', '')
+            fs.writeFile(PackageJSONPath, result, err => {
+              if (err) console.log(err)
+            })
+          }
         })
+      } else {
+        console.log('package.json File Does Not Exist!')
+
+        return
       }
     })
-  } else {
-    console.log('package.json File Does Not Exist!')
-
-    return
-  }
 }
 
 // ** Generates TSX package
@@ -129,42 +143,56 @@ const generateTSXPackage = () => {
 
         return
       } else {
-        filesToCopyTSX.map(file => {
-          const dest = file.replace(
-            `${pathConfig.basePathTSX}`,
-            `${pathConfig.packagePath}/typescript-version`
-          )
-          copyRecursiveSync(file, dest)
+        const copyPromise = filesToCopyTSX.map(file => {
+          return new Promise(resolve => {
+            const dest = file.replace(
+              `${pathConfig.basePathTSX}`,
+              `${pathConfig.packagePath}/typescript-version`
+            )
+            copyRecursiveSync(file, dest)
+            resolve()
+          })
         })
-        updateContent(
-          userLayoutPathTSX,
-          BuyNowComponentPathTSX,
-          PackageJSONPathTSX
-        )
-        if (fs.existsSync(`${pathConfig.starterKitTSXPath}`)) {
-          fs.mkdir(
-            `${pathConfig.packagePath}/typescript-version/starter-kit`,
-            err => {
-              if (err) {
-                console.log(err)
-              } else {
-                copyRecursiveStarterKitSync(
-                  `${pathConfig.starterKitTSXPath}`,
-                  `${pathConfig.packagePath}/typescript-version/starter-kit`
-                )
-                if (
-                  fs.existsSync(
-                    `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
-                  )
-                ) {
-                  fs.rmdirSync(
-                    `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
-                  )
-                }
-              }
-            }
+        Promise.all(copyPromise)
+          .then(() =>
+            updateContent(
+              userLayoutPathTSX,
+              BuyNowComponentPathTSX,
+              PackageJSONPathTSX
+            )
           )
-        }
+          .then(() => {
+            if (fs.existsSync(`${pathConfig.starterKitTSXPath}`)) {
+              fs.mkdir(
+                `${pathConfig.packagePath}/typescript-version/starter-kit`,
+                err => {
+                  if (err) {
+                    console.log(err)
+                  } else {
+                    const copyStarterPromise = () =>
+                      new Promise(resolve => {
+                        copyRecursiveStarterKitSync(
+                          `${pathConfig.starterKitTSXPath}`,
+                          `${pathConfig.packagePath}/typescript-version/starter-kit`
+                        )
+                        resolve()
+                      })
+                    copyStarterPromise().then(() => {
+                      if (
+                        fs.existsSync(
+                          `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
+                        )
+                      ) {
+                        fs.rmdirSync(
+                          `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
+                        )
+                      }
+                    })
+                  }
+                }
+              )
+            }
+          })
       }
     }
   )
@@ -181,42 +209,56 @@ const generateJSXPackage = () => {
 
         return
       } else {
-        filesToCopyJSX.map(file => {
-          const dest = file.replace(
-            `${pathConfig.basePathJSX}`,
-            `${pathConfig.packagePath}/javascript-version`
-          )
-          copyRecursiveSync(file, dest)
+        const copyPromise = filesToCopyJSX.map(file => {
+          return new Promise(resolve => {
+            const dest = file.replace(
+              `${pathConfig.basePathJSX}`,
+              `${pathConfig.packagePath}/javascript-version`
+            )
+            copyRecursiveSync(file, dest)
+            resolve()
+          })
         })
-        updateContent(
-          userLayoutPathJSX,
-          BuyNowComponentPathJSX,
-          PackageJSONPathJSX
-        )
-        if (fs.existsSync(`${pathConfig.starterKitJSXPath}`)) {
-          fs.mkdir(
-            `${pathConfig.packagePath}/javascript-version/starter-kit`,
-            err => {
-              if (err) {
-                console.log(err)
-              } else {
-                copyRecursiveStarterKitSync(
-                  `${pathConfig.starterKitJSXPath}`,
-                  `${pathConfig.packagePath}/javascript-version/starter-kit`
-                )
-                if (
-                  fs.existsSync(
-                    `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
-                  )
-                ) {
-                  fs.rmdirSync(
-                    `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
-                  )
-                }
-              }
-            }
+        Promise.all(copyPromise)
+          .then(() =>
+            updateContent(
+              userLayoutPathJSX,
+              BuyNowComponentPathJSX,
+              PackageJSONPathJSX
+            )
           )
-        }
+          .then(() => {
+            if (fs.existsSync(`${pathConfig.starterKitJSXPath}`)) {
+              fs.mkdir(
+                `${pathConfig.packagePath}/javascript-version/starter-kit`,
+                err => {
+                  if (err) {
+                    console.log(err)
+                  } else {
+                    const copyStarterPromise = () =>
+                      new Promise(resolve => {
+                        copyRecursiveStarterKitSync(
+                          `${pathConfig.starterKitJSXPath}`,
+                          `${pathConfig.packagePath}/javascript-version/starter-kit`
+                        )
+                        resolve()
+                      })
+                    copyStarterPromise().then(() => {
+                      if (
+                        fs.existsSync(
+                          `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
+                        )
+                      ) {
+                        fs.rmdirSync(
+                          `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
+                        )
+                      }
+                    })
+                  }
+                }
+              )
+            }
+          })
       }
     }
   )
@@ -231,8 +273,14 @@ const generate = () => {
       generateJSXPackage()
     }
   } else {
-    generateTSXPackage()
-    generateJSXPackage()
+    const generateTSXPromise = () =>
+      new Promise(resolve => {
+        generateTSXPackage()
+        resolve()
+      })
+    generateTSXPromise().then(() => {
+      generateJSXPackage()
+    })
   }
 }
 

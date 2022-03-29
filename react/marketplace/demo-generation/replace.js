@@ -74,29 +74,28 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
 
 // ** Replace locales path
 const replaceBasePathInI18n = () => {
-  fs.readFile(i18nPath, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
+  return new Promise(resolve => {
+    fs.readFile(i18nPath, 'utf-8', (err, data) => {
+      if (err) {
+        console.log(err)
 
-      return
-    } else {
-      if (data.includes('/locales/')) {
-        fs.writeFile(
-          i18nPath,
-          data.replace(
-            '/locales/',
-            `/marketplace${URL}/${demo}/locales/`
-          ),
-          err => {
-            if (err) {
-              console.log(err)
+        return
+      } else {
+        if (data.includes('/locales/')) {
+          fs.writeFile(
+            i18nPath,
+            data.replace('/locales/', `/marketplace${URL}/${demo}/locales/`),
+            err => {
+              if (err) {
+                console.log(err)
 
-              return
+                return
+              }
             }
-          }
-        )
+          )
+        }
       }
-    }
+    })
   })
 }
 
@@ -129,74 +128,23 @@ const replaceWithMarketPlace = () => {
 
 replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
-replaceWithMarketPlace()
-
-// ** Replace settings in localStorage if settingsContextFile exist
-if (fs.existsSync(settingsContextFile)) {
-  fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-
-      return
-    } else {
-      const result = data.replace(
-        new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
-        `$1settings-${demo}$4`
-      )
-      fs.writeFile(settingsContextFile, result, function (err) {
-        if (err) {
-          console.log(err)
-
-          return
-        }
-      })
-    }
+  .then(() => {
+    replaceWithMarketPlace()
   })
-} else {
-  console.log("settingsContext File Doesn't exists")
-}
-
-// ** Replace basePath in nextConfigPath if nextConfigPath exist
-if (fs.existsSync(nextConfigPath)) {
-  const nextConfigData = fs.readFileSync(nextConfigPath).toString().split('\n')
-  const removedBasePathIfAny = nextConfigData
-    .filter(line => {
-      return line.indexOf('basePath') === -1
-    })
-    .join('\n')
-  const result = removedBasePathIfAny.replace(
-    'reactStrictMode: false,',
-    `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
-  )
-
-  fs.writeFile(nextConfigPath, result, err => {
-    if (err) {
-      console.log(err)
-
-      return
-    }
-  })
-} else {
-  console.log('NextConfig File Does Not Exists')
-}
-
-// ** Replace themeConfig file based on demo number
-const demoConfigPath = `${pathConfig.demoConfigsPathTSX}/${demo}.ts`
-
-if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
-  fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-
-      return
-    } else {
-      fs.writeFile(themeConfigPath, '', err => {
+  .then(() => {
+    // ** Replace settings in localStorage if settingsContextFile exist
+    if (fs.existsSync(settingsContextFile)) {
+      fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
         if (err) {
           console.log(err)
 
           return
         } else {
-          fs.writeFile(themeConfigPath, data, err => {
+          const result = data.replace(
+            new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
+            `$1settings-${demo}$4`
+          )
+          fs.writeFile(settingsContextFile, result, function (err) {
             if (err) {
               console.log(err)
 
@@ -205,71 +153,131 @@ if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
           })
         }
       })
+    } else {
+      console.log("settingsContext File Doesn't exists")
     }
   })
-} else {
-  console.log("themeConfigPath file & demoConfigPath file doesn't exist")
-}
+  .then(() => {
+    // ** Replace basePath in nextConfigPath if nextConfigPath exist
+    if (fs.existsSync(nextConfigPath)) {
+      const nextConfigData = fs
+        .readFileSync(nextConfigPath)
+        .toString()
+        .split('\n')
+      const removedBasePathIfAny = nextConfigData
+        .filter(line => {
+          return line.indexOf('basePath') === -1
+        })
+        .join('\n')
+      const result = removedBasePathIfAny.replace(
+        'reactStrictMode: false,',
+        `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
+      )
 
-// ** Removes Test From components & Form Elements
-const removeTest = () => {
-  const removePromise = testFoldersToModify.map(folder => {
-    return new Promise(resolve => {
-      if (fs.existsSync(folder.from)) {
-        copyDirectory(folder.from, folder.to)
-      }
+      fs.writeFile(nextConfigPath, result, err => {
+        if (err) {
+          console.log(err)
 
-      resolve()
-    })
-  })
-
-  Promise.all(removePromise)
-    .then(() => {
-      testFoldersToModify.map(folder => {
-        if (fs.existsSync(folder.from)) {
-          fs.rm(folder.from, { recursive: true }, err => {
-            if (err) {
-              console.log(err)
-            }
-          })
+          return
         }
       })
-    })
-    .then(() => {
-      filesWithTestObj.map(file => {
-        if (fs.existsSync(file)) {
-          fs.readFile(file, 'utf-8', (err, data) => {
+    } else {
+      console.log('NextConfig File Does Not Exists')
+    }
+  })
+  .then(() => {
+    // ** Replace themeConfig file based on demo number
+    const demoConfigPath = `${pathConfig.demoConfigsPathTSX}/${demo}.ts`
+
+    if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
+      fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
+        if (err) {
+          console.log(err)
+
+          return
+        } else {
+          fs.writeFile(themeConfigPath, '', err => {
             if (err) {
               console.log(err)
+
+              return
             } else {
-              const updatedData = data
-                .replace(/title: 'Test',/g, '')
-                .replace("path: '/components/test'", '')
-                .replace("path: '/forms/form-elements/test'", '')
-                .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
-              fs.writeFile(file, '', err => {
+              fs.writeFile(themeConfigPath, data, err => {
                 if (err) {
                   console.log(err)
-                }
 
-                fs.writeFile(file, updatedData, err => {
-                  if (err) {
-                    console.log(err)
-                  }
-                })
+                  return
+                }
               })
             }
           })
         }
       })
-    })
-    .then(() => {
-      testFoldersToCopy.map(folder => {
-        if (fs.existsSync(folder.from)) {
-          copyDirectory(folder.from, folder.to)
-        }
-      })
-    })
-}
+    } else {
+      console.log("themeConfigPath file & demoConfigPath file doesn't exist")
+    }
+  })
+  .then(() => {
+    // ** Removes Test From components & Form Elements
+    const removeTest = () => {
+      const removePromise = testFoldersToModify.map(folder => {
+        return new Promise(resolve => {
+          if (fs.existsSync(folder.from)) {
+            copyDirectory(folder.from, folder.to)
+          }
 
-removeTest()
+          resolve()
+        })
+      })
+
+      Promise.all(removePromise)
+        .then(() => {
+          testFoldersToModify.map(folder => {
+            if (fs.existsSync(folder.from)) {
+              fs.rm(folder.from, { recursive: true }, err => {
+                if (err) {
+                  console.log(err)
+                }
+              })
+            }
+          })
+        })
+        .then(() => {
+          filesWithTestObj.map(file => {
+            if (fs.existsSync(file)) {
+              fs.readFile(file, 'utf-8', (err, data) => {
+                if (err) {
+                  console.log(err)
+                } else {
+                  const updatedData = data
+                    .replace(/title: 'Test',/g, '')
+                    .replace("path: '/components/test'", '')
+                    .replace("path: '/forms/form-elements/test'", '')
+                    .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+                  fs.writeFile(file, '', err => {
+                    if (err) {
+                      console.log(err)
+                    }
+
+                    fs.writeFile(file, updatedData, err => {
+                      if (err) {
+                        console.log(err)
+                      }
+                    })
+                  })
+                }
+              })
+            }
+          })
+        })
+        .then(() => {
+          testFoldersToCopy.map(folder => {
+            if (fs.existsSync(folder.from)) {
+              copyDirectory(folder.from, folder.to)
+            }
+          })
+        })
+    }
+
+    removeTest()
+  })
