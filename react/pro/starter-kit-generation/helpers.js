@@ -650,10 +650,6 @@ const dataToReplace = [
 const filesToRemove = [
   BuyNowComponentPathTSX,
   BuyNowComponentPathJSX,
-  `${pathConfig.starterKitTSXPath}/src/configs/acl.ts`,
-  `${pathConfig.starterKitJSXPath}/src/configs/acl.js`,
-  `${pathConfig.starterKitTSXPath}/src/configs/auth.ts`,
-  `${pathConfig.starterKitJSXPath}/src/configs/auth.js`,
   `${pathConfig.starterKitTSXPath}/src/configs/i18n.ts`,
   `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`
 ]
