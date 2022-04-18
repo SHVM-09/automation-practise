@@ -22,12 +22,12 @@ const Home = () => {
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Want to integrate JWT? 🔒'></CardHeader>
+          <CardHeader title='ACL and JWT 🔒'></CardHeader>
           <CardContent>
             <Typography sx={{ mb: 2 }}>
-              We have carefully crafted JWT flow so you can implement JWT with ease and with minimum efforts.
+              Access Control (ACL) and Authentication (JWT) are the two main security features of our template and are implemented in the starter-kit as well.
             </Typography>
-            <Typography>Please read our JWT Documentation to get more out of JWT authentication.</Typography>
+            <Typography>Please read our Authentication and ACL Documentations to get more out of them.</Typography>
           </CardContent>
         </Card>
       </Grid>
