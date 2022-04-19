@@ -311,6 +311,10 @@ if (!fs.existsSync(pathConfig.packagePath)) {
           console.log(err)
         } else {
           generate()
+          copyRecursiveSync(
+            `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
+            `${pathConfig.packagePath}/.vscode`
+          )
         }
       })
     }
