@@ -8,7 +8,8 @@ const {
   foldersToKeepJSX,
   copyRecursiveSync,
   foldersToRemoveTSX,
-  foldersToRemoveJSX
+  foldersToRemoveJSX,
+  homeAndSecondPagePaths
 } = require('./helpers')
 
 let arg = null
@@ -23,26 +24,16 @@ if (passedArgs[0] !== undefined) {
 }
 
 // ** Generates second page in src/pages folder
-const generateSecondPage = (parentFolder, fileToRead, fileToWrite) => {
-  fs.mkdir(`${parentFolder}/src/pages/second-page`, err => {
-    if (err) {
-      console.log(err)
-
-      return
-    } else {
-      fs.writeFile(fileToWrite, fs.readFileSync(fileToRead).toString(), err => {
-        if (err) {
-          console.log(err)
-
-          return
-        }
-      })
+const copyHomeAndSecondPage = () => {
+  homeAndSecondPagePaths.map(folder => {
+    if (fs.existsSync(folder.from)) {
+      copyRecursiveSync(folder.from, folder.to)
     }
   })
 }
 
-// ** Generates second page in src/layouts/components folder
-const copyUserDropdown = (parentFolder, version, fileToCopy, fileToUpdate) => {
+// ** copy updated userDropdown in src/layouts/components folder
+const copyUserDropdown = (parentFolder, version, fileToCopy) => {
   fs.copyFile(
     `${fileToCopy}`,
     `${parentFolder}/src/layouts/components/UserDropdown.${version}`,
@@ -54,6 +45,38 @@ const copyUserDropdown = (parentFolder, version, fileToCopy, fileToUpdate) => {
       }
     }
   )
+}
+
+const generateFakeDB = (parentFolder, fakeDBPath, version) => {
+  fs.mkdir(`${parentFolder}/src/@fake-db`, err => {
+    if (err) {
+      console.log(err)
+
+      return
+    } else {
+      console.log(fakeDBPath)
+      copyRecursiveSync(
+        `${fakeDBPath}/auth`,
+        `${parentFolder}/src/@fake-db/auth`
+      )
+      copyRecursiveSync(
+        `${fakeDBPath}/mock.${version}`,
+        `${parentFolder}/src/@fake-db/mock.${version}`
+      )
+
+      fs.writeFile(
+        `${parentFolder}/src/@fake-db/index.${version}`,
+        `import mock from './mock' \n\n import './auth/jwt' \n\n mock.onAny().passThrough()`,
+        err => {
+          if (err) {
+            console.log(err)
+
+            return
+          }
+        }
+      )
+    }
+  })
 }
 
 // ** Generates TSX StarterKit
@@ -113,10 +136,13 @@ const generateTSXStarter = () => {
                       })
                       Promise.all(foldersPromise)
                         .then(() => {
-                          generateSecondPage(
+                          copyHomeAndSecondPage()
+                        })
+                        .then(() => {
+                          generateFakeDB(
                             pathConfig.starterKitTSXPath,
-                            './components/tsx/second-page/index.tsx',
-                            `${pathConfig.starterKitTSXPath}/src/pages/second-page/index.tsx`
+                            `${pathConfig.fullVersionTSXPath}/src/@fake-db`,
+                            'ts'
                           )
                         })
                         .then(() => {
@@ -213,10 +239,13 @@ const generateJSXStarter = () => {
 
                           Promise.all(folderPromise)
                             .then(() => {
-                              generateSecondPage(
+                              copyHomeAndSecondPage()
+                            })
+                            .then(() => {
+                              generateFakeDB(
                                 pathConfig.starterKitJSXPath,
-                                './components/jsx/second-page/index.js',
-                                `${pathConfig.starterKitJSXPath}/src/pages/second-page/index.js`
+                                `${pathConfig.fullVersionJSXPath}/src/@fake-db`,
+                                'js'
                               )
                             })
                             .then(() => {

@@ -80,6 +80,7 @@ const foldersToKeepTSX = [
   'views/pages/auth',
   'views/pages/misc',
   'pages/forgot-password',
+  'pages/acl',
   'pages/login',
   'pages/register',
   'pages/_app.tsx',
@@ -94,6 +95,7 @@ const foldersToKeepJSX = [
   'views/pages/auth',
   'views/pages/misc',
   'pages/forgot-password',
+  'pages/acl',
   'pages/login',
   'pages/register',
   'pages/_app.js',
@@ -144,26 +146,6 @@ const filesToReplace = [
   {
     src: './components/jsx/index.js',
     dest: HomePathJSX
-  },
-  {
-    src: `${pathConfig.fullVersionTSXPath}/src/pages/pages/auth/login-v2/index.tsx`,
-    dest: `${pathConfig.starterKitTSXPath}/src/pages/login/index.tsx`
-  },
-  {
-    src: `${pathConfig.fullVersionJSXPath}/src/pages/pages/auth/login-v2/index.js`,
-    dest: `${pathConfig.starterKitJSXPath}/src/pages/login/index.js`
-  },
-  {
-    src: `${pathConfig.fullVersionTSXPath}/src/pages/pages/auth/register-v2/index.tsx`,
-    dest: `${pathConfig.starterKitTSXPath}/src/pages/register/index.tsx`
-  },
-  {
-    src: `${pathConfig.fullVersionJSXPath}/src/pages/pages/auth/register-v2/index.js`,
-    dest: `${pathConfig.starterKitJSXPath}/src/pages/register/index.js`
-  },
-  {
-    src: `${pathConfig.fullVersionJSXPath}/src/pages/pages/auth/login-v2/index.js`,
-    dest: `${pathConfig.starterKitJSXPath}/src/pages/login/index.js`
   }
 ]
 
@@ -187,215 +169,15 @@ const copyRecursiveSync = (src, dest) => {
 }
 
 const appDataToReplace = [
-  { from: "import { ReactNode } from 'react'", to: '' },
-  { from: "import 'src/@fake-db'", to: '' },
   { from: "import 'src/configs/i18n'", to: '' },
-  { from: "import { defaultACLObj } from 'src/configs/acl'", to: '' },
-  { from: "import AclGuard from 'src/@core/components/auth/AclGuard'", to: '' },
-  { from: "import { AuthProvider } from 'src/context/AuthContext'", to: '' },
-  {
-    from: "import AuthGuard from 'src/@core/components/auth/AuthGuard'",
-    to: ''
-  },
-  {
-    from: "import GuestGuard from 'src/@core/components/auth/GuestGuard'",
-    to: ''
-  },
-  { from: "import Spinner from 'src/@core/components/spinner'", to: '' },
   { from: "import { store } from 'src/store'", to: '' },
   { from: "import { Provider } from 'react-redux'", to: '' },
   { from: '<Provider store={store}>', to: '' },
   { from: ' </Provider>', to: '' },
-  { from: '<AuthProvider>', to: '' },
-  { from: '</AuthProvider>', to: '' },
-  {
-    from: '<AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>',
-    to: ''
-  },
-  { from: '</AclGuard>', to: '' },
-  { from: '<Guard authGuard={authGuard} guestGuard={guestGuard}>', to: '' },
-  { from: '</Guard>', to: '' },
-  {
-    from: new RegExp(/const Guard[\s\S]*?<\/AuthGuard>[\s\S]*?}[\s\S]*?}/),
-    to: ''
-  },
-  { from: new RegExp(/type GuardProps[\s\S]*?ReactNode[\s\S]*?}/), to: '' },
-  { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
-  { from: new RegExp(/\/\/ \*\* Store Imports/), to: '' },
-  { from: new RegExp(/\/\/ \*\* Fake-DB Import/), to: '' },
-  { from: new RegExp(/\/\/ \*\* Spinner Import/), to: '' },
-  { from: 'const authGuard = Component.authGuard ?? true', to: '' },
-  { from: 'const guestGuard = Component.guestGuard ?? false', to: '' },
-  { from: 'const aclAbilities = Component.acl ?? defaultACLObj', to: '' }
+  { from: new RegExp(/\/\/ \*\* Store Imports/), to: '' }
 ]
 
-const newLoginBtn = `<Link href='/' passHref>
-     <Button fullWidth size='large' type='submit' variant='contained' sx={{ marginBottom: 7 }}>
-      Login
-      </Button>
-</Link>`
-
-const newRegisterBtn = `<Link href='/' passHref>
-     <Button fullWidth size='large' type='submit' variant='contained' sx={{ marginBottom: 7 }}>
-      Register
-      </Button>
-</Link>`
-
 const dataToReplace = [
-  {
-    file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavGroup.tsx`,
-    replacements: [
-      {
-        from: "import { ReactNode, useContext } from 'react'",
-        to: "import { ReactNode } from 'react'"
-      },
-      {
-        from: "import { NavGroup, NavLink } from 'src/@core/layouts/types'",
-        to: "import { NavGroup } from 'src/@core/layouts/types'"
-      },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navGroup } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: new RegExp(
-          /const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/
-        ),
-        to: ''
-      },
-      {
-        from: 'return navGroup && canViewMenuGroup(navGroup) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavLink.tsx`,
-    replacements: [
-      {
-        from: "import { ReactNode, useContext } from 'react'",
-        to: "import { ReactNode } from 'react'"
-      },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navLink } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: 'return ability && ability.can(navLink?.action, navLink?.subject) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/CanViewNavSectionTitle.tsx`,
-    replacements: [
-      {
-        from: "import { ReactNode, useContext } from 'react'",
-        to: "import { ReactNode } from 'react'"
-      },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navTitle } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: 'return ability && ability.can(navTitle?.action, navTitle?.subject) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitJSXPath}/src/layouts/components/acl/CanViewNavGroup.js`,
-    replacements: [
-      { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
-      { from: "import { useContext } from 'react'", to: '' },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navGroup } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: new RegExp(
-          /const canViewMenuGroup[\s\S]*?&& hasAnyVisibleChild[\s\S]*?}/
-        ),
-        to: ''
-      },
-      {
-        from: 'return navGroup && canViewMenuGroup(navGroup) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitJSXPath}/src/layouts/components/acl/CanViewNavLink.js`,
-    replacements: [
-      { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
-      { from: "import { useContext } from 'react'", to: '' },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navLink } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: 'return ability && ability.can(navLink?.action, navLink?.subject) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitJSXPath}/src/layouts/components/acl/CanViewNavSectionTitle.js`,
-    replacements: [
-      { from: new RegExp(/\/\/ \*\* React Imports/), to: '' },
-      { from: "import { useContext } from 'react'", to: '' },
-      { from: new RegExp(/\/\/ \*\* Component Imports/), to: '' },
-      {
-        from: "import { AbilityContext } from 'src/layouts/components/acl/Can'",
-        to: ''
-      },
-      {
-        from: 'const { children, navTitle } = props',
-        to: 'const { children } = props'
-      },
-      { from: new RegExp(/\/\/ \*\* Hook/), to: '' },
-      { from: 'const ability = useContext(AbilityContext)', to: '' },
-      {
-        from: 'return ability && ability.can(navTitle?.action, navTitle?.subject) ? <>{children}</> : null',
-        to: 'return <>{children}</>'
-      }
-    ]
-  },
   {
     file: userLayoutPathTSX,
     replacements: [
@@ -513,103 +295,6 @@ const dataToReplace = [
     ]
   },
   {
-    file: LoginPathTSX,
-    replacements: [
-      {
-        from: '/pages/auth/forgot-password-v2',
-        to: '/forgot-password'
-      },
-      {
-        from: '/pages/auth/register-v2',
-        to: '/register'
-      },
-      {
-        from: new RegExp('LoginV2', 'g'),
-        to: 'Login'
-      },
-      {
-        from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
-        to: newLoginBtn
-      }
-    ]
-  },
-  {
-    file: LoginPathJSX,
-    replacements: [
-      {
-        from: '/pages/auth/forgot-password-v2',
-        to: '/forgot-password'
-      },
-      {
-        from: '/pages/auth/register-v2',
-        to: '/register'
-      },
-      {
-        from: new RegExp('LoginV2', 'g'),
-        to: 'Login'
-      },
-      {
-        from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
-        to: newLoginBtn
-      }
-    ]
-  },
-  {
-    file: RegisterPathTSX,
-    replacements: [
-      {
-        from: '/pages/auth/login-v2',
-        to: '/login'
-      },
-      {
-        from: new RegExp('RegisterV2', 'g'),
-        to: 'Register'
-      },
-      {
-        from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
-        to: newRegisterBtn
-      }
-    ]
-  },
-  {
-    file: RegisterPathJSX,
-    replacements: [
-      {
-        from: '/pages/auth/login-v2',
-        to: '/login'
-      },
-      {
-        from: new RegExp('RegisterV2', 'g'),
-        to: 'Register'
-      },
-      {
-        from: new RegExp(/<Button .*>[\s\S]*? <\/Button>/),
-        to: newRegisterBtn
-      }
-    ]
-  },
-  {
-    file: `${pathConfig.starterKitTSXPath}/src/next.d.ts`,
-    replacements: [
-      {
-        from: "import type { ACLObj } from 'src/configs/acl'",
-        to: ''
-      },
-      {
-        from: 'acl?: ACLObj',
-        to: ''
-      },
-      {
-        from: 'authGuard?: boolean',
-        to: ''
-      },
-      {
-        from: 'guestGuard?: boolean',
-        to: ''
-      }
-    ]
-  },
-  {
     file: `${pathConfig.starterKitTSXPath}/src/layouts/components/vertical/AppBarContent.tsx`,
     replacements: [
       {
@@ -651,7 +336,11 @@ const filesToRemove = [
   BuyNowComponentPathTSX,
   BuyNowComponentPathJSX,
   `${pathConfig.starterKitTSXPath}/src/configs/i18n.ts`,
-  `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`
+  `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`,
+  `${pathConfig.starterKitTSXPath}/src/layouts/components/Autocomplete.js`,
+  `${pathConfig.starterKitTSXPath}/src/layouts/components/Autocomplete.tsx`,
+  `${pathConfig.starterKitTSXPath}/src/layouts/components/autocompleteIconObj.ts`,
+  `${pathConfig.starterKitTSXPath}/src/layouts/components/autocompleteIconObj.js`
 ]
 
 const imgFilesToKeep = [
@@ -678,6 +367,25 @@ const imgFilesToKeep = [
   '/images/pages/auth-v2-register-illustration-light.png',
   '/images/pages/auth-v2-forgot-password-illustration-dark.png',
   '/images/pages/auth-v2-forgot-password-illustration-light.png'
+]
+
+const homeAndSecondPagePaths = [
+  {
+    from: './components/tsx/second-page',
+    to: `${pathConfig.starterKitTSXPath}/src/pages/second-page`
+  },
+  {
+    from: './components/tsx/home',
+    to: `${pathConfig.starterKitTSXPath}/src/pages/home`
+  },
+  {
+    from: './components/jsx/second-page',
+    to: `${pathConfig.starterKitJSXPath}/src/pages/second-page`
+  },
+  {
+    from: './components/jsx/home',
+    to: `${pathConfig.starterKitJSXPath}/src/pages/home`
+  }
 ]
 
 module.exports = {
@@ -709,6 +417,7 @@ module.exports = {
   TranslationsPathJSX,
   appbarVerticalPathTSX,
   appbarVerticalPathJSX,
+  homeAndSecondPagePaths,
   BuyNowComponentPathTSX,
   BuyNowComponentPathJSX,
   appbarHorizontalPathTSX,
