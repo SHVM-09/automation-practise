@@ -10,7 +10,7 @@ import Spinner from 'src/@core/components/spinner'
 // ** Hook Imports
 import { useAuth } from 'src/hooks/useAuth'
 
-export const getHomeRoute = () => {
+export const getHomeRoute = role => {
   if (role === 'client') return '/acl'
   else return '/home'
 }
