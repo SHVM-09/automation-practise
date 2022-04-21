@@ -41,15 +41,28 @@ node replace.js
 wait
 
 cd ../../../../master-react-mui-nextjs/typescript-version/full-version
+
+wait
+mkdir ../../package-standard
+cp -a ../../package/javascript-version  ../../package-standard/javascript-version
+cp ../../package/CHANGELOG.md  ../../package-standard/CHANGELOG.md
+cp ../../package/documentation.html  ../../package-standard/documentation.html
+
+wait 
+
 mv ../../package ../../master-react-mui-nextjs
+mv ../../package-standard ../../master-react-mui-nextjs-standard
 
 wait
 
 # Zip the package
 cd ../../
 zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+zip -r master-react-mui-nextjs-standard.zip master-react-mui-nextjs-standard
+
 # Remove package folder
 rm -rf master-react-mui-nextjs
+rm -rf master-react-mui-nextjs-standard
 
 
 
