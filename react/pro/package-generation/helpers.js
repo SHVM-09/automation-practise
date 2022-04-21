@@ -39,9 +39,9 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/.prettierrc.js`,
   `${pathConfig.fullVersionJSXPath}/next.config.js`,
   `${pathConfig.fullVersionJSXPath}/package.json`,
-  `${pathConfig.fullVersionTSXPath}/yarn.lock`,
+  `${pathConfig.fullVersionJSXPath}/yarn.lock`,
   `${pathConfig.fullVersionJSXPath}/jsconfig.json`,
-  `${pathConfig.fullVersionTSXPath}/package-lock.json`
+  `${pathConfig.fullVersionJSXPath}/package-lock.json`
 ]
 
 module.exports = {
