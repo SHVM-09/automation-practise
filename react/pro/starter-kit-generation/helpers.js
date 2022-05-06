@@ -188,6 +188,10 @@ const dataToReplace = [
       {
         from: '<BuyNowButton />',
         to: ''
+      },
+      {
+        from: 'HorizontalAppBarContent hidden={hidden}',
+        to: 'HorizontalAppBarContent'
       }
     ]
   },
@@ -201,6 +205,10 @@ const dataToReplace = [
       {
         from: '<BuyNowButton />',
         to: ''
+      },
+      {
+        from: 'HorizontalAppBarContent hidden={hidden}',
+        to: 'HorizontalAppBarContent'
       }
     ]
   },
