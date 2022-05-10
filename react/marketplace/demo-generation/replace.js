@@ -128,10 +128,10 @@ const replaceWithMarketPlace = () => {
 
 replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
-  .then(() => {
+ 
     replaceWithMarketPlace()
-  })
-  .then(() => {
+  
+ 
     // ** Replace settings in localStorage if settingsContextFile exist
     if (fs.existsSync(settingsContextFile)) {
       fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
@@ -156,36 +156,8 @@ replaceBasePathInI18n()
     } else {
       console.log("settingsContext File Doesn't exists")
     }
-  })
-  .then(() => {
-    // ** Replace basePath in nextConfigPath if nextConfigPath exist
-    if (fs.existsSync(nextConfigPath)) {
-      const nextConfigData = fs
-        .readFileSync(nextConfigPath)
-        .toString()
-        .split('\n')
-      const removedBasePathIfAny = nextConfigData
-        .filter(line => {
-          return line.indexOf('basePath') === -1
-        })
-        .join('\n')
-      const result = removedBasePathIfAny.replace(
-        'reactStrictMode: false,',
-        `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
-      )
-
-      fs.writeFile(nextConfigPath, result, err => {
-        if (err) {
-          console.log(err)
-
-          return
-        }
-      })
-    } else {
-      console.log('NextConfig File Does Not Exists')
-    }
-  })
-  .then(() => {
+  
+  
     // ** Replace themeConfig file based on demo number
     const demoConfigPath = `${pathConfig.demoConfigsPathTSX}/${demo}.ts`
 
@@ -216,8 +188,8 @@ replaceBasePathInI18n()
     } else {
       console.log("themeConfigPath file & demoConfigPath file doesn't exist")
     }
-  })
-  .then(() => {
+  
+  
     // ** Removes Test From components & Form Elements
     const removeTest = () => {
       const removePromise = testFoldersToModify.map(folder => {
@@ -280,4 +252,32 @@ replaceBasePathInI18n()
     }
 
     removeTest()
-  })
+
+
+
+  // ** Replace basePath in nextConfigPath if nextConfigPath exist
+  if (fs.existsSync(nextConfigPath)) {
+    const nextConfigData = fs
+      .readFileSync(nextConfigPath)
+      .toString()
+      .split('\n')
+    const removedBasePathIfAny = nextConfigData
+      .filter(line => {
+        return line.indexOf('basePath') === -1
+      })
+      .join('\n')
+    const result = removedBasePathIfAny.replace(
+      'reactStrictMode: false,',
+      `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
+    )
+
+    fs.writeFile(nextConfigPath, result, err => {
+      if (err) {
+        console.log(err)
+
+        return
+      }
+    })
+  } else {
+    console.log('NextConfig File Does Not Exists')
+  }
