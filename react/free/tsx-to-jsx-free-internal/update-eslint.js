@@ -7,7 +7,7 @@ const data = `module.exports = {
     es6: true,
     browser: true
   },
-  parser: 'babel-eslint',
+  parser: '@babel/eslint-parser',
   extends: ['next/core-web-vitals', 'prettier'],
   parserOptions: {
     ecmaVersion: 11,

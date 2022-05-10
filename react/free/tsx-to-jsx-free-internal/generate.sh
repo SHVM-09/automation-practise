@@ -22,7 +22,7 @@ cd ../../../../master-react-mui-nextjs/javascript-version
 yarn install
 
 # Add javascript version specific eslint plugins
-yarn add babel-eslint
+yarn add babel-eslint @babel/core @babel/eslint-parser 
 
 # Run yarn lint command to fix all the linting error and give space after imports
 yarn lint

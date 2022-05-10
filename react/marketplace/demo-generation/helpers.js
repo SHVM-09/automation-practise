@@ -122,7 +122,7 @@ const dataToReplace = [
     replacements: [
       {
         from: new RegExp("'https://themeselection.com/'", 'g'),
-        to: "'https://mui.com/store/contributiors/themeselection/'"
+        to: "'https://mui.com/store/contributors/themeselection/'"
       },
       {
         from: new RegExp('https://themeselection.com/license', 'g'),
@@ -187,7 +187,7 @@ const dataToReplace = [
     replacements: [
       {
         from: new RegExp("'https://themeselection.com/'", 'g'),
-        to: "'https://mui.com/store/contributiors/themeselection/'"
+        to: "'https://mui.com/store/contributors/themeselection/'"
       },
       {
         from: new RegExp('https://themeselection.com/license', 'g'),
@@ -255,7 +255,7 @@ const dataToReset = [
     replacements: [
       {
         from: new RegExp(
-          "'https://mui.com/store/contributiors/themeselection/'",
+          "'https://mui.com/store/contributors/themeselection/'",
           'g'
         ),
         to: "'https://themeselection.com/'"
@@ -323,7 +323,7 @@ const dataToReset = [
     replacements: [
       {
         from: new RegExp(
-          "'https://mui.com/store/contributiors/themeselection/'",
+          "'https://mui.com/store/contributors/themeselection/'",
           'g'
         ),
         to: "'https://themeselection.com/'"
