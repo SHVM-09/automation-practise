@@ -3,7 +3,7 @@ node replace.js $1
 
 wait
 
-cd ../../../../materio-mui-react-nextjs-admin-template/docs
+cd ../../../../master-react-mui-nextjs/docs
 
 # Build docs
 yarn build

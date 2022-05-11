@@ -6,8 +6,8 @@
 # cd ../package-generation
 
 # # Remove already generated package
-# if [ -d "../../../../materio-mui-react-nextjs-admin-template/package" ]; then
-#     rm -rf ../../../../materio-mui-react-nextjs-admin-template/package
+# if [ -d "../../../../master-react-mui-nextjs/package" ]; then
+#     rm -rf ../../../../master-react-mui-nextjs/package
 # fi
 # wait
 # generate package folder
@@ -15,15 +15,15 @@ node package-generation.js $1
 
 wait
 
-cp ../../../../materio-mui-react-nextjs-admin-template/documentation.html ../../../../materio-mui-react-nextjs-admin-template/CHANGELOG.md ../../../../materio-mui-react-nextjs-admin-template/package
+cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
 wait 
 
-if [ -d "../../../../materio-mui-react-nextjs-admin-template/package" ]; then
+if [ -d "../../../../master-react-mui-nextjs/package" ]; then
     node remove-test.js
 fi
 
-cd ../../../../materio-mui-react-nextjs-admin-template/typescript-version/full-version
+cd ../../../../master-react-mui-nextjs/typescript-version/full-version
 yarn format
 
 wait
@@ -31,18 +31,18 @@ wait
 cd ../../
 
 
-mv package materio-mui-react-nextjs-admin-template
+mv package master-react-mui-nextjs
 
 
 # Zip the package
-zip -r materio-mui-react-nextjs-admin-template.zip materio-mui-react-nextjs-admin-template
+zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
 # # Remove package folder
-rm -rf materio-mui-react-nextjs-admin-template
+rm -rf master-react-mui-nextjs
 
 cd ../automation-scripts/react/pro/package-generation
 
-if [ -d "../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version" ]; then
-    cd ../../../../materio-mui-react-nextjs-admin-template/javascript-version/full-version
+if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
+    cd ../../../../master-react-mui-nextjs/javascript-version/full-version
     yarn format    
 fi
 
