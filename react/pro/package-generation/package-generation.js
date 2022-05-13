@@ -190,10 +190,34 @@ const generateTSXPackage = () => {
                           `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
                         )
                       }
+                    }).then(() => {
+                      const configsPathStarter = `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs`
+                      if(fs.existsSync(`${configsPathStarter}/firebase.ts`)){
+                        fs.writeFileSync(`${configsPathStarter}/firebase.ts`, fs.readFileSync('./files/firebase.ts',).toString())
+                      }else{
+                        console.log(`${pathConfig.packagePath}/typescript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`)
+                      }
+                      if(fs.existsSync(`${configsPathStarter}/aws-exports.ts`)){
+                        fs.writeFileSync(`${configsPathStarter}/aws-exports.ts`, fs.readFileSync('./files/aws-exports.ts',).toString())
+                      }else{
+                        console.log(`${pathConfig.packagePath}/typescript-version/starter-kit/src/configs/aws-exports.ts File Does Not Exist!`)
+                      }
                     })
                   }
                 }
               )
+            }
+          }).then(() => {
+            const configsPathFullVersion = `${pathConfig.packagePath}/typescript-version/full-version/src/configs`
+            if(fs.existsSync(`${configsPathFullVersion}/firebase.ts`)){
+              fs.writeFileSync(`${configsPathFullVersion}/firebase.ts`, fs.readFileSync('./files/firebase.ts',).toString())
+            }else{
+              console.log(`${pathConfig.packagePath}/typescript-version/full-version/src/configs/firebase.ts File Does Not Exist!`)
+            }
+            if(fs.existsSync(`${configsPathFullVersion}/aws-exports.ts`)){
+              fs.writeFileSync(`${configsPathFullVersion}/aws-exports.ts`, fs.readFileSync('./files/aws-exports.ts',).toString())
+            }else{
+              console.log(`${pathConfig.packagePath}/typescript-version/full-version/src/configs/aws-exports.ts File Does Not Exist!`)
             }
           })
       }
@@ -257,11 +281,40 @@ const generateJSXPackage = () => {
                           `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
                         )
                       }
+                    }).then(() => {
+
+                      const configsPathStarter = `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs`
+
+                      if(fs.existsSync(`${configsPathStarter}/firebase.js`)){
+                        fs.writeFileSync(`${configsPathStarter}/firebase.js`, fs.readFileSync('./files/firebase.ts',).toString())
+                      }else{
+                        console.log(`${pathConfig.packagePath}/javascript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`)
+                      }
+                      if(fs.existsSync(`${configsPathStarter}/aws-exports.js`)){
+                        fs.writeFileSync(`${configsPathStarter}/aws-exports.js`, fs.readFileSync('./files/aws-exports.ts',).toString())
+                      }else{
+                        console.log(`${pathConfig.packagePath}/javascript-version/starter-kit/src/configs/aws-exports.ts File Does Not Exist!`)
+                      }
                     })
                   }
                 }
               )
             }
+          }).then(() => {
+            const configsPath = `${pathConfig.packagePath}/javascript-version/full-version/src/configs`
+
+            if(fs.existsSync(`${configsPath}/firebase.js`)){
+              fs.writeFileSync(`${configsPath}/firebase.js`, fs.readFileSync('./files/firebase.ts',).toString())
+            }else{
+              console.log(`${pathConfig.packagePath}/javascript-version/full-version/src/configs/firebase.ts File Does Not Exist!`)
+            }
+            if(fs.existsSync(`${configsPath}/aws-exports.js`)){
+              fs.writeFileSync(`${configsPath}/aws-exports.js`, fs.readFileSync('./files/aws-exports.ts',).toString())
+            }else{
+              console.log(`${pathConfig.packagePath}/javascript-version/full-version/src/configs/aws-exports.ts File Does Not Exist!`)
+            }
+
+           
           })
       }
     }
