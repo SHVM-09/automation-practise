@@ -345,10 +345,14 @@ const filesToRemove = [
   BuyNowComponentPathJSX,
   `${pathConfig.starterKitTSXPath}/src/configs/i18n.ts`,
   `${pathConfig.starterKitJSXPath}/src/configs/i18n.js`,
-  `${pathConfig.starterKitTSXPath}/src/layouts/components/Autocomplete.js`,
   `${pathConfig.starterKitTSXPath}/src/layouts/components/Autocomplete.tsx`,
+  `${pathConfig.starterKitJSXPath}/src/layouts/components/Autocomplete.js`,
   `${pathConfig.starterKitTSXPath}/src/layouts/components/autocompleteIconObj.ts`,
-  `${pathConfig.starterKitTSXPath}/src/layouts/components/autocompleteIconObj.js`
+  `${pathConfig.starterKitJSXPath}/src/layouts/components/autocompleteIconObj.js`,
+  `${pathConfig.starterKitTSXPath}/src/context/FirebaseContext.tsx`,
+  `${pathConfig.starterKitJSXPath}/src/context/FirebaseContext.js`,
+  `${pathConfig.starterKitTSXPath}/src/hooks/useFirebaseAuth.tsx`,
+  `${pathConfig.starterKitJSXPath}/src/hooks/useFirebaseAuth.js`
 ]
 
 const imgFilesToKeep = [
