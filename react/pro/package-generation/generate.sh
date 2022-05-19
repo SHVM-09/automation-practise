@@ -43,7 +43,8 @@ cd ../automation-scripts/react/pro/package-generation
 
 if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
     cd ../../../../master-react-mui-nextjs/javascript-version/full-version
-    yarn format    
+    yarn format
+    yarn lint
 fi
 
 # n=0
