@@ -30,7 +30,6 @@ const appbarHorizontalPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/com
 const appbarHorizontalPathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/components/horizontal/AppBarContent.js`
 
 const filesToCopyTSX = [
-  `${pathConfig.fullVersionTSXPath}/public`,
   `${pathConfig.fullVersionTSXPath}/src`,
   `${pathConfig.fullVersionTSXPath}/styles`,
   `${pathConfig.fullVersionTSXPath}/.editorconfig`,
@@ -47,7 +46,6 @@ const filesToCopyTSX = [
 ]
 
 const filesToCopyJSX = [
-  `${pathConfig.fullVersionJSXPath}/public`,
   `${pathConfig.fullVersionJSXPath}/src`,
   `${pathConfig.fullVersionJSXPath}/styles`,
   `${pathConfig.fullVersionJSXPath}/.editorconfig`,
@@ -355,31 +353,6 @@ const filesToRemove = [
   `${pathConfig.starterKitJSXPath}/src/hooks/useFirebaseAuth.js`
 ]
 
-const imgFilesToKeep = [
-  '/images/favicon.png',
-  '/images/pages/401.png',
-  '/images/pages/404.png',
-  '/images/pages/500.png',
-  '/images/avatars/1.png',
-  '/images/pages/tree.png',
-  '/images/pages/tree-2.png',
-  '/images/pages/tree-3.png',
-  '/images/apple-touch-icon.png',
-  '/images/pages/auth-v1-tree.png',
-  '/images/pages/auth-v1-tree-2.png',
-  '/images/pages/misc-mask-dark.png',
-  '/images/pages/misc-mask-light.png',
-  '/images/pages/auth-v2-mask-dark.png',
-  '/images/pages/auth-v1-mask-dark.png',
-  '/images/pages/auth-v1-mask-light.png',
-  '/images/pages/auth-v2-mask-light.png',
-  '/images/pages/auth-v2-login-illustration-dark.png',
-  '/images/pages/auth-v2-login-illustration-light.png',
-  '/images/pages/auth-v2-register-illustration-dark.png',
-  '/images/pages/auth-v2-register-illustration-light.png',
-  '/images/pages/auth-v2-forgot-password-illustration-dark.png',
-  '/images/pages/auth-v2-forgot-password-illustration-light.png'
-]
 
 const homeAndSecondPagePaths = [
   {
@@ -406,7 +379,6 @@ module.exports = {
   LoginPathTSX,
   LoginPathJSX,
   filesToRemove,
-  imgFilesToKeep,
   filesToCopyTSX,
   filesToCopyJSX,
   filesToReplace,

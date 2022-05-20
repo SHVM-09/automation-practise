@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const pathConfig = require('../../configs/paths.json')
-const { filesToRemove, imgFilesToKeep } = require('./helpers')
+const { filesToRemove } = require('./helpers')
 
 const cleanEmptyFoldersRecursively = folder => {
   const isDir = fs.statSync(folder).isDirectory()
@@ -23,25 +22,7 @@ const cleanEmptyFoldersRecursively = folder => {
   }
 }
 
-const removeUnwantedImgFiles = dirPath => {
-  files = fs.readdirSync(dirPath)
 
-  files.forEach(function (file) {
-    if (fs.statSync(dirPath + '/' + file).isDirectory()) {
-      removeUnwantedImgFiles(dirPath + '/' + file)
-    } else {
-      const imagePath = dirPath + '/' + file
-      const imageToKeep = imagePath.substring(
-        imagePath.lastIndexOf('images') - 1
-      )
-      if (!imgFilesToKeep.includes(imageToKeep)) {
-        fs.rmSync(imagePath)
-      }
-    }
-  })
-
-  cleanEmptyFoldersRecursively(dirPath)
-}
 
 // ** Delete Files
 const deleteFiles = () => {
@@ -62,11 +43,3 @@ const deleteFiles = () => {
 }
 
 deleteFiles()
-  .then(() => {
-    removeUnwantedImgFiles(`${pathConfig.starterKitTSXPath}/public/images`)
-  })
-  .then(() => {
-    if (fs.existsSync(`${pathConfig.starterKitJSXPath}/public/images`)) {
-      removeUnwantedImgFiles(`${pathConfig.starterKitJSXPath}/public/images`)
-    }
-  })
