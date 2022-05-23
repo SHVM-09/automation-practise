@@ -3,10 +3,10 @@ set -e
 node generate-demo-configs.js
 
 # Demo generation loop
-for i in 1 2 3 4 5 6
+for i in 1 2
 do
 # Replace necessary in src folder
-	node replace.js demo-$i $1
+	node replace.js demo-$i $1 $2
   cd ../../../../master-react-mui-nextjs/typescript-version/full-version/
 # Build the template with replaced content
   yarn build
@@ -15,5 +15,5 @@ do
   mv out ../../demo-$i
 # Reset the replaced content before
   cd ../../../automation-scripts/react/pro/demo-generation
-  node reset.js demo-$i $1
+  node reset.js demo-$i $1 $2
 done
