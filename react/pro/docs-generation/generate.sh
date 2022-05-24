@@ -1,5 +1,5 @@
 # Replace necessary content
-node replace.js $1
+node replace.js $1 $2
 cd ../../../../master-react-mui-nextjs/docs
 
 # Build docs

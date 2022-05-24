@@ -7,4 +7,4 @@ wait
 
 node moveImgFiles.js
 wait 
-cp -r ../../../../materialize-mui-react-nextjs-admin-template/typescript-version/starter-kit/public ../../../../materialize-mui-react-nextjs-admin-template/javascript-version/starter-kit/public
+cp -r ../../../../master-react-mui-nextjs/typescript-version/starter-kit/public ../../../../master-react-mui-nextjs/javascript-version/starter-kit/public

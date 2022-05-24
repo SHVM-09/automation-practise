@@ -16,7 +16,6 @@ let demo = 'demo-1'
 const demoArgs = process.argv.slice(2)
 let URL = pathConfig.demoURL
 
-
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
   demo = demoArgs[0]
@@ -37,8 +36,6 @@ if (demoArgs.length > 1 && demoArgs.includes('pixinvent')) {
     URL = `/demo${pathConfig.stagingDemoURL}`
   }
 }
-
-
 
 // ** Replace Images src
 const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
