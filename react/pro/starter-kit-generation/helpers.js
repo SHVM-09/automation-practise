@@ -350,7 +350,9 @@ const filesToRemove = [
   `${pathConfig.starterKitTSXPath}/src/context/FirebaseContext.tsx`,
   `${pathConfig.starterKitJSXPath}/src/context/FirebaseContext.js`,
   `${pathConfig.starterKitTSXPath}/src/hooks/useFirebaseAuth.tsx`,
-  `${pathConfig.starterKitJSXPath}/src/hooks/useFirebaseAuth.js`
+  `${pathConfig.starterKitJSXPath}/src/hooks/useFirebaseAuth.js`,
+  `${pathConfig.starterKitTSXPath}/src/views/pages/auth/FooterIllustrationsV1.tsx`,
+  `${pathConfig.starterKitJSXPath}/src/views/pages/auth/FooterIllustrationsV1.js`
 ]
 
 
@@ -373,12 +375,17 @@ const homeAndSecondPagePaths = [
   }
 ]
 
+const imgFilesToKeep = [
+  '/public/vercel.svg'
+]
+
 module.exports = {
   AppPathTSX,
   AppPathJSX,
   LoginPathTSX,
   LoginPathJSX,
   filesToRemove,
+  imgFilesToKeep,
   filesToCopyTSX,
   filesToCopyJSX,
   filesToReplace,
