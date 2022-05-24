@@ -52,7 +52,4 @@ const replaceFiles = () => {
   })
 }
 
-
-
-
 replaceFiles().then(() => replaceFileContent())

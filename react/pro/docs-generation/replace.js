@@ -3,10 +3,22 @@ const pathConfig = require('../../configs/paths.json')
 
 let URL = pathConfig.docsURL
 
-const demoArgs = process.argv.slice(2)
+const docsArgs = process.argv.slice(2)
 
-if (demoArgs[0] !== undefined && demoArgs.includes('staging')) {
-  URL = pathConfig.stagingDocsURL
+if (docsArgs[0] !== undefined && docsArgs.includes('staging')) {
+  if(!docsArgs.includes('pixinvent')){
+    URL = pathConfig.stagingDocsURL
+  }else{
+    URL = `/demo${pathConfig.stagingDocsURL}`
+  }
+}
+
+if (docsArgs[0] !== undefined && docsArgs.includes('pixinvent')) {
+  if(!docsArgs.includes('staging')){
+    URL = `/demo${pathConfig.docsURL}`
+  }else{
+    URL = `/demo${pathConfig.stagingDocsURL}`
+  }
 }
 
 // ** Replace basePath if docs directory exists
