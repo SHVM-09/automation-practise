@@ -127,8 +127,11 @@ const filesWithTestObj = [
   `${pathConfig.fullVersionJSXPath}/src/@fake-db/server-side-menu/horizontal.ts`
 ]
 
+const templateName = pathConfig.fullVersionTSXPath.split('../').filter(i => i.length)[0].split('/')[0].split('-')[0]
+
 module.exports = {
   i18nPath,
+  templateName,
   copyDirectory,
   demoConfigPath,
   nextConfigPath,

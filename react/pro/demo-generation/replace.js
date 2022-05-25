@@ -3,6 +3,7 @@ const path = require('path')
 const pathConfig = require('../../configs/paths.json')
 const {
   i18nPath,
+  templateName,
   copyDirectory,
   nextConfigPath,
   themeConfigPath,
@@ -124,7 +125,7 @@ replaceBasePathInI18n()
         } else {
           const result = data.replace(
             new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
-            `$1settings-${demo}$4`
+            `$1${templateName}-settings-${demo}$4`
           )
           fs.writeFile(settingsContextFile, result, function (err) {
             if (err) {
