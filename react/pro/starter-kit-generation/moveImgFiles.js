@@ -10,35 +10,47 @@ const getVariableValue = (data, key) => {
   const splitData = data.split('\n')
 
   splitData.forEach(line => {
-    if (line.includes(key) && !line.includes('${')) {
-      if (line.includes('?')) {
-        const splitLine = line.split("'")
-        const lineSplitFirstVal = splitLine.findIndex(item => item.trim().includes('?')) + 1
-        const lineSplitSecondVal = splitLine.findIndex(item => item.trim().includes(':')) + 1
-        arr.push(splitLine[lineSplitFirstVal])
-        arr.push(splitLine[lineSplitSecondVal])
+    
+    if (line.includes(key) ) {
+      
+      if(!line.includes('${')) {
+        if (line.includes('?')) {
+          const splitLine = line.split("'")
+          const lineSplitFirstVal = splitLine.findIndex(item => item.trim().includes('?')) + 1
+          const lineSplitSecondVal = splitLine.findIndex(item => item.trim().includes(':')) + 1
+          arr.push(splitLine[lineSplitFirstVal])
+          arr.push(splitLine[lineSplitSecondVal])
+        }
+  
+        if (line.endsWith('=')) {
+          
+          const checkSecondLine = splitData[splitData.indexOf(line) + 1]
+          const splitSecondLine = checkSecondLine.split("'")
+  
+          const checkThirdLine = splitData[splitData.indexOf(line) + 2]
+          const splitThirdLine = checkThirdLine.split("'")
+  
+          if (checkSecondLine.includes('?')) {
+            const val = splitSecondLine.findIndex(item => item.trim().includes('?')) + 1
+            arr.push(splitSecondLine[val])
+            if(checkSecondLine.includes(':')){
+              const val = splitSecondLine.findIndex(item => item.trim().includes(':')) + 1
+              arr.push(splitSecondLine[val])
+            }
+          }
+          
+          if(checkThirdLine.trim().length){
+            if (checkThirdLine.includes(':')) {
+              const val = splitThirdLine.findIndex(item => item.trim().includes(':')) + 1
+              arr.push(splitThirdLine[val])
+            }
+          }
+        }
       }
 
-      if (line.endsWith('=')) {
-        const checkSecondLine = splitData[splitData.indexOf(line) + 2]
-        const splitSecondLine = checkSecondLine.split("'")
-
-        const checkThirdLine = splitData[splitData.indexOf(line) + 3]
-        const splitThirdLine = checkThirdLine.split("'")
-
-        if (checkSecondLine.includes('?')) {
-          const val = splitSecondLine.findIndex(item => item.trim().includes('?')) + 1
-          arr.push(splitSecondLine[val])
-        }
-
-        if (checkThirdLine.includes(':')) {
-          const val = splitThirdLine.findIndex(item => item.trim().includes(':')) + 1
-          arr.push(splitThirdLine[val])
-        }
-      }
     }
   })
-
+  
   return arr
 }
 
