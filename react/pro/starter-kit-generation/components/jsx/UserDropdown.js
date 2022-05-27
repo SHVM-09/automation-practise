@@ -102,7 +102,7 @@ const UserDropdown = props => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={() => handleDropdownClose()}
-        sx={{ '& .MuiMenu-paper': { width: 230, marginTop: 4 } }}
+        sx={{ '& .MuiMenu-paper': { mt: 4, width: 230 } }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: direction === 'ltr' ? 'right' : 'left'
@@ -130,8 +130,8 @@ const UserDropdown = props => {
             </Badge>
             <Box
               sx={{
+                ml: 3,
                 display: 'flex',
-                marginLeft: 3,
                 alignItems: 'flex-start',
                 flexDirection: 'column'
               }}
@@ -149,38 +149,38 @@ const UserDropdown = props => {
         <Divider sx={{ mt: 0, mb: 1 }} />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <AccountOutline sx={{ marginRight: 2 }} />
+            <AccountOutline sx={{ mr: 2 }} />
             Profile
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <EmailOutline sx={{ marginRight: 2 }} />
+            <EmailOutline sx={{ mr: 2 }} />
             Inbox
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <MessageOutline sx={{ marginRight: 2 }} />
+            <MessageOutline sx={{ mr: 2 }} />
             Chat
           </Box>
         </MenuItem>
         <Divider />
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <CogOutline sx={{ marginRight: 2 }} />
+            <CogOutline sx={{ mr: 2 }} />
             Settings
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <CurrencyUsd sx={{ marginRight: 2 }} />
+            <CurrencyUsd sx={{ mr: 2 }} />
             Pricing
           </Box>
         </MenuItem>
         <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose()}>
           <Box sx={styles}>
-            <HelpCircleOutline sx={{ marginRight: 2 }} />
+            <HelpCircleOutline sx={{ mr: 2 }} />
             FAQ
           </Box>
         </MenuItem>
@@ -188,7 +188,7 @@ const UserDropdown = props => {
         <MenuItem sx={{ py: 2 }} onClick={handleLogout}>
           <LogoutVariant
             sx={{
-              marginRight: 2,
+              mr: 2,
               fontSize: '1.375rem',
               color: 'text.secondary'
             }}
