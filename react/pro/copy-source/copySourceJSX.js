@@ -33,7 +33,7 @@ const generateJSXSourceCode = () => {
         ) {
           const parentFolderJSX = path.basename(path.dirname(fileJSX))
           const fileNameJSX = path.basename(fileJSX, '.js')
-          const sourceToReadJSX = sourceFilesJSX.filter(j =>
+          const sourceToReadJSX = sourceFilesJSX.filter(j =>            
             j.includes(parentFolderJSX)
           )[0]
 

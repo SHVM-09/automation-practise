@@ -54,7 +54,6 @@ const generateFakeDB = (parentFolder, fakeDBPath, version) => {
 
       return
     } else {
-      console.log(fakeDBPath)
       copyRecursiveSync(
         `${fakeDBPath}/auth`,
         `${parentFolder}/src/@fake-db/auth`

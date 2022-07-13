@@ -105,7 +105,7 @@ const replaceCodeWithNull = (dir, version) => {
         let result = data
 
         if (version === 'tsx') {
-          result = data.replace(new RegExp(/tsx:.*/, 'g'), `tsx: null,`)
+          result = data.replace(new RegExp(/tsx: .*,/, 'g'), `tsx: null,`)
         } else if (version === 'jsx') {
           result = data.replace(new RegExp(/jsx:.*/, 'g'), `jsx: null,`)
         } else {

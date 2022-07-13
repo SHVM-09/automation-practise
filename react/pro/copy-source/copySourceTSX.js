@@ -129,8 +129,8 @@ generateTSXSourceCode().then(() => {
           } else {
             const linesToReplace = []
             let result = data
-            const splitData = data.split('\r\n')
-
+            const splitData = data.split('\n')
+            
             splitData.forEach((line, index) => {
               if (line.trim().includes('jsx: null')) {
                 const replaced = splitData[index - 1]
@@ -149,7 +149,6 @@ generateTSXSourceCode().then(() => {
                 })
               }
             })
-
             linesToReplace.forEach(r => {
               result = result.replace(r.line, r.replacement)
             })
