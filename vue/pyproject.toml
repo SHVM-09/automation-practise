@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "clevision-vue-automations"
+version = "0.1.0"
+description = ""
+authors = ["JD Solanki <jdsolanki0001@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+typer = "^0.6.1"
+pydantic = "^1.9.1"
+pytest = "^7.1.2"
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.971"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

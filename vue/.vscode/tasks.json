@@ -1,0 +1,24 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run pytest in terminal",
+            "type": "shell",
+            "command": "${command:python.interpreterPath} -m pytest -s -v",
+        },
+        {
+            "label": "Run specific pytest test in terminal",
+            "type": "shell",
+            "command": "${command:python.interpreterPath} -m pytest -s -v -k ${input:test_name}",
+        },
+    ],
+    "inputs": [
+        {
+            "id": "test_name",
+            "description": "Test name to search in pytest tests",
+            "type": "promptString"
+        },
+    ]
+}
