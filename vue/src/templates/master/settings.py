@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import cast
 
 from pydantic import HttpUrl
-from src.templates.base.settings import BaseConfigSchema
+from templates.base.settings import BaseConfigSchema
 
 
 class MasterConfigSchema(BaseConfigSchema):

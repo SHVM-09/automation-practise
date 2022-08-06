@@ -1,5 +1,5 @@
-from src.templates.base.template import TemplateBase
-from src.templates.master.settings import MasterConfig
+from templates.base.template import TemplateBase
+from templates.master.settings import MasterConfig
 
 
 class Master(TemplateBase):

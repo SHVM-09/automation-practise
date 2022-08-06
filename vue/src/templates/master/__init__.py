@@ -1,5 +1,5 @@
 import typer
-from src.templates.master.template import Master
+from templates.master.template import Master
 
 app = typer.Typer()
 

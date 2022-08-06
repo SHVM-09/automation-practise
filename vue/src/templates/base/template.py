@@ -5,6 +5,7 @@ from pathlib import Path
 from random import randint
 
 from .settings import BaseConfigSchema
+from .autofill_code_blocks import AutoFillCodeBlocks
 
 
 class TempLocation:
@@ -26,3 +27,6 @@ class TemplateBase(ABC):
         self.config = config
 
         print(f"self.config: {self.config}")
+
+        # Composition over inheritance
+        self.autofill_code_blocks = AutoFillCodeBlocks(self.config.SOURCE_DIR)

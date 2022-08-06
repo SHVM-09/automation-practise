@@ -1,8 +1,8 @@
 import typer
 
-from src.templates.master import app as master
+from templates.master import app as master
 
-# from src.templates.sneat.typer_app import app as sneat
+# from templates.sneat.typer_app import app as sneat
 
 app = typer.Typer()
 app.add_typer(master, name="master", help="Run various Master commands")

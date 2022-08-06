@@ -7,7 +7,7 @@
     ],
     "python.analysis.extraPaths": [
         // "./src",
-        "${workspaceFolder}",
+        // "${workspaceFolder}",
     ],
     "files.exclude": {
         "**/.git": true,
