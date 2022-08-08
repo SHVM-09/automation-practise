@@ -4,8 +4,8 @@ from abc import ABC
 from pathlib import Path
 from random import randint
 
+from .autofill_code_snippets import AutoFillCodeSnippets
 from .settings import BaseConfigSchema
-from .autofill_code_blocks import AutoFillCodeBlocks
 
 
 class TempLocation:
@@ -19,6 +19,7 @@ class TempLocation:
 
         shutil.rmtree(self.TEMP_DIR)
 
+
 class TemplateBase(ABC):
     """This class is created with intention of all derived class will be vue templates"""
 
@@ -26,7 +27,5 @@ class TemplateBase(ABC):
         self.temp_location = TempLocation()
         self.config = config
 
-        print(f"self.config: {self.config}")
-
         # Composition over inheritance
-        self.autofill_code_blocks = AutoFillCodeBlocks(self.config.SOURCE_DIR)
+        self.autofill_code_blocks = AutoFillCodeSnippets(self.config.SOURCE_DIR)
