@@ -23,7 +23,7 @@ class AutoFillCodeSnippets:
         """
         return (
             f"export const {var_name} = "
-            + r"{ ts: [`'\"]{1}((\n|.)*?)[`'\"]{1}, js: [`'\"]{1}((\n|.)*?)[`'\"]{1},? }"
+            + r"{[\s\n]*ts: [`'\"]{1}((\n|.)*?)[`'\"]{1},[\s\n]*js: [`'\"]{1}((\n|.)*?)[`'\"]{1},?[\s\n]*}"
         )
 
     def fill_code_snippets(self):
