@@ -27,6 +27,13 @@ const copyDirectory = (source, destination) => {
 
 const testFoldersToModify = [
   {
+    from: `${pathConfig.packageTSXPath}/src/pages/ui/icons-test`,
+    to: `./temp-folder/${pathConfig.fullVersionTSXPath.replace(
+      '../../../../',
+      ''
+    )}/src/pages/ui/icons-test`
+  },
+  {
     from: `${pathConfig.fullVersionTSXPath}/src/views/components/test`,
     to: `./temp-folder/${pathConfig.fullVersionTSXPath.replace(
       '../../../',

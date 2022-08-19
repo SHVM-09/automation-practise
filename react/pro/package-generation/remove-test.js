@@ -21,6 +21,10 @@ const copyDirectory = (source, destination) => {
 
 const testFoldersToModify = [
   {
+    from: `${pathConfig.packageTSXPath}/src/pages/ui/icons-test`,
+    to: `./temp-folder/${pathConfig.packageTSXPath}/src/pages/ui/icons-test`
+  },
+  {
     from: `${pathConfig.packageTSXPath}/src/views/components/test`,
     to: `./temp-folder/${pathConfig.packageTSXPath}/src/views/components/test`
   },
@@ -83,10 +87,11 @@ const removeTest = () => {
           } else {
             if (data.includes("title: 'Test'")) {
               const updatedData = data
-                .replace(/title: 'Test',/g, '')
-                .replace("path: '/components/test'", '')
-                .replace("path: '/forms/form-elements/test'", '')
-                .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+              .replace(/title: 'Test',[\s\S].*/g, '')
+              .replace(/title: 'Icons Test',[\s\S].*[\s\S].*/g, '')
+              .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+              .replace(/,,/g, ',')
+              
               fs.writeFile(file, '', err => {
                 if (err) {
                   console.log(err)

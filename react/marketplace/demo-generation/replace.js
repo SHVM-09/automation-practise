@@ -223,10 +223,10 @@ replaceBasePathInI18n()
                   console.log(err)
                 } else {
                   const updatedData = data
-                    .replace(/title: 'Test',/g, '')
-                    .replace("path: '/components/test'", '')
-                    .replace("path: '/forms/form-elements/test'", '')
-                    .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+                  .replace(/title: 'Test',[\s\S].*/g, '')
+                  .replace(/title: 'Icons Test',[\s\S].*[\s\S].*/g, '')
+                  .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
+                  .replace(/,,/g, ',')
                   fs.writeFile(file, '', err => {
                     if (err) {
                       console.log(err)
