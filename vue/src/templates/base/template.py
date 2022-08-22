@@ -6,6 +6,7 @@ from random import randint
 
 from .autofill_code_snippets import AutoFillCodeSnippets
 from .settings import BaseConfigSchema
+from .ts_converter import TsConverter
 
 
 class TempLocation:
@@ -29,3 +30,4 @@ class TemplateBase(ABC):
 
         # Composition over inheritance
         self.autofill_code_blocks = AutoFillCodeSnippets(self.config.SOURCE_DIR)
+        self.ts_converter = TsConverter(self.config)

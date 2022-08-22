@@ -1,5 +1,6 @@
 import fileinput
 import re
+import subprocess
 from pathlib import Path
 
 from utils import to_camel_case
@@ -7,7 +8,8 @@ from utils import to_camel_case
 
 class AutoFillCodeSnippets:
     def __init__(self, source_dir: str | Path):
-        self.SOURCE_DIR = Path(source_dir)
+        self.SOURCE_ROOT_DIR = Path(source_dir)
+        self.SRC_DIR = self.SOURCE_ROOT_DIR / "src"
 
     def gen_demo_var_name_regex(self, var_name: str):
         """
@@ -29,7 +31,7 @@ class AutoFillCodeSnippets:
     def fill_code_snippets(self):
 
         # Find snippet files
-        for snippet_file in (self.SOURCE_DIR / "src").rglob("demoCode*.ts"):
+        for snippet_file in self.SRC_DIR.rglob("demoCode*.ts"):
 
             # Directory while hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
             SNIPPETS_DIR = snippet_file.parent
@@ -69,3 +71,40 @@ class AutoFillCodeSnippets:
 
                 # Finally, when all demos are injected in file content use it to update the snippet file
                 snippet_file_fp.write(snippet_file_content)
+
+    def compile_to_js(self):
+        """@deprecated"""
+
+        SCRIPT_BLOCK_CONTENT_REGEX = re.compile(
+            r"^<script.*>((\n|.)*?)</script>$", re.MULTILINE
+        )
+
+        # Extract script block to ts file
+        for sfc in self.SRC_DIR.rglob("*.vue"):
+            result = re.search(SCRIPT_BLOCK_CONTENT_REGEX, sfc.read_text())
+            if result:
+                with open(sfc.parent / f"_{sfc.name}.ts", "w") as fp:
+                    fp.write(result.group(1).strip())
+
+        # Compile the project
+        subprocess.run(
+            [
+                "npm",
+                "exec",
+                "--no",
+                "--",
+                "tsc",
+                "--project",
+                self.SOURCE_ROOT_DIR,
+                "--allowUnusedLabels",
+                "--preserveValueImports",
+                "--sourceMap",
+                "false",
+                "--noImplicitUseStrict",
+                # We need to set alwaysStrict to false because we truthy in tsconfig. Without it, noImplicitUseStrict will get conflict
+                "--alwaysStrict",
+                "false",
+            ],
+            cwd=self.SOURCE_ROOT_DIR,
+            stdout=subprocess.DEVNULL,
+        )

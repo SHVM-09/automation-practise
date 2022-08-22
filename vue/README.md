@@ -26,20 +26,8 @@
 
 ## Convert TS project to JS
 
-We need a few files:
-
-1. tsconfig.emitJS.json
-
----
-
-1. Traverse the src dir
-
-   - (file) If the file is Vue SFC
-      - Extract the script part to the TS file (_ts file should have `_` as a prefix. e.g._App.vue.ts_)
-
-2. Compile the project
-3. Traverse the src dir
-   1. Fill JS snippets
-   2. Replace generated JS with the script block (_Make sure to remove the lang attr_)
-   3. Remove emitted JS file (_if not debugging_)
-4. Format the code using a linter
+1. Copy source to temp dir
+2. Traverse the dir
+   1. if file is SFC then get the JS code and replace script tag
+3. Run TS compiler on all TS & TSX files => JS, JSX
+4. Format the code using eslint
