@@ -1,6 +1,8 @@
 import shutil
+import subprocess
 import tempfile
 from abc import ABC
+from functools import partial
 from pathlib import Path
 from random import randint
 
@@ -31,3 +33,6 @@ class TemplateBase(ABC):
         # Composition over inheritance
         self.autofill_code_blocks = AutoFillCodeSnippets(self.config.SOURCE_DIR)
         self.ts_converter = TsConverter(self.config)
+        # self.subprocess_run = partial(
+        #     subprocess.run, cwd=self.temp_location.TEMP_DIR, check=True
+        # )

@@ -3,7 +3,8 @@
     "python.formatting.provider": "black",
     "files.defaultLanguage": "python",
     "cSpell.words": [
-        "typer"
+        "typer",
+        "vite"
     ],
     "python.analysis.extraPaths": [
         // "./src",

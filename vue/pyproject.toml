@@ -9,6 +9,7 @@ python = "^3.10"
 typer = "^0.6.1"
 pydantic = "^1.9.1"
 pytest = "^7.1.2"
+rich = "^12.5.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.971"
