@@ -1,0 +1,37 @@
+{
+  "demo-1": [],
+  "demo-2": [
+    {
+      "match": "skin: EnumSkins.Default",
+      "replace": "skin: EnumSkins.Bordered"
+    }
+  ],
+  "demo-3": [
+    {
+      "match": "isVerticalNavSemiDark: false",
+      "replace": "isVerticalNavSemiDark: true"
+    }
+  ],
+  "demo-4": [
+    {
+      "match": "theme: 'light'",
+      "replace": "theme: 'dark'"
+    }
+  ],
+  "demo-5": [
+    {
+      "match": "contentLayoutNav: EnumAppContentLayoutNav.Vertical",
+      "replace": "contentLayoutNav: EnumAppContentLayoutNav.Horizontal"
+    }
+  ],
+  "demo-6": [
+    {
+      "match": "contentLayoutNav: EnumAppContentLayoutNav.Vertical",
+      "replace": "contentLayoutNav: EnumAppContentLayoutNav.Horizontal"
+    },
+    {
+      "match": "theme: 'light'",
+      "replace": "theme: 'dark'"
+    }
+  ]
+}
