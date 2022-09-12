@@ -12,7 +12,7 @@ do
 # Build the template with replaced content
   yarn build
 # Move the demo to root folder
-  mv dist demo-$i
+  mv dist ../../demo-$i
 # Reset the replaced content before
   cd ../../../automation-scripts/vue-node/
   node reset.js demo-$i
