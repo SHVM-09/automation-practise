@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
-const shell = require('child_process').execSync
 const pathConfig = require('../../configs/paths.json')
+const { removeTest } = require('../../remove-test/remove-test')
 const {
   filesToCopyTSX,
   filesToCopyJSX,
@@ -347,11 +347,17 @@ if (!fs.existsSync(pathConfig.packagePath)) {
     if (err) {
       console.log(err)
     } else {
-      generate()
+      const generatePromise = () =>new Promise(resolve => {
+        generate()
       copyRecursiveSync(
         `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
         `${pathConfig.packagePath}/.vscode`
       )
+        resolve()
+      })
+      
+      generatePromise()
+      .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
     }
   })
 } else {
@@ -363,11 +369,18 @@ if (!fs.existsSync(pathConfig.packagePath)) {
         if (err) {
           console.log(err)
         } else {
-          generate()
+         
+          const generatePromise = () =>new Promise(resolve => {
+            generate()
           copyRecursiveSync(
             `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
             `${pathConfig.packagePath}/.vscode`
           )
+            resolve()
+          })
+          
+          generatePromise()
+          .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
         }
       })
     }

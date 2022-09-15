@@ -4,7 +4,7 @@
     "skin": "bordered"
   },
   "demo-3": {
-    "skin": "semi-dark"
+    "mode": "semi-dark"
   },
   "demo-4": {
     "mode": "dark"

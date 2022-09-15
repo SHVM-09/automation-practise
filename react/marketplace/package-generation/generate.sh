@@ -19,10 +19,6 @@ cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-rea
 
 wait 
 
-if [ -d "../../../../master-react-mui-nextjs/package" ]; then
-    node remove-test.js
-fi
-
 cd ../../../../master-react-mui-nextjs/typescript-version/full-version
 yarn format
 
