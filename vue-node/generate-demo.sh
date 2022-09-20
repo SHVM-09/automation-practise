@@ -2,6 +2,7 @@ set -e
 # Generate demo configs
 node modify-build-command.js
 
+# run like :'./generate-demo.sh' in git bash
 # Demo generation loop
 for i in 1 2 3 4 5 6
 do
