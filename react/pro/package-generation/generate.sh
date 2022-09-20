@@ -17,35 +17,30 @@ wait
 
 cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
-wait 
 
-if [ -d "../../../../master-react-mui-nextjs/package" ]; then
-    node remove-test.js
-fi
+# cd ../../../../master-react-mui-nextjs/typescript-version/full-version
+# yarn format
 
-cd ../../../../master-react-mui-nextjs/typescript-version/full-version
-yarn format
+# wait
 
-wait
-
-cd ../../
+# cd ../../
 
 
-mv package master-react-mui-nextjs
+# mv package master-react-mui-nextjs
 
 
-# Zip the package
-zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
-# # Remove package folder
-rm -rf master-react-mui-nextjs
+# # Zip the package
+# zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+# # # Remove package folder
+# rm -rf master-react-mui-nextjs
 
-cd ../automation-scripts/react/pro/package-generation
+# cd ../automation-scripts/react/pro/package-generation
 
-if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
-    cd ../../../../master-react-mui-nextjs/javascript-version/full-version
-    yarn format
-    yarn lint
-fi
+# if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
+#     cd ../../../../master-react-mui-nextjs/javascript-version/full-version
+#     yarn format
+#     yarn lint
+# fi
 
 # n=0
 # commands=("node ../starter-kit-generation/starter-kit-generation.js" "node package-generation.js $1")

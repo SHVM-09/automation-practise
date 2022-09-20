@@ -1,16 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
+const { resetTestDirs } = require('../../remove-test/remove-test')
 const {
   i18nPath,
-  copyDirectory,
   dataToReset,
   demoConfigPath,
   nextConfigPath,
   themeConfigPath,
-  testFoldersToCopy,
   settingsContextFile,
-  testFoldersToModify
 } = require('./helpers')
 
 let demo = 'demo-1'
@@ -196,38 +194,15 @@ replaceWithMarketPlace()
 } else {
   console.log('themeConfigPath file & demoConfigPath file Does Not Exists')
 }
-  // ** Adds Test to components & Form Elements
-  const resetTestFolders = () => {
-    const resetPromise = testFoldersToModify.map(folder => {
-      return new Promise(resolve => {
-        if (fs.existsSync(folder.to)) {
-          copyDirectory(folder.to, folder.from)
-        }
+ // ** Adds Test to components & Form Elements
 
-        resolve()
-      })
-    })
+ const resetTestDirPromise = () => new Promise(resolve => {
+  resetTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
+  resolve()
+})
 
-    Promise.all(resetPromise)
-      .then(() => {
-        testFoldersToCopy.map(folder => {
-          if (fs.existsSync(folder.to)) {
-            copyDirectory(folder.to, folder.from)
-          }
-        })
-      })
-      .then(() => {
-        if (fs.existsSync(`./${URL}`)) {
-          fs.rm(`./${URL}`, { recursive: true }, err => {
-            if (err) {
-              console.log(err)
-            }
-          })
-        }
-      })
-  }
-
-  resetTestFolders()
+resetTestDirPromise()
+.then(() => resetTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
 
   // ** Reset replaced basePath if nextConfigPath exist
   if (fs.existsSync(nextConfigPath)) {

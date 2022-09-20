@@ -1,17 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
+const { removeTest, copyTestDirs } = require('../../remove-test/remove-test')
 const {
   i18nPath,
   templateName,
-  copyDirectory,
   dataToReplace,
   nextConfigPath,
   themeConfigPath,
-  filesWithTestObj,
-  testFoldersToCopy,
   settingsContextFile,
-  testFoldersToModify
 } = require('./helpers')
 
 let demo = 'demo-1'
@@ -192,67 +189,14 @@ replaceBasePathInI18n()
   
   
     // ** Removes Test From components & Form Elements
-    const removeTest = () => {
-      const removePromise = testFoldersToModify.map(folder => {
-        return new Promise(resolve => {
-          if (fs.existsSync(folder.from)) {
-            copyDirectory(folder.from, folder.to)
-          }
-
+        const copyTestDirPromise = () => new Promise(resolve => {
+          copyTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
           resolve()
         })
-      })
 
-      Promise.all(removePromise)
-        .then(() => {
-          testFoldersToModify.map(folder => {
-            if (fs.existsSync(folder.from)) {
-              fs.rm(folder.from, { recursive: true }, err => {
-                if (err) {
-                  console.log(err)
-                }
-              })
-            }
-          })
-        })
-        .then(() => {
-          filesWithTestObj.map(file => {
-            if (fs.existsSync(file)) {
-              fs.readFile(file, 'utf-8', (err, data) => {
-                if (err) {
-                  console.log(err)
-                } else {
-                  const updatedData = data
-                  .replace(/title: 'Test',[\s\S].*/g, '')
-                  .replace(/title: 'Icons Test',[\s\S].*[\s\S].*/g, '')
-                  .replace(/[\s]*?{[\s]*?[\s]*?}/g, '')
-                  .replace(/,,/g, ',')
-                  fs.writeFile(file, '', err => {
-                    if (err) {
-                      console.log(err)
-                    }
-
-                    fs.writeFile(file, updatedData, err => {
-                      if (err) {
-                        console.log(err)
-                      }
-                    })
-                  })
-                }
-              })
-            }
-          })
-        })
-        .then(() => {
-          testFoldersToCopy.map(folder => {
-            if (fs.existsSync(folder.from)) {
-              copyDirectory(folder.from, folder.to)
-            }
-          })
-        })
-    }
-
-    removeTest()
+        copyTestDirPromise()
+        .then(() => removeTest(pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
+        .then(() => copyTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
 
 
 
