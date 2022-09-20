@@ -11,7 +11,7 @@ do
   
   cd ../../vue/typescript-version/full-version/
 # Build the template with replaced content
-  yarn build
+  yarn build --base=/materio-vuetify-vuejs-admin-template/demo-$i/
 # Move the demo to root folder
   mv dist ../../demo-$i
 # Reset the replaced content before
