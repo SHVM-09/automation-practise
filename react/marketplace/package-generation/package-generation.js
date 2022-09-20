@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const { removeTest } = require('../../remove-test/remove-test')
 const pathConfig = require('../../configs/paths.json')
 const {
   filesToCopyTSX,
@@ -284,33 +285,45 @@ const generate = () => {
   }
 }
 
-// ** If packagePath exists the remove folder generate else create folder & generate
-if (!fs.existsSync(`${pathConfig.packagePath}`)) {
-  fs.mkdir(`${pathConfig.packagePath}`, err => {
+if (!fs.existsSync(pathConfig.packagePath)) {
+  fs.mkdir(pathConfig.packagePath, err => {
     if (err) {
       console.log(err)
     } else {
-      generate()
+      const generatePromise = () =>new Promise(resolve => {
+        generate()
       copyRecursiveSync(
         `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
         `${pathConfig.packagePath}/.vscode`
       )
+        resolve()
+      })
+      
+      generatePromise()
+      .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
     }
   })
 } else {
-  fs.rm(`${pathConfig.packagePath}`, { recursive: true, force: true }, err => {
+  fs.rm(pathConfig.packagePath, { recursive: true, force: true }, err => {
     if (err) {
       console.log(err)
     } else {
-      fs.mkdir(`${pathConfig.packagePath}`, err => {
+      fs.mkdir(pathConfig.packagePath, err => {
         if (err) {
           console.log(err)
         } else {
-          generate()
+         
+          const generatePromise = () =>new Promise(resolve => {
+            generate()
           copyRecursiveSync(
             `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
             `${pathConfig.packagePath}/.vscode`
           )
+            resolve()
+          })
+          
+          generatePromise()
+          .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
         }
       })
     }

@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "baseUrl": "../../../master-react-mui-nextjs/typescript-version/full-version/",
+    "rootDir": "../../../master-react-mui-nextjs/typescript-version/full-version/src",
+    "outDir": "../../../master-react-mui-nextjs/javascript-version/full-version/src",
+    "target": "esnext",
+    "lib": [
+      "ES2020"
+    ],
+    "pretty": true,
+    "allowJs": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "skipDefaultLibCheck": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve"
+  },
+  "include": [
+    "../../../master-react-mui-nextjs/typescript-version/full-version/src"
+  ],
+  "exclude": [
+    "../../../master-react-mui-nextjs/typescript-version/full-version/node_modules"
+  ]
+}
