@@ -2,8 +2,8 @@
   "demo-1": [],
   "demo-2": [
     {
-      "match": "skin: EnumSkins.Default",
-      "replace": "skin: EnumSkins.Bordered"
+      "match": "skin: Skins.Default",
+      "replace": "skin: Skins.Bordered"
     }
   ],
   "demo-3": [
@@ -20,14 +20,14 @@
   ],
   "demo-5": [
     {
-      "match": "contentLayoutNav: EnumAppContentLayoutNav.Vertical",
-      "replace": "contentLayoutNav: EnumAppContentLayoutNav.Horizontal"
+      "match": "contentLayoutNav: AppContentLayoutNav.Vertical",
+      "replace": "contentLayoutNav: AppContentLayoutNav.Horizontal"
     }
   ],
   "demo-6": [
     {
-      "match": "contentLayoutNav: EnumAppContentLayoutNav.Vertical",
-      "replace": "contentLayoutNav: EnumAppContentLayoutNav.Horizontal"
+      "match": "contentLayoutNav: AppContentLayoutNav.Vertical",
+      "replace": "contentLayoutNav: AppContentLayoutNav.Horizontal"
     },
     {
       "match": "theme: 'light'",
