@@ -6,6 +6,11 @@ from pathlib import Path
 from utils import to_camel_case
 
 
+def replace_path(path: Path, start: str, prepend: str):
+    index = path.parts.index(start)
+    return Path(prepend).joinpath(*path.parts[index:])
+
+
 class AutoFillCodeSnippets:
     def __init__(self, source_dir: str | Path):
         self.SOURCE_ROOT_DIR = Path(source_dir)
@@ -28,12 +33,16 @@ class AutoFillCodeSnippets:
             + r"{[\s\n]*ts: [`'\"]{1}((\n|.)*?)[`'\"]{1},[\s\n]*js: [`'\"]{1}((\n|.)*?)[`'\"]{1},?[\s\n]*}"
         )
 
-    def fill_code_snippets(self):
+    def fill_code_snippets(self, js: Path | None):
+
+        _SRC_DIR = js or self.SRC_DIR
 
         # Find snippet files
-        for snippet_file in self.SRC_DIR.rglob("demoCode*.ts"):
+        for snippet_file in _SRC_DIR.rglob(
+            "demoCode*.ts" if not js else "demoCode*.js"
+        ):
 
-            # Directory while hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
+            # Directory that hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
             SNIPPETS_DIR = snippet_file.parent
 
             # Remove `demoCode` prefix & `.ts` suffix to extract the name. (e.g. demoCodeAlert.ts => Alert)
@@ -49,8 +58,10 @@ class AutoFillCodeSnippets:
                 # Loop over all demo files except snippet file
                 for demo in SNIPPETS_DIR.rglob("*.vue"):
 
-                    # Get the demo code
-                    DEMO_CONTENT = demo.read_text()
+                    # Get the demo code & escape back ticks
+                    DEMO_CONTENT = (
+                        demo.read_text().replace("`", r"\`").replace("$", r"\$")
+                    )
 
                     # demo.name[4:-4] => Remove `demo` prefix & `.vue` suffix (e.g. DemoAlertBasic.vue => AlertBasic)
                     # ℹ️ Result will be in pascal case
@@ -65,12 +76,21 @@ class AutoFillCodeSnippets:
                     # Update the file content and assign it to itself so other demos can use the updated content
                     snippet_file_content = re.sub(
                         REGEX_TO_REPLACE_DEMO_CONTENT,
-                        f"""export const {DEMO_VAR_NAME} = {{ ts: `{DEMO_CONTENT}`, js: `` }}""",
+                        rf"""export const {DEMO_VAR_NAME} = {{ ts: `{DEMO_CONTENT}`, js: `\3` }}"""
+                        if not js
+                        else rf"""export const {DEMO_VAR_NAME} = {{ ts: `\1`, js: `{DEMO_CONTENT}` }}""",
                         snippet_file_content,
                     )
 
                 # Finally, when all demos are injected in file content use it to update the snippet file
                 snippet_file_fp.write(snippet_file_content)
+
+                # If it's JS project write to TS code snippets as well
+                if js:
+                    ts_snippet_file = replace_path(
+                        snippet_file, "src", str(self.SOURCE_ROOT_DIR)
+                    ).with_suffix(".ts")
+                    ts_snippet_file.write_text(snippet_file_content)
 
     def compile_to_js(self):
         """@deprecated"""

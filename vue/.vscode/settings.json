@@ -3,6 +3,7 @@
     "python.formatting.provider": "black",
     "files.defaultLanguage": "python",
     "cSpell.words": [
+        "Materio",
         "typer",
         "vite"
     ],
