@@ -1,27 +1,48 @@
 {
-  "demo-1": [],
+  "demo-1": [
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-1'"
+    }
+  ],
   "demo-2": [
     {
       "match": "skin: Skins.Default",
       "replace": "skin: Skins.Bordered"
+    },
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-2'"
     }
   ],
   "demo-3": [
     {
       "match": "isVerticalNavSemiDark: false",
       "replace": "isVerticalNavSemiDark: true"
+    },
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-3'"
     }
   ],
   "demo-4": [
     {
       "match": "theme: 'light'",
       "replace": "theme: 'dark'"
+    },
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-4'"
     }
   ],
   "demo-5": [
     {
       "match": "contentLayoutNav: AppContentLayoutNav.Vertical",
       "replace": "contentLayoutNav: AppContentLayoutNav.Horizontal"
+    },
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-5'"
     }
   ],
   "demo-6": [
@@ -32,6 +53,10 @@
     {
       "match": "theme: 'light'",
       "replace": "theme: 'dark'"
+    },
+    {
+      "match": "title: 'Materio'",
+      "replace": "title: 'Materio-demo-6'"
     }
   ]
 }
