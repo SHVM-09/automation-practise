@@ -122,6 +122,10 @@ const replaceCodeWithNull = (dir, version) => {
   })
 }
 
+const checkEndsWith = (arr, string) => {
+  return arr.some(i => string.endsWith(i))
+}
+
 const componentFilesTSX = getAllFilesWithSource(componentsPathTSX)
 const formsFilesTSX = getAllFilesWithSource(formsPathTSX)
 const componentFilesJSX = getAllFilesWithSource(componentsPathJSX) || []
@@ -137,6 +141,7 @@ module.exports = {
   AllFilesJSX,
   formsPathTSX,
   formsPathJSX,
+  checkEndsWith,
   sourceFilesTSX,
   sourceFilesJSX,
   getAllIndexFiles,

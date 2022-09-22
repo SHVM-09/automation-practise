@@ -2,13 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
 const { removeTest, copyTestDirs } = require('../../remove-test/remove-test')
-const {
-  i18nPath,
-  templateName,
-  nextConfigPath,
-  themeConfigPath,
-  settingsContextFile,
-} = require('./helpers')
+const { i18nPath, templateName, nextConfigPath, themeConfigPath, settingsContextFile } = require('./helpers')
 
 let demo = 'demo-1'
 const demoArgs = process.argv.slice(2)
@@ -20,17 +14,17 @@ if (demoArgs[0] !== undefined) {
 }
 
 if (demoArgs.length > 1 && demoArgs.includes('staging')) {
-  if(!demoArgs.includes('pixinvent')){
+  if (!demoArgs.includes('pixinvent')) {
     URL = pathConfig.stagingDemoURL
-  }else{
+  } else {
     URL = `/demo${pathConfig.stagingDemoURL}`
   }
 }
 
 if (demoArgs.length > 1 && demoArgs.includes('pixinvent')) {
-  if(!demoArgs.includes('staging')){
+  if (!demoArgs.includes('staging')) {
     URL = `/demo${pathConfig.demoURL}`
-  }else{
+  } else {
     URL = `/demo${pathConfig.stagingDemoURL}`
   }
 }
@@ -45,36 +39,26 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
     if (fs.statSync(dirPath + '/' + file).isDirectory()) {
       arrayOfFiles = replaceBasePathInImages(dirPath + '/' + file, arrayOfFiles)
     } else {
-      fs.readFile(
-        path.join(__dirname, dirPath, '/', file),
-        'utf-8',
-        (err, data) => {
-          if (err) {
-            console.error(err)
+      const fileName = path.join(__dirname, dirPath, '/', file)
+      fs.readFile(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
 
-            return
-          } else {
-            const result = data.replace(
-              new RegExp('/images/', 'g'),
-              `${URL}/${demo}/images/`
-            )
+          return
+        } else {
+          const result = data.replace(new RegExp('/images/', 'g'), `${URL}/${demo}/images/`)
 
-            fs.writeFile(
-              path.join(__dirname, dirPath, '/', file),
-              result,
-              err => {
-                if (err) {
-                  console.log(err)
+          fs.writeFile(fileName, result, err => {
+            if (err) {
+              console.log(err)
 
-                  return
-                }
-              }
-            )
+              return
+            }
+          })
 
-            arrayOfFiles.push(path.join(__dirname, dirPath, '/', file))
-          }
+          arrayOfFiles.push(fileName)
         }
-      )
+      })
     }
   })
 
@@ -91,17 +75,13 @@ const replaceBasePathInI18n = () => {
         return
       } else {
         if (data.includes('/locales/')) {
-          fs.writeFile(
-            i18nPath,
-            data.replace('/locales/', `${URL}/${demo}/locales/`),
-            err => {
-              if (err) {
-                console.log(err)
+          fs.writeFile(i18nPath, data.replace('/locales/', `${URL}/${demo}/locales/`), err => {
+            if (err) {
+              console.log(err)
 
-                return
-              }
+              return
             }
-          )
+          })
         }
       }
     })
@@ -140,10 +120,7 @@ replaceBasePathInI18n()
   .then(() => {
     // ** Replace basePath in nextConfigPath if nextConfigPath exist
     if (fs.existsSync(nextConfigPath)) {
-      const nextConfigData = fs
-        .readFileSync(nextConfigPath)
-        .toString()
-        .split('\n')
+      const nextConfigData = fs.readFileSync(nextConfigPath).toString().split('\n')
       const removedBasePathIfAny = nextConfigData
         .filter(line => {
           return line.indexOf('basePath') === -1
@@ -199,13 +176,13 @@ replaceBasePathInI18n()
   })
   .then(() => {
     // ** Removes Test From components & Form Elements
-      const copyTestDirPromise = () => new Promise(resolve => {
-          copyTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
-          resolve()
-        })
+    const copyTestDirPromise = () =>
+      new Promise(resolve => {
+        copyTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
+        resolve()
+      })
 
-        copyTestDirPromise()
-        .then(() => removeTest(pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
-        .then(() => copyTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
-
+    copyTestDirPromise()
+      .then(() => removeTest(pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
+      .then(() => copyTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
   })

@@ -35,8 +35,9 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
     if (fs.statSync(dirPath + '/' + file).isDirectory()) {
       arrayOfFiles = removeBasePathInImages(dirPath + '/' + file, arrayOfFiles)
     } else {
+      const fileName = path.join(__dirname, dirPath, '/', file)
       fs.readFile(
-        path.join(__dirname, dirPath, '/', file),
+        fileName,
         'utf-8',
         (err, data) => {
           if (err) {
@@ -49,7 +50,7 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
               '/images/'
             )
             fs.writeFile(
-              path.join(__dirname, dirPath, '/', file),
+              fileName,
               updatedData,
               err => {
                 if (err) {
@@ -60,7 +61,7 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
               }
             )
 
-            arrayOfFiles.push(path.join(__dirname, dirPath, '/', file))
+            arrayOfFiles.push(fileName)
           }
         }
       )

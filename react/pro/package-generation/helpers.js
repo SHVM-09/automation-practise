@@ -1,10 +1,10 @@
 const pathConfig = require('../../configs/paths.json')
 
-const userLayoutPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/UserLayout.tsx`
 const PackageJSONPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/package.json`
 const PackageJSONPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/package.json`
-const BuyNowComponentPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/components/BuyNowButton.tsx`
 const userLayoutPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/UserLayout.js`
+const userLayoutPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/UserLayout.tsx`
+const BuyNowComponentPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/components/BuyNowButton.tsx`
 const BuyNowComponentPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/components/BuyNowButton.js`
 
 const filesToCopyTSX = [

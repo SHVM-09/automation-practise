@@ -31,12 +31,13 @@ const copyRecursiveSync = (src, dest) => {
   const isDirectory = exists && stats.isDirectory()
   if (isDirectory) {
     !fs.existsSync(dest) ? fs.mkdirSync(dest) : null
-    fs.readdirSync(src).forEach(function (childItemName) {
-      copyRecursiveSync(
-        path.join(src, childItemName),
-        path.join(dest, childItemName)
-      )
-    })
+    if(!src.includes('node_modules')){
+      fs.readdirSync(src).forEach(function (childItemName) {
+        copyRecursiveSync(
+          path.join(src, childItemName),
+          path.join(dest, childItemName)
+        )
+      })}
   } else {
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, dest)
@@ -44,26 +45,12 @@ const copyRecursiveSync = (src, dest) => {
   }
 }
 
-// ** Recursively copies files/folders
-const copyRecursiveStarterKitSync = (src, dest) => {
-  const exists = fs.existsSync(src)
-  const stats = exists && fs.statSync(src)
-  const isDirectory = exists && stats.isDirectory()
-  if (isDirectory) {
-    !fs.existsSync(dest) ? fs.mkdirSync(dest) : null
-    if (!src.includes('node_modules')) {
-      fs.readdirSync(src).forEach(function (childItemName) {
-        copyRecursiveStarterKitSync(
-          path.join(src, childItemName),
-          path.join(dest, childItemName)
-        )
-      })
-    }
-  } else {
-    if (fs.existsSync(src)) {
-      fs.copyFileSync(src, dest)
-    }
-  }
+// ** Copy ./vscode
+const copyVSCode = () => {
+  copyRecursiveSync(
+    `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
+    `${pathConfig.packagePath}/.vscode`
+  )
 }
 
 // ** Remove BuyNow & Replace "^" & "~" in package.json file
@@ -173,7 +160,7 @@ const generateTSXPackage = () => {
                   } else {
                     const copyStarterPromise = () =>
                       new Promise(resolve => {
-                        copyRecursiveStarterKitSync(
+                        copyRecursiveSync(
                           pathConfig.starterKitTSXPath,
                           `${pathConfig.packagePath}/typescript-version/starter-kit`
                         )
@@ -181,16 +168,6 @@ const generateTSXPackage = () => {
                       })
 
                     copyStarterPromise().then(() => {
-                      if (
-                        fs.existsSync(
-                          `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
-                        )
-                      ) {
-                        fs.rmdirSync(
-                          `${pathConfig.packagePath}/typescript-version/starter-kit/node_modules`
-                        )
-                      }
-                    }).then(() => {
                       const configsPathStarter = `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs`
                       if(fs.existsSync(`${configsPathStarter}/firebase.ts`)){
                         fs.writeFileSync(`${configsPathStarter}/firebase.ts`, fs.readFileSync('./files/firebase.ts',).toString())
@@ -255,23 +232,13 @@ const generateJSXPackage = () => {
                   } else {
                     const copyStarterPromise = () =>
                       new Promise(resolve => {
-                        copyRecursiveStarterKitSync(
+                        copyRecursiveSync(
                           pathConfig.starterKitJSXPath,
                           `${pathConfig.packagePath}/javascript-version/starter-kit`
                         )
                         resolve()
                       })
                     copyStarterPromise().then(() => {
-                      if (
-                        fs.existsSync(
-                          `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
-                        )
-                      ) {
-                        fs.rmdirSync(
-                          `${pathConfig.packagePath}/javascript-version/starter-kit/node_modules`
-                        )
-                      }
-                    }).then(() => {
 
                       const configsPathStarter = `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs`
 
@@ -327,10 +294,7 @@ if (!fs.existsSync(pathConfig.packagePath)) {
     } else {
       const generatePromise = () =>new Promise(resolve => {
         generate()
-      copyRecursiveSync(
-        `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
-        `${pathConfig.packagePath}/.vscode`
-      )
+        copyVSCode()
         resolve()
       })
       
@@ -350,10 +314,7 @@ if (!fs.existsSync(pathConfig.packagePath)) {
          
           const generatePromise = () =>new Promise(resolve => {
             generate()
-          copyRecursiveSync(
-            `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
-            `${pathConfig.packagePath}/.vscode`
-          )
+            copyVSCode()
             resolve()
           })
           

@@ -5,65 +5,66 @@ const pathConfig = require('../../configs/paths.json')
 
 const dirPathTSX = `${pathConfig.starterKitTSXPath}/src/`
 
+const handleSplitLine = (line, str, increment = 1) => line.findIndex(item => item.trim().includes(str)) + increment
+
+const handleParentPath = path => path.substring(0, path.lastIndexOf('/')).replace(/\\/g, '/').trim()
+
 const getVariableValue = (data, key) => {
   const arr = []
-  const splitData = data.split('\n')
+  const splitData = data.split('\r\n')
 
   splitData.forEach(line => {
-    
-    if (line.includes(key) ) {
-      
-      if(!line.includes('${')) {
+    if (line.includes(key)) {
+      if (!line.includes('${')) {
         if (line.includes('?')) {
           const splitLine = line.split("'")
-          const lineSplitFirstVal = splitLine.findIndex(item => item.trim().includes('?')) + 1
-          const lineSplitSecondVal = splitLine.findIndex(item => item.trim().includes(':')) + 1
+          const lineSplitFirstVal = handleSplitLine(splitLine, '?')
+          const lineSplitSecondVal = handleSplitLine(splitLine, ':')
           arr.push(splitLine[lineSplitFirstVal])
           arr.push(splitLine[lineSplitSecondVal])
         }
-  
+
         if (line.endsWith('=')) {
           
           const checkSecondLine = splitData[splitData.indexOf(line) + 1]
           const splitSecondLine = checkSecondLine.split("'")
-  
+
           const checkThirdLine = splitData[splitData.indexOf(line) + 2]
           const splitThirdLine = checkThirdLine.split("'")
-  
+
           if (checkSecondLine.includes('?')) {
-            const val = splitSecondLine.findIndex(item => item.trim().includes('?')) + 1
+            const val = handleSplitLine(splitSecondLine, '?')
             arr.push(splitSecondLine[val])
-            if(checkSecondLine.includes(':')){
-              const val = splitSecondLine.findIndex(item => item.trim().includes(':')) + 1
+            if (checkSecondLine.includes(':')) {
+              const val = handleSplitLine(splitSecondLine, ':')
               arr.push(splitSecondLine[val])
             }
           }
-          
-          if(checkThirdLine.trim().length){
+
+          if (checkThirdLine.trim().length) {
             if (checkThirdLine.includes(':')) {
-              const val = splitThirdLine.findIndex(item => item.trim().includes(':')) + 1
+              const val = handleSplitLine(splitThirdLine, ':')
               arr.push(splitThirdLine[val])
             }
           }
         }
       }
-
     }
   })
-  
+
   return arr
 }
 
-const checkAndCreate = (imgPath, callback) => {
+const checkAndCreate = (imgPath, src, dest) => {
   if (fs.existsSync(imgPath)) {
-    callback()
+    fs.copyFileSync(src, dest)
     return
   } else {
     fs.mkdir(imgPath, { recursive: true }, err => {
       if (err) {
         console.log(err)
       } else {
-        callback()
+        fs.copyFileSync(src, dest)
       }
     })
   }
@@ -82,7 +83,6 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
       fs.readFile(path.join(__dirname, dirPath, '/', file), 'utf-8', (err, data) => {
         if (err) {
           console.error(err)
-
           return
         } else {
           const splitData = data.split('\n')
@@ -92,6 +92,7 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
 
               if (line.includes('${')) {
                 const variableName = line.split('${')[1].split('}')[0]
+
                 if (variableName !== 'theme.palette.mode') {
                   getVariableValue(data, variableName).map(r => {
                     const replaced = line
@@ -102,65 +103,48 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
                     const replacedLight = replaced.replace('${theme.palette.mode}', 'light').trim()
                     const replacedDark = replaced.replace('${theme.palette.mode}', 'dark').trim()
 
-                    const parentPathLight = replacedLight
-                      .substring(0, replacedLight.lastIndexOf('/'))
-                      .replace(/\\/g, '/')
-                      .trim()
-                    const parentPathDark = replacedDark
-                      .substring(0, replacedDark.lastIndexOf('/'))
-                      .replace(/\\/g, '/')
-                      .trim()
+                    const parentPathLight = handleParentPath(replacedLight)
+                    const parentPathDark = handleParentPath(replacedDark)
 
-                    checkAndCreate(`${pathConfig.starterKitTSXPath}/public${parentPathLight}`, () => {
-                      fs.copyFileSync(
-                        `${pathConfig.fullVersionTSXPath}/public${replacedLight}`,
-                        `${pathConfig.starterKitTSXPath}/public${replacedLight}`
-                      )
-                    })
-                    checkAndCreate(`${pathConfig.starterKitTSXPath}/public${parentPathDark}`, () => {
-                      fs.copyFileSync(
-                        `${pathConfig.fullVersionTSXPath}/public${replacedDark}`,
-                        `${pathConfig.starterKitTSXPath}/public${replacedDark}`
-                      )
-                    })
+                    checkAndCreate(
+                      `${pathConfig.starterKitTSXPath}/public${parentPathLight}`,
+                      `${pathConfig.fullVersionTSXPath}/public${replacedLight}`,
+                      `${pathConfig.starterKitTSXPath}/public${replacedLight}`
+                    )
+                    checkAndCreate(
+                      `${pathConfig.starterKitTSXPath}/public${parentPathDark}`,
+                      `${pathConfig.fullVersionTSXPath}/public${replacedDark}`,
+                      `${pathConfig.starterKitTSXPath}/public${replacedDark}`
+                    )
                   })
                 } else {
                   const imgPath = line.split('/images')[1].split('.png')[0]
                   const imgPathLight = `/images${imgPath.replace('${theme.palette.mode}', 'light')}.png`.trim()
                   const imgPathDark = `/images${imgPath.replace('${theme.palette.mode}', 'dark')}.png`.trim()
 
-                  const parentPathLight = imgPathLight
-                    .substring(0, imgPathLight.lastIndexOf('/'))
-                    .replace(/\\/g, '/')
-                    .trim()
-                  const parentPathDark = imgPathDark
-                    .substring(0, imgPathDark.lastIndexOf('/'))
-                    .replace(/\\/g, '/')
-                    .trim()
+                  const parentPathLight = handleParentPath(imgPathLight)
+                  const parentPathDark = handleParentPath(imgPathDark)
 
-                  checkAndCreate(`${pathConfig.starterKitTSXPath}/public${parentPathLight}`, () => {
-                    fs.copyFileSync(
-                      `${pathConfig.fullVersionTSXPath}/public${imgPathLight}`,
-                      `${pathConfig.starterKitTSXPath}/public${imgPathLight}`
-                    )
-                  })
-                  checkAndCreate(`${pathConfig.starterKitTSXPath}/public${parentPathDark}`, () => {
-                    fs.copyFileSync(
-                      `${pathConfig.fullVersionTSXPath}/public${imgPathDark}`,
-                      `${pathConfig.starterKitTSXPath}/public${imgPathDark}`
-                    )
-                  })
+                  checkAndCreate(
+                    `${pathConfig.starterKitTSXPath}/public${parentPathLight}`,
+                    `${pathConfig.fullVersionTSXPath}/public${imgPathLight}`,
+                    `${pathConfig.starterKitTSXPath}/public${imgPathLight}`
+                  )
+                  checkAndCreate(
+                    `${pathConfig.starterKitTSXPath}/public${parentPathDark}`,
+                    `${pathConfig.fullVersionTSXPath}/public${imgPathDark}`,
+                    `${pathConfig.starterKitTSXPath}/public${imgPathDark}`
+                  )
                 }
               } else {
                 const fullPath = `/images${pathBetween}.png`.trim()
-                const parentPath = fullPath.substring(0, fullPath.lastIndexOf('/')).replace(/\\/g, '/').trim()
+                const parentPath = handleParentPath(fullPath)
 
-                checkAndCreate(`${pathConfig.starterKitTSXPath}/public${parentPath}`, () => {
-                  fs.copyFileSync(
-                    `${pathConfig.fullVersionTSXPath}/public${fullPath}`,
-                    `${pathConfig.starterKitTSXPath}/public${fullPath}`
-                  )
-                })
+                checkAndCreate(
+                  `${pathConfig.starterKitTSXPath}/public${parentPath}`,
+                  `${pathConfig.fullVersionTSXPath}/public${fullPath}`,
+                  `${pathConfig.starterKitTSXPath}/public${fullPath}`
+                )
               }
             }
           })

@@ -2,8 +2,8 @@
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 
-// ** Icons Imports
-import MenuIcon from 'mdi-material-ui/Menu'
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 // ** Components
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
@@ -18,7 +18,7 @@ const AppBarContent = props => {
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
         {hidden ? (
           <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
-            <MenuIcon />
+            <Icon icon='mdi:menu' />
           </IconButton>
         ) : null}
 

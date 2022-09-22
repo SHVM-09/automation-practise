@@ -1,6 +1,5 @@
 const fs = require('fs')
 const pathConfig = require('../../configs/paths.json')
-
 const demoConfigPath = '../../configs/demoConfigs.json'
 const defaultConfigPathTSX = `${pathConfig.fullVersionTSXPath}/src/configs/themeConfig.ts`
 const defaultConfigPathJSX = `${pathConfig.fullVersionJSXPath}/src/configs/themeConfig.js`

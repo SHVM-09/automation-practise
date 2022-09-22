@@ -1,10 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-
 const pathConfig = require('../../configs/paths.json')
 const {
   AllFilesTSX,
   AllFilesJSX,
+  checkEndsWith,
   sourceFilesTSX,
   sourceFilesJSX,
   getAllIndexFiles,
@@ -15,30 +15,17 @@ const {
 const componentsPath = `${pathConfig.fullVersionTSXPath}/src/pages/components/`
 const formsPath = `${pathConfig.fullVersionTSXPath}/src/pages/forms/form-elements/`
 
-const AllIndexFiles = [
-  ...getAllIndexFiles(componentsPath),
-  ...getAllIndexFiles(formsPath)
-]
+const AllIndexFiles = [...getAllIndexFiles(componentsPath), ...getAllIndexFiles(formsPath)]
 
 const generateTSXSourceCode = () => {
   return new Promise(resolve => {
     AllFilesTSX.map(fileTSX => {
-      if (
-        !fileTSX.endsWith('SourceCode.tsx') &&
-        !fileTSX.endsWith('index.tsx') &&
-        !fileTSX.endsWith('data.ts') &&
-        !fileTSX.endsWith('types.ts') &&
-        !fileTSX.endsWith('DS_Store')
-      ) {
+      if (!checkEndsWith(['data.ts', 'index.tsx', 'types.ts', 'DS_Store', 'SourceCode.tsx'], fileTSX)) {
         const parentFolderTSX = path.basename(path.dirname(fileTSX))
         const fileNameTSX = path.basename(fileTSX, '.tsx')
         const fileJSX = AllFilesJSX.filter(i => i.includes(fileNameTSX))[0]
-        const sourceToReadTSX = sourceFilesTSX.filter(t =>
-          t.includes(parentFolderTSX)
-        )[0]
-        const sourceToReadJSX = sourceFilesJSX.filter(t =>
-          t.includes(parentFolderTSX)
-        )[0]
+        const sourceToReadTSX = sourceFilesTSX.filter(t => t.includes(parentFolderTSX))[0]
+        const sourceToReadJSX = sourceFilesJSX.filter(t => t.includes(parentFolderTSX))[0]
 
         if (sourceToReadTSX && fileTSX) {
           fs.readFile(fileTSX, 'utf8', (err, dataTSX) => {
@@ -50,11 +37,7 @@ const generateTSXSourceCode = () => {
                 "<pre className='language-jsx'>" +
                 "<code className='language-jsx'>" +
                 '{`' +
-                dataTSX
-                  .replace(/`/g, '')
-                  .replace(/\$/g, '')
-                  .replace(/\\"/, '"')
-                  .replace(/\\"/, '"') +
+                dataTSX.replace(/`/g, '').replace(/\$/g, '').replace(/\\"/, '"').replace(/\\"/, '"') +
                 '`}' +
                 '</code>' +
                 '</pre>' +
@@ -84,11 +67,7 @@ const generateTSXSourceCode = () => {
                     "<pre className='language-jsx'>" +
                     "<code className='language-jsx'>" +
                     '{`' +
-                    dataJSX
-                      .replace(/`/g, '')
-                      .replace(/\$/g, '')
-                      .replace(/\\"/, '"')
-                      .replace(/\\"/, '"') +
+                    dataJSX.replace(/`/g, '').replace(/\$/g, '').replace(/\\"/, '"').replace(/\\"/, '"') +
                     '`}' +
                     '</code>' +
                     '</pre>' +
@@ -130,22 +109,16 @@ generateTSXSourceCode().then(() => {
             const linesToReplace = []
             let result = data
             const splitData = data.split('\n')
-            
+
             splitData.forEach((line, index) => {
               if (line.trim().includes('jsx: null')) {
                 const replaced = splitData[index - 1]
-                  ? splitData[index - 1]
-                      .replace('tsx: ', '')
-                      .replace('TSXCode', 'JSXCode')
-                      .replace(',', '')
-                      .trim()
+                  ? splitData[index - 1].replace('tsx: ', '').replace('TSXCode', 'JSXCode').replace(',', '').trim()
                   : null
 
                 linesToReplace.push({
                   line: line.trim(),
-                  replacement: replaced
-                    ? line.trim().replace('null', replaced)
-                    : ''
+                  replacement: replaced ? line.trim().replace('null', replaced) : ''
                 })
               }
             })

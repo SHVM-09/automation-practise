@@ -1,41 +1,29 @@
 const fs = require('fs')
 const path = require('path')
-
 const pathConfig = require('../../configs/paths.json')
 const {
   AllFilesJSX,
-  doesJSXVersionExits,
+  checkEndsWith,
   sourceFilesJSX,
   replaceCodeWithNull,
+  doesJSXVersionExits,
   getAllIndexFiles
 } = require('./helpers')
 
 const componentsPath = `${pathConfig.fullVersionJSXPath}/src/pages/components/`
 const formsPath = `${pathConfig.fullVersionJSXPath}/src/pages/forms/form-elements/`
 
-// const AllIndexFiles = [...getAllIndexFiles(componentsPath), ...getAllIndexFiles(formsPath)]
-
 // ** Generates JSX source code if javascript-version directory exists
 const generateJSXSourceCode = () => {
   if (doesJSXVersionExits) {
-    const AllIndexFiles = [
-      ...getAllIndexFiles(componentsPath),
-      ...getAllIndexFiles(formsPath)
-    ]
+    const AllIndexFiles = [...getAllIndexFiles(componentsPath), ...getAllIndexFiles(formsPath)]
 
     const writeCodePromise = AllFilesJSX.map(fileJSX => {
       return new Promise(resolve => {
-        if (
-          !fileJSX.endsWith('SourceCode.js') &&
-          !fileJSX.endsWith('index.js') &&
-          !fileJSX.endsWith('data.js') &&
-          !fileJSX.endsWith('DS_Store')
-        ) {
+        if (!checkEndsWith(['data.js', 'index.js', 'DS_Store', 'SourceCode.js'], fileJSX)) {
           const parentFolderJSX = path.basename(path.dirname(fileJSX))
           const fileNameJSX = path.basename(fileJSX, '.js')
-          const sourceToReadJSX = sourceFilesJSX.filter(j =>            
-            j.includes(parentFolderJSX)
-          )[0]
+          const sourceToReadJSX = sourceFilesJSX.filter(j => j.includes(parentFolderJSX))[0]
 
           if (fileJSX && sourceToReadJSX) {
             fs.readFile(fileJSX, 'utf8', (err, dataJSX) => {
@@ -47,11 +35,7 @@ const generateJSXSourceCode = () => {
                   "<pre className='language-jsx'>" +
                   "<code className='language-jsx'>" +
                   '{`' +
-                  dataJSX
-                    .replace(/`/g, '')
-                    .replace(/\$/g, '')
-                    .replace(/\\"/, '"')
-                    .replace(/\\"/, '"') +
+                  dataJSX.replace(/`/g, '').replace(/\$/g, '').replace(/\\"/, '"').replace(/\\"/, '"') +
                   '`}' +
                   '</code>' +
                   '</pre>' +

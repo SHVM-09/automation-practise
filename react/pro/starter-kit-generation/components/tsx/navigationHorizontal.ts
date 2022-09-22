@@ -1,28 +1,23 @@
-// ** Icon imports
-import HomeOutline from 'mdi-material-ui/HomeOutline'
-import EmailOutline from 'mdi-material-ui/EmailOutline'
-import ShieldOutline from 'mdi-material-ui/ShieldOutline'
-
 // ** Type import
 import { HorizontalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): HorizontalNavItemsType => [
   {
     title: 'Home',
-    icon: HomeOutline,
-    path: '/home'
+    path: '/home',
+    icon: 'mdi:home-outline',
   },
   {
     title: 'Second Page',
-    icon: EmailOutline,
-    path: '/second-page'
+    path: '/second-page',
+    icon: 'mdi:email-outline',
   },
   {
-    title: 'Access Control',
-    icon: ShieldOutline,
     path: '/acl',
     action: 'read',
-    subject: 'acl-page'
+    subject: 'acl-page',
+    title: 'Access Control',
+    icon: 'mdi:shield-outline',
   }
 ]
 

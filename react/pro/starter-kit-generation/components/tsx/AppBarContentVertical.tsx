@@ -2,8 +2,9 @@
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 
-// ** Icons Imports
-import MenuIcon from 'mdi-material-ui/Menu'
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
+
 
 // ** Type Import
 import { Settings } from 'src/@core/context/settingsContext'
@@ -28,7 +29,7 @@ const AppBarContent = (props: Props) => {
       <Box className='actions-left' sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
         {hidden ? (
           <IconButton color='inherit' sx={{ ml: -2.75 }} onClick={toggleNavVisibility}>
-            <MenuIcon />
+            <Icon icon='mdi:menu' />
           </IconButton>
         ) : null}
 

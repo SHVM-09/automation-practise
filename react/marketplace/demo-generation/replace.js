@@ -8,7 +8,7 @@ const {
   dataToReplace,
   nextConfigPath,
   themeConfigPath,
-  settingsContextFile,
+  settingsContextFile
 } = require('./helpers')
 
 let demo = 'demo-1'
@@ -34,36 +34,26 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
     if (fs.statSync(dirPath + '/' + file).isDirectory()) {
       arrayOfFiles = replaceBasePathInImages(dirPath + '/' + file, arrayOfFiles)
     } else {
-      fs.readFile(
-        path.join(__dirname, dirPath, '/', file),
-        'utf-8',
-        (err, data) => {
-          if (err) {
-            console.error(err)
+      const fileName = path.join(__dirname, dirPath, '/', file)
+      fs.readFile(fileName, 'utf-8', (err, data) => {
+        if (err) {
+          console.error(err)
 
-            return
-          } else {
-            const result = data.replace(
-              new RegExp('/images/', 'g'),
-              `/marketplace${URL}/${demo}/images/`
-            )
+          return
+        } else {
+          const result = data.replace(new RegExp('/images/', 'g'), `/marketplace${URL}/${demo}/images/`)
 
-            fs.writeFile(
-              path.join(__dirname, dirPath, '/', file),
-              result,
-              err => {
-                if (err) {
-                  console.log(err)
+          fs.writeFile(fileName, result, err => {
+            if (err) {
+              console.log(err)
 
-                  return
-                }
-              }
-            )
+              return
+            }
+          })
 
-            arrayOfFiles.push(path.join(__dirname, dirPath, '/', file))
-          }
+          arrayOfFiles.push(fileName)
         }
-      )
+      })
     }
   })
 
@@ -80,17 +70,13 @@ const replaceBasePathInI18n = () => {
         return
       } else {
         if (data.includes('/locales/')) {
-          fs.writeFile(
-            i18nPath,
-            data.replace('/locales/', `/marketplace${URL}/${demo}/locales/`),
-            err => {
-              if (err) {
-                console.log(err)
+          fs.writeFile(i18nPath, data.replace('/locales/', `/marketplace${URL}/${demo}/locales/`), err => {
+            if (err) {
+              console.log(err)
 
-                return
-              }
+              return
             }
-          )
+          })
         }
       }
     })
@@ -126,23 +112,51 @@ const replaceWithMarketPlace = () => {
 
 replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
- 
-    replaceWithMarketPlace()
-  
- 
-    // ** Replace settings in localStorage if settingsContextFile exist
-    if (fs.existsSync(settingsContextFile)) {
-      fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
+
+replaceWithMarketPlace()
+
+// ** Replace settings in localStorage if settingsContextFile exist
+if (fs.existsSync(settingsContextFile)) {
+  fs.readFile(settingsContextFile, 'utf-8', (err, data) => {
+    if (err) {
+      console.log(err)
+
+      return
+    } else {
+      const result = data.replace(
+        new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
+        `$1${templateName}-settings-${demo}$4`
+      )
+      fs.writeFile(settingsContextFile, result, function (err) {
+        if (err) {
+          console.log(err)
+
+          return
+        }
+      })
+    }
+  })
+} else {
+  console.log("settingsContext File Doesn't exists")
+}
+
+// ** Replace themeConfig file based on demo number
+const demoConfigPath = `${pathConfig.demoConfigsPathTSX}/${demo}.ts`
+
+if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
+  fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
+    if (err) {
+      console.log(err)
+
+      return
+    } else {
+      fs.writeFile(themeConfigPath, '', err => {
         if (err) {
           console.log(err)
 
           return
         } else {
-          const result = data.replace(
-            new RegExp(/(localStorage.(get|set)Item\(')(.*)('.*\))/, 'g'),
-            `$1${templateName}-settings-${demo}$4`
-          )
-          fs.writeFile(settingsContextFile, result, function (err) {
+          fs.writeFile(themeConfigPath, data, err => {
             if (err) {
               console.log(err)
 
@@ -151,78 +165,43 @@ replaceBasePathInI18n()
           })
         }
       })
-    } else {
-      console.log("settingsContext File Doesn't exists")
     }
-  
-  
-    // ** Replace themeConfig file based on demo number
-    const demoConfigPath = `${pathConfig.demoConfigsPathTSX}/${demo}.ts`
+  })
+} else {
+  console.log("themeConfigPath file & demoConfigPath file doesn't exist")
+}
 
-    if (fs.existsSync(themeConfigPath) && fs.existsSync(demoConfigPath)) {
-      fs.readFile(demoConfigPath, 'utf-8', (err, data) => {
-        if (err) {
-          console.log(err)
+// ** Removes Test From components & Form Elements
+const copyTestDirPromise = () =>
+  new Promise(resolve => {
+    copyTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
+    resolve()
+  })
 
-          return
-        } else {
-          fs.writeFile(themeConfigPath, '', err => {
-            if (err) {
-              console.log(err)
+copyTestDirPromise()
+  .then(() => removeTest(pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
+  .then(() => copyTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
 
-              return
-            } else {
-              fs.writeFile(themeConfigPath, data, err => {
-                if (err) {
-                  console.log(err)
-
-                  return
-                }
-              })
-            }
-          })
-        }
-      })
-    } else {
-      console.log("themeConfigPath file & demoConfigPath file doesn't exist")
-    }
-  
-  
-    // ** Removes Test From components & Form Elements
-        const copyTestDirPromise = () => new Promise(resolve => {
-          copyTestDirs(false, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath)
-          resolve()
-        })
-
-        copyTestDirPromise()
-        .then(() => removeTest(pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
-        .then(() => copyTestDirs(true, pathConfig.fullVersionTSXPath, pathConfig.fullVersionJSXPath))
-
-
-
-  // ** Replace basePath in nextConfigPath if nextConfigPath exist
-  if (fs.existsSync(nextConfigPath)) {
-    const nextConfigData = fs
-      .readFileSync(nextConfigPath)
-      .toString()
-      .split('\n')
-    const removedBasePathIfAny = nextConfigData
-      .filter(line => {
-        return line.indexOf('basePath') === -1
-      })
-      .join('\n')
-    const result = removedBasePathIfAny.replace(
-      'reactStrictMode: false,',
-      `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
-    )
-
-    fs.writeFile(nextConfigPath, result, err => {
-      if (err) {
-        console.log(err)
-
-        return
-      }
+// ** Replace basePath in nextConfigPath if nextConfigPath exist
+if (fs.existsSync(nextConfigPath)) {
+  const nextConfigData = fs.readFileSync(nextConfigPath).toString().split('\n')
+  const removedBasePathIfAny = nextConfigData
+    .filter(line => {
+      return line.indexOf('basePath') === -1
     })
-  } else {
-    console.log('NextConfig File Does Not Exists')
-  }
+    .join('\n')
+  const result = removedBasePathIfAny.replace(
+    'reactStrictMode: false,',
+    `reactStrictMode: false,\n  basePath: '/marketplace${URL}/${demo}',`
+  )
+
+  fs.writeFile(nextConfigPath, result, err => {
+    if (err) {
+      console.log(err)
+
+      return
+    }
+  })
+} else {
+  console.log('NextConfig File Does Not Exists')
+}
