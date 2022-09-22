@@ -10,6 +10,7 @@ typer = "^0.6.1"
 pydantic = "^1.9.1"
 pytest = "^7.1.2"
 rich = "^12.5.1"
+python-rapidjson = "^1.8"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.971"
