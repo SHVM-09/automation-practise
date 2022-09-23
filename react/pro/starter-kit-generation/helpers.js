@@ -305,7 +305,7 @@ const dataToReplace = [
     replacements: [
       {
         from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
-        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+        to: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'"
       }
     ]
   },
@@ -314,7 +314,7 @@ const dataToReplace = [
     replacements: [
       {
         from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
-        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+        to: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'"
       }
     ]
   },
@@ -323,7 +323,7 @@ const dataToReplace = [
     replacements: [
       {
         from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
-        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+        to: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'"
       }
     ]
   },
@@ -332,7 +332,7 @@ const dataToReplace = [
     replacements: [
       {
         from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
-        to: "import UserDropdown from 'src/layouts/components/UserDropdown'"
+        to: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'"
       }
     ]
   }

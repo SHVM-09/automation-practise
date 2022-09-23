@@ -36,7 +36,7 @@ const copyHomeAndSecondPage = () => {
 const copyUserDropdown = (parentFolder, version, fileToCopy) => {
   fs.copyFile(
     `${fileToCopy}`,
-    `${parentFolder}/src/layouts/components/UserDropdown.${version}`,
+    `${parentFolder}/src/@core/layouts/components/shared-components/UserDropdown.${version}`,
     err => {
       if (err) {
         console.log(err)
@@ -54,14 +54,18 @@ const generateFakeDB = (parentFolder, fakeDBPath, version) => {
 
       return
     } else {
-      copyRecursiveSync(
+      if(fs.existsSync( `${fakeDBPath}/auth`)){
+        copyRecursiveSync(
         `${fakeDBPath}/auth`,
         `${parentFolder}/src/@fake-db/auth`
       )
-      copyRecursiveSync(
+      }
+      if(fs.existsSync( `${fakeDBPath}/mock.${version}`)){
+        copyRecursiveSync(
         `${fakeDBPath}/mock.${version}`,
         `${parentFolder}/src/@fake-db/mock.${version}`
       )
+      }
 
       fs.writeFile(
         `${parentFolder}/src/@fake-db/index.${version}`,
@@ -126,10 +130,12 @@ const generateTSXStarter = () => {
                     } else {
                       const foldersPromise = foldersToKeepTSX.map(file => {
                         return new Promise(resolve => {
-                          copyRecursiveSync(
-                            `${pathConfig.fullVersionTSXPath}/src/${file}`,
-                            `${pathConfig.starterKitTSXPath}/src/${file}`
-                          )
+                          if(fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/${file}`)){
+                            copyRecursiveSync(
+                              `${pathConfig.fullVersionTSXPath}/src/${file}`,
+                              `${pathConfig.starterKitTSXPath}/src/${file}`
+                            )
+                          }
                           resolve()
                         })
                       })
@@ -138,6 +144,8 @@ const generateTSXStarter = () => {
                           copyHomeAndSecondPage()
                         })
                         .then(() => {
+                          
+                          console.log('generateFakeDB')
                           generateFakeDB(
                             pathConfig.starterKitTSXPath,
                             `${pathConfig.fullVersionTSXPath}/src/@fake-db`,
@@ -191,7 +199,10 @@ const generateJSXStarter = () => {
             return new Promise(resolve => {
               const dest = file.replace('full-version', 'starter-kit')
 
-              copyRecursiveSync(file, dest)
+              if(fs.existsSync(file)){
+                copyRecursiveSync(file, dest)
+              }
+
               resolve()
             })
           })
@@ -228,10 +239,12 @@ const generateJSXStarter = () => {
                         } else {
                           const folderPromise = foldersToKeepJSX.map(file => {
                             return new Promise(resolve => {
-                              copyRecursiveSync(
-                                `${pathConfig.fullVersionJSXPath}/src/${file}`,
-                                `${pathConfig.starterKitJSXPath}/src/${file}`
-                              )
+                              if(fs.existsSync(`${pathConfig.fullVersionJSXPath}/src/${file}`)){
+                                copyRecursiveSync(
+                                  `${pathConfig.fullVersionJSXPath}/src/${file}`,
+                                  `${pathConfig.starterKitJSXPath}/src/${file}`
+                                )
+                              }
                               resolve()
                             })
                           })
