@@ -2,10 +2,14 @@ import { getCommand } from '@/utils/cli';
 import type { OnSnippetUpdateCallback } from '@templates/base/fillSnippets';
 import { FillSnippets } from '@templates/base/fillSnippets';
 import { GenJS } from '@templates/base/genJS';
-import { argv, chalk, fs, path } from 'zx';
+import chalk from 'chalk';
+import fs from 'fs-extra';
+import parseArgs from 'minimist';
+import path from 'path';
 import { config } from './config';
 import { Materio } from './template';
 
+const argv = parseArgs(process.argv.slice(2))
 const materio = new Materio(config)
 
 const materioVersionsPaths = {

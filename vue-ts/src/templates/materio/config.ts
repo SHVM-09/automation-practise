@@ -1,6 +1,6 @@
 import { TemplateBaseConfig } from '@/templates/base';
 import { getTemplatePath } from '@/utils/paths';
-import { path } from 'zx';
+import path from 'path';
 
 interface MaterioConfig extends TemplateBaseConfig {}
 

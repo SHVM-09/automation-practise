@@ -1,10 +1,12 @@
 import { getCommand } from '@/utils/cli';
 import { getTemplatePath } from '@/utils/paths';
-import { argv, path } from 'zx';
+import parseArgs from 'minimist';
+import path from 'path';
 import { config } from './config';
 import { Master } from './template';
 
-const masterRepoPath = getTemplatePath('master');
+const argv = parseArgs(process.argv.slice(2))
+const masterRepoPath = getTemplatePath('master', 'vue');
 const masterVersionsPaths = {
   tSFull: path.join(masterRepoPath, 'typescript-version', 'full-version'),
   tSStarter: path.join(masterRepoPath, 'typescript-version', 'starter-kit'),

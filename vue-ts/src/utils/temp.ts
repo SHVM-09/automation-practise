@@ -1,6 +1,7 @@
 import temporaryDirectory from 'temp-dir';
 
-import { fs, path } from 'zx';
+import fs from 'fs-extra';
+import path from 'path';
 
 export class TempLocation {
   tempDir: string

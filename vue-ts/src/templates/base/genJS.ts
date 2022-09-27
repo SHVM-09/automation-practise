@@ -1,5 +1,5 @@
 import { TempLocation } from '@/utils/temp';
-import { path } from "zx";
+import path from 'path';
 import { TemplateBaseConfig } from './config';
 
 export class GenJS {
@@ -26,6 +26,8 @@ export class GenJS {
     console.log(`Copying to ${this.tempDir}`);
 
     const commandToCopyProject = this.genProjectCopyCommand()
+
+    console.log('commandToCopyProject :>> ', commandToCopyProject);
   }
 
   genJS() {

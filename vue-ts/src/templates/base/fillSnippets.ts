@@ -1,5 +1,7 @@
 import { toCamelCase } from "@/utils/conversions";
-import { fs, globby, path } from "zx";
+import fs from 'fs-extra';
+import { globby } from 'globby';
+import path from 'path';
 
 export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: string) => void
 
