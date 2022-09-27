@@ -4,9 +4,9 @@ import { fs, globby, path } from "zx";
 export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: string) => void
 
 export class FillSnippets {
-  projectSrcPath: string
+  private projectSrcPath: string
 
-  constructor(public projectPath:string) {
+  constructor(private projectPath:string) {
     this.projectSrcPath = path.join(projectPath, 'src')
   }
 

@@ -1,11 +1,13 @@
 lockfileVersion: 5.4
 
 specifiers:
+  temp-dir: ^3.0.0
   tsx: ^3.9.0
   typescript: ^4.8.3
   zx: ^7.0.8
 
 dependencies:
+  temp-dir: 3.0.0
   zx: 7.0.8
 
 devDependencies:
@@ -583,6 +585,11 @@ packages:
     resolution: {integrity: sha512-rT00SPnTVyRsaSz5zgSPma/aHSOic5U1prhYdRy5HS2kTZviFpmDgzilbtsJsxiroqACmayynDN/9VzIbX5DOw==}
     dependencies:
       duplexer: 0.1.2
+    dev: false
+
+  /temp-dir/3.0.0:
+    resolution: {integrity: sha512-nHc6S/bwIilKHNRgK/3jlhDoIHcp45YgyiwcAk46Tr0LfEqGBVpmiAyuiuxeVE44m3mXnEeVhaipLOEWmH+Njw==}
+    engines: {node: '>=14.16'}
     dev: false
 
   /through/2.3.8:

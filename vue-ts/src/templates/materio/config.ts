@@ -7,7 +7,7 @@ interface MaterioConfig extends TemplateBaseConfig {}
 export const config: MaterioConfig = {
   templateName: 'Materio',
   projectPath: path.join(getTemplatePath('materio', 'vue')),
-  packageIgnorePatterns: [
+  packageCopyIgnorePatterns: [
         // Directories
         "dist",
         "docs",

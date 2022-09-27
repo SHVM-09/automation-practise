@@ -7,7 +7,7 @@ interface MasterConfig extends TemplateBaseConfig {}
 export const config: MasterConfig = {
   templateName: 'Master',
   projectPath: path.join(getTemplatePath('master', 'vue')),
-  packageIgnorePatterns: [
+  packageCopyIgnorePatterns: [
         // Directories
         "dist",
         "docs",

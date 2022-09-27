@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
+    "temp-dir": "^3.0.0",
     "zx": "^7.0.8"
   },
   "devDependencies": {
