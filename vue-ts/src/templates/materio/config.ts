@@ -4,9 +4,11 @@ import path from 'path';
 
 interface MaterioConfig extends TemplateBaseConfig {}
 
+const projectPath = path.join(getTemplatePath('materio', 'vue'))
+
 export const config: MaterioConfig = {
   templateName: 'Materio',
-  projectPath: path.join(getTemplatePath('materio', 'vue')),
+  projectPath,
   packageCopyIgnorePatterns: [
         // Directories
         "dist",
@@ -21,5 +23,11 @@ export const config: MaterioConfig = {
         "license.md",
         "*.log",
         "*.zip",
-    ],
+  ],
+  paths: {
+    tSFull: path.join(projectPath, 'typescript-version', 'full-version'),
+    tSStarter: path.join(projectPath, 'typescript-version', 'starter-kit'),
+    jSFull: path.join(projectPath, 'javascript-version', 'full-version'),
+    jSStarter: path.join(projectPath, 'javascript-version', 'starter-kit'),
+  }
 }

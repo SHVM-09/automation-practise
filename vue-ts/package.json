@@ -1,7 +1,13 @@
 {
   "type": "module",
+  "scripts": {
+    "exec": "NODE_DEBUG=child_process tsx"
+  },
   "dependencies": {
+    "acorn": "^8.8.0",
+    "ast-types": "^0.14.2",
     "chalk": "^5.0.1",
+    "escodegen": "^2.0.0",
     "fs-extra": "^10.1.0",
     "globby": "^13.1.2",
     "temp-dir": "^3.0.0"
