@@ -33,10 +33,11 @@ const copyHomeAndSecondPage = () => {
 }
 
 // ** copy updated userDropdown in src/layouts/components folder
-const copyUserDropdown = (parentFolder, version, fileToCopy) => {
+const copyUserDropdown = (parentFolder, version, versionFolder) => {
+  const staticPath = 'src/@core/layouts/components/shared-components'
   fs.copyFile(
-    `${fileToCopy}`,
-    `${parentFolder}/src/@core/layouts/components/shared-components/UserDropdown.${version}`,
+    `${versionFolder}/${staticPath}/UserDropdown.${version}`,
+    `${parentFolder}/${staticPath}/UserDropdown.${version}`,
     err => {
       if (err) {
         console.log(err)
@@ -145,7 +146,6 @@ const generateTSXStarter = () => {
                         })
                         .then(() => {
                           
-                          console.log('generateFakeDB')
                           generateFakeDB(
                             pathConfig.starterKitTSXPath,
                             `${pathConfig.fullVersionTSXPath}/src/@fake-db`,
@@ -156,7 +156,7 @@ const generateTSXStarter = () => {
                           copyUserDropdown(
                             pathConfig.starterKitTSXPath,
                             'tsx',
-                            './components/tsx/UserDropdown.tsx'
+                            pathConfig.fullVersionTSXPath
                           )
                         })
                     }
@@ -264,7 +264,7 @@ const generateJSXStarter = () => {
                               copyUserDropdown(
                                 pathConfig.starterKitJSXPath,
                                 'js',
-                                './components/jsx/UserDropdown.js'
+                                pathConfig.fullVersionJSXPath
                               )
                             })
                         }
