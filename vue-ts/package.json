@@ -1,0 +1,23 @@
+{
+  "type": "module",
+  "scripts": {
+    "exec": "NODE_DEBUG=child_process tsx"
+  },
+  "dependencies": {
+    "acorn": "^8.8.0",
+    "ast-types": "^0.14.2",
+    "chalk": "^5.0.1",
+    "escodegen": "^2.0.0",
+    "fs-extra": "^10.1.0",
+    "globby": "^13.1.2",
+    "temp-dir": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/minimist": "^1.2.2",
+    "@types/node": "^18.7.23",
+    "minimist": "^1.2.6",
+    "tsx": "^3.9.0",
+    "typescript": "^4.8.3"
+  }
+}
