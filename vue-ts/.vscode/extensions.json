@@ -5,6 +5,8 @@
         "usernamehw.errorlens",
         "dbaeumer.vscode-eslint",
         "xabikos.javascriptsnippets",
-        "WallabyJs.quokka-vscode"
+        "wallabyjs.quokka-vscode",
+        "sburg.vscode-javascript-booster",
+        "johnsoncodehk.vscode-tsconfig-helper"
     ]
 }

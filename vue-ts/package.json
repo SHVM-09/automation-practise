@@ -8,11 +8,16 @@
     "ast-types": "^0.14.2",
     "chalk": "^5.0.1",
     "escodegen": "^2.0.0",
+    "eslint": "^8.24.0",
     "fs-extra": "^10.1.0",
     "globby": "^13.1.2",
-    "temp-dir": "^3.0.0"
+    "json5": "^2.2.1",
+    "temp-dir": "^3.0.0",
+    "vue": "^3.2.40"
   },
   "devDependencies": {
+    "@types/escodegen": "^0.0.7",
+    "@types/eslint": "^8.4.6",
     "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.7.23",

@@ -1,0 +1,16 @@
+{
+    "Node: Read file sync": {
+        "prefix": "rfs",
+        "body": [
+            "let $1 = fs.readFileSync($1Path, { encoding: 'utf-8' })"
+        ],
+        "description": "Node: Read file sync"
+    },
+    "Node: Write file sync": {
+        "prefix": "wfs",
+        "body": [
+            "fs.writeFileSync($1Path, $1, { encoding: 'utf-8' })"
+        ],
+        "description": "Node: Write file sync"
+    }
+}
