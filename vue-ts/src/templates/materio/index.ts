@@ -3,6 +3,7 @@ import type { OnSnippetUpdateCallback } from '@templates/base/fillSnippets';
 import { FillSnippets } from '@templates/base/fillSnippets';
 import { GenJS } from '@templates/base/genJS';
 import chalk from 'chalk';
+import { execSync } from 'child_process';
 import fs from 'fs-extra';
 import parseArgs from 'minimist';
 import path from 'path';
@@ -44,11 +45,17 @@ if (command === 'fillSnippets') {
   const { ts, js } = argv
   const { tSFull: tSFullPath, jSFull: jSFullPath } = materioVersionsPaths
 
-  const snippetFiller = new FillSnippets(js ? jSFullPath : tSFullPath)
+  const projectPathForFillingSnippets = js ? jSFullPath : tSFullPath
 
-  // ℹ️ Update TS snippets as well if both ts & js args are provided
-  snippetFiller.fillSnippet(ts && js ? onSnippetUpdateCallback : undefined)
-  
+  const snippetFiller = new FillSnippets(projectPathForFillingSnippets)
+
+  snippetFiller.fillSnippet()
+
+  // ℹ️ Run linting after filling all snippets to auto format
+  execSync('yarn lint', { cwd: projectPathForFillingSnippets })
+
+  // If ts & js both args are provided also lint ts project
+  if(ts && js) execSync('yarn lint', { cwd: tSFullPath })
 }
 // !SECTION
 

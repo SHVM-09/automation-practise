@@ -2,7 +2,7 @@ import { SFCCompiler } from '@/sfcCompiler';
 import { TempLocation } from '@/utils/temp';
 import { execSync } from 'child_process';
 import fs from 'fs-extra';
-import { globby } from 'globby';
+import { globbySync } from 'globby';
 import JSON5 from 'json5';
 import path from 'path';
 import { TemplateBaseConfig } from './config';
@@ -242,7 +242,11 @@ export class GenJS {
     fs.writeFileSync(gitIgnorePath, gitIgnore, { encoding: 'utf-8' })
   }
 
-  async genJS() {
+  private replaceJSFullVersion() {
+    fs.moveSync(this.tempDir, this.templateConfig.paths.jSFull, { overwrite: true })
+  }
+
+  genJS() {
     // Copy project to temp dir
     this.copyTSFullToTempDir()
 
@@ -279,7 +283,7 @@ export class GenJS {
     execSync(`yarn tsc`, { cwd: this.tempDir })
 
     // Remove all TypeScript files
-    const tSFiles = await globby(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true });
+    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true });
 
     tSFiles.forEach(f => fs.removeSync(f))
 
@@ -287,7 +291,7 @@ export class GenJS {
     const sFCCompiler = new SFCCompiler()
 
     // Collect all the SFCs
-    const sFCPaths = await globby('**/*.vue', { cwd: this.tempDir, absolute: true });
+    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true });
 
     // Compile all SFCs
     sFCPaths.forEach(sFCPath => {
@@ -336,5 +340,8 @@ export class GenJS {
 
     // Auto format all files using eslint
     execSync('yarn lint', { cwd: this.tempDir })
+
+    // Place temp dir content in js full version
+    this.replaceJSFullVersion()
   }
 }

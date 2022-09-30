@@ -1,6 +1,7 @@
 import { toCamelCase } from "@/utils/conversions";
+import chalk from "chalk";
 import fs from 'fs-extra';
-import { globby } from 'globby';
+import { globbySync } from 'globby';
 import path from 'path';
 
 export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: string) => void
@@ -8,7 +9,10 @@ export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: 
 export class FillSnippets {
   private projectSrcPath: string
 
-  constructor(private projectPath:string) {
+  constructor(projectPath: string) {
+
+    console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${projectPath}'`));
+
     this.projectSrcPath = path.join(projectPath, 'src')
   }
 
@@ -17,14 +21,14 @@ export class FillSnippets {
    * @param snippetFilePath Snippet file path
    * @returns Promise object represents updated code snippet string
    */
-  async updateSnippet(snippetFilePath: string): Promise<string> {
+  private getUpdatedSnippet(snippetFilePath: string): string {
     
       // Directory that hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
       const demosContainerPath = path.join(snippetFilePath, '..')
 
       const snippetFileName = path.basename(snippetFilePath)
 
-      const shallReplaceTs = path.extname(snippetFileName) === '.ts'
+      const shallUpdateTSSnippet = path.extname(snippetFileName) === '.ts'
 
       // Remove `demoCode` prefix & `.ts` suffix to extract the name. (e.g. demoCodeAlert.ts => Alert)
       // ℹ️ Name will be in pascal case
@@ -33,7 +37,7 @@ export class FillSnippets {
       // Get the content of snippet file
       let snippet = fs.readFileSync(snippetFilePath, { encoding: 'utf-8' })
 
-      const demos = await globby('*.vue', { cwd: demosContainerPath, absolute: true })
+      const demos = globbySync('*.vue', { cwd: demosContainerPath, absolute: true })
       
       // Loop over all demos and update the snippet
       demos.forEach(demoPath => {
@@ -61,8 +65,10 @@ export class FillSnippets {
 
         snippet = snippet.replace(
           regexToReplaceDemoContent,
-          shallReplaceTs
-            ? `export const ${demoVarName} = { ts: \`${demo}\`, js: '' }`
+          // If we are updating TS snippet => Only update TS snippet, keep JS snippet as it is in TS Version
+          // If we are updating JS snippet => Update Both TS & JS snippets in JS version (TS version will be updated using callback)
+          shallUpdateTSSnippet
+            ? `export const ${demoVarName} = { ts: \`${demo}\`, js: \`$3\` }`
             : `export const ${demoVarName} = { ts: \`$1\`, js: \`${demo}\` }`
         )
 
@@ -73,24 +79,26 @@ export class FillSnippets {
 
   /**
    * Fill the code snippets for current project instance
-   * @param onSnippetUpdate Callback function to run when snippet file is updated
    */
-  async fillSnippet(onSnippetUpdate?: OnSnippetUpdateCallback) {
+  fillSnippet() {
+
+    console.log(chalk.blueBright('Filling snippets...'));
 
     // Find snippet all files
-    const snippetsFilesPaths = await globby('**/demoCode*', {
+    const snippetsFilesPaths = globbySync('**/demoCode*', {
       cwd: this.projectSrcPath,
       absolute: true,
     })
 
+    // ❗ How we will write for snippet of another project
 
-    snippetsFilesPaths.forEach(async (snippetFilePath: string) => {
-      const updatedSnippet = await this.updateSnippet(snippetFilePath)
+    snippetsFilesPaths.forEach(snippetFilePath => {
+
+      // update snippet file
+      const updatedSnippet = this.getUpdatedSnippet(snippetFilePath);
 
       // Write updated snippet to file
-      fs.writeFileSync(snippetFilePath, updatedSnippet, { encoding: 'utf-8' })
-      
-      onSnippetUpdate && onSnippetUpdate(updatedSnippet, snippetFilePath)
+      fs.writeFileSync(snippetFilePath, updatedSnippet, { encoding: 'utf-8' });
     })
   }
 }
