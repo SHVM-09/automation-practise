@@ -1,14 +1,13 @@
 {
   "type": "module",
   "scripts": {
-    "exec": "NODE_DEBUG=child_process tsx"
+    "lint": "eslint . --fix --ext .js,.ts,.mjs,.cjs"
   },
   "dependencies": {
     "acorn": "^8.8.0",
     "ast-types": "^0.14.2",
     "chalk": "^5.0.1",
     "escodegen": "^2.0.0",
-    "eslint": "^8.24.0",
     "fs-extra": "^10.1.0",
     "globby": "^13.1.2",
     "json5": "^2.2.1",
@@ -16,13 +15,22 @@
     "vue": "^3.2.40"
   },
   "devDependencies": {
+    "@antfu/eslint-config-ts": "^0.27.0",
     "@types/escodegen": "^0.0.7",
     "@types/eslint": "^8.4.6",
     "@types/fs-extra": "^9.0.13",
     "@types/minimist": "^1.2.2",
     "@types/node": "^18.7.23",
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
+    "eslint": "^8.0.1",
+    "eslint-config-standard-with-typescript": "^23.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "eslint-plugin-unicorn": "^43.0.2",
     "minimist": "^1.2.6",
     "tsx": "^3.9.0",
-    "typescript": "^4.8.3"
+    "typescript": "*"
   }
 }

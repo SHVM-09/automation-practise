@@ -1,11 +1,11 @@
-import { SFCCompiler } from '@/sfcCompiler';
-import { TempLocation } from '@/utils/temp';
-import { execSync } from 'child_process';
-import fs from 'fs-extra';
-import { globbySync } from 'globby';
-import JSON5 from 'json5';
-import path from 'path';
-import { TemplateBaseConfig } from './config';
+import { execSync } from 'child_process'
+import path from 'path'
+import fs from 'fs-extra'
+import { globbySync } from 'globby'
+import JSON5 from 'json5'
+import type { TemplateBaseConfig } from './config'
+import { TempLocation } from '@/utils/temp'
+import { SFCCompiler } from '@/sfcCompiler'
 
 export class GenJS {
   // private projectSrcPath: string
@@ -19,8 +19,7 @@ export class GenJS {
   // 👉 genProjectCopyCommand
   private genProjectCopyCommand(): string {
     let command = `rsync -av --progress ${this.templateConfig.paths.tSFull}/ ${this.tempDir} `
-    this.templateConfig.packageCopyIgnorePatterns.forEach(pattern => {
-      
+    this.templateConfig.packageCopyIgnorePatterns.forEach((pattern) => {
       // We need to escape the * when using rsync
       command += `--exclude ${pattern.replace('*', '\\*')} `
     })
@@ -30,7 +29,7 @@ export class GenJS {
 
   // 👉 copyTSFullToTempDir
   private copyTSFullToTempDir() {
-    console.log(`Copying to ${this.tempDir}`);
+    console.log(`Copying to ${this.tempDir}`)
 
     const commandToCopyProject = this.genProjectCopyCommand()
 
@@ -53,7 +52,7 @@ export class GenJS {
     },`
 
     viteConfig = viteConfig.replace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
-    
+
     fs.writeFileSync(viteConfigPath, viteConfig, { encoding: 'utf-8' })
   }
 
@@ -61,7 +60,7 @@ export class GenJS {
   private removeEslintInternalRules() {
     // Remove eslint internal rules dir
     fs.removeSync(
-      path.join(this.tempDir, 'eslint-internal-rules')
+      path.join(this.tempDir, 'eslint-internal-rules'),
     )
 
     // Remove eslint internal rules from vscode config
@@ -69,7 +68,7 @@ export class GenJS {
 
     // Read config file as string as pass to json5 `parse` method
     const vsCodeConfig = JSON5.parse(
-      fs.readFileSync(vsCodeConfigPath, { encoding: 'utf-8' })
+      fs.readFileSync(vsCodeConfigPath, { encoding: 'utf-8' }),
     )
 
     // Remove `rulePaths` from eslint options in config file
@@ -84,7 +83,7 @@ export class GenJS {
   private updateEslintConfig() {
     const eslintConfigPath = path.join(this.tempDir, '.eslintrc.js')
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
-    
+
     // Add import resolver package
     execSync('yarn add eslint-import-resolver-alias', { cwd: this.tempDir })
 
@@ -106,7 +105,7 @@ export class GenJS {
       Add auto-import json file in extends array
       Regex: https://regex101.com/r/1RYdYv/2
     */
-      eslintConfig = eslintConfig.replace(/(extends: \[\n(\s+))/g, `$1'.eslintrc-auto-import.json',\n$2`)
+    eslintConfig = eslintConfig.replace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
 
     // Add vite aliases in eslint import config
     const viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
@@ -135,35 +134,34 @@ export class GenJS {
 
   private removeAllTSFile() {
     // Remove all TypeScript files
-    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true });
+    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true })
 
     tSFiles.forEach(f => fs.removeSync(f))
   }
 
   private compileSFCs() {
-    const sFCCompiler = new SFCCompiler();
+    const sFCCompiler = new SFCCompiler()
 
     // Collect all the SFCs
-    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true });
+    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true })
 
     // Compile all SFCs
-    sFCPaths.forEach(sFCPath => {
-
+    sFCPaths.forEach((sFCPath) => {
       // Read SFC
-      const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' });
+      const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' })
 
       // Compile SFC's script block
-      const compiledSFCScript = sFCCompiler.compileSFCScript(sFC);
+      const compiledSFCScript = sFCCompiler.compileSFCScript(sFC)
 
       /*
         If compiledSFCScript is string => It is compiled => Write compiled SFC script block back to SFC
         else it's undefined => There's no script block => No compilation => Don't touch the file
       */
       if (compiledSFCScript) {
-        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim());
-        fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' });
+        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
+        fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
       }
-    });
+    })
   }
 
   // 👉 updatePkgJson
@@ -185,14 +183,14 @@ export class GenJS {
       Object.entries<string>(pkgJson.scripts).map(([scriptName, script]) => {
         return [
           scriptName,
-          script.replace(/( --rulesdir eslint-internal-rules\/|vue-tsc --noEmit && | && vue-tsc --noEmit)/, '')
+          script.replace(/( --rulesdir eslint-internal-rules\/|vue-tsc --noEmit && | && vue-tsc --noEmit)/, ''),
         ]
-      })
+      }),
     )
 
     // Remove TypeScript related packages => Remove all the devDependencies that contains "type" word
     pkgJson.devDependencies = Object.fromEntries(
-      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => !dep.includes('type'))
+      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => !dep.includes('type')),
     )
 
     // Write updated json to file
@@ -238,17 +236,17 @@ export class GenJS {
 
     // Compiler options to add in jsConfig
     const jsConfigCompilerOptions = [
-        "noLib",
-        "target",
-        "module",
-        "moduleResolution",
-        "checkJs",
-        "experimentalDecorators",
-        "allowSyntheticDefaultImports",
-        "baseUrl",
-        "paths",
-        "jsx",
-        "types",
+      'noLib',
+      'target',
+      'module',
+      'moduleResolution',
+      'checkJs',
+      'experimentalDecorators',
+      'allowSyntheticDefaultImports',
+      'baseUrl',
+      'paths',
+      'jsx',
+      'types',
     ]
 
     const jsConfig = {
@@ -257,8 +255,8 @@ export class GenJS {
       exclude: tsConfigJSON.exclude,
       compilerOptions: Object.fromEntries(
         Object.entries(tsConfigJSON.compilerOptions)
-          .filter(([p, _]) => jsConfigCompilerOptions.includes(p))
-      )
+          .filter(([p, _]) => jsConfigCompilerOptions.includes(p)),
+      ),
     }
 
     // Path to jsConfig
@@ -325,7 +323,7 @@ export class GenJS {
     execSync('yarn build:icons', { cwd: this.tempDir })
 
     // Run `tsc` to compile TypeScript files
-    execSync(`yarn tsc`, { cwd: this.tempDir })
+    execSync('yarn tsc', { cwd: this.tempDir })
 
     // Remove all TypeScript files
     this.removeAllTSFile()
@@ -353,11 +351,11 @@ export class GenJS {
     /*
       Remove typescript eslint comments from tsx/ts files
       grep -r "@typescript-eslint" ./src | cut -d: -f1
-      
+
       https://stackoverflow.com/a/39382621/10796681
       https://unix.stackexchange.com/a/15309/528729
     */
-    execSync(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i '' -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
+    execSync('find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i \'\' -e \'/@typescript-eslint/d;/@ts-expect/d\'', { cwd: this.tempDir })
 
     // Auto format all files using eslint
     execSync('yarn lint', { cwd: this.tempDir })

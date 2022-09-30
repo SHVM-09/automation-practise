@@ -1,9 +1,8 @@
-import { parse } from 'acorn';
-import { namedTypes as n } from 'ast-types';
-import { generate } from 'escodegen';
-import { sfcToJs } from './sfcToJS';
-import { extractComments, generateCodeFromAST } from './utils';
-
+import { parse } from 'acorn'
+import type { namedTypes as n } from 'ast-types'
+import { generate } from 'escodegen'
+import { sfcToJs } from './sfcToJS'
+import { extractComments, generateCodeFromAST } from './utils'
 
 export class SFCCompiler {
   /**
@@ -16,53 +15,54 @@ export class SFCCompiler {
     const { code: compiledSfc, isCompiled, isScriptSetup } = sfcToJs(sfc)
 
     if (isCompiled && compiledSfc) {
-        /*
+      /*
             ℹ️ If it's script setup we need to treat it carefully
             Else if its just script then we already have compiled ready to replace code 🎉
         */
-        if (isScriptSetup) {
+      if (isScriptSetup) {
+        const codeComments = extractComments(compiledSfc).filter(cmt => cmt.nextLine.trim())
 
+        // I think I don't need to format the generated code
+        // const compiledFormattedSfc = await formatCode(compiledSfc, eslintConfigFilePath)
 
-            const codeComments = extractComments(compiledSfc).filter(cmt => cmt.nextLine.trim())
+        const jsSfcScriptSetup: string[] = []
 
-            // I think I don't need to format the generated code
-            // const compiledFormattedSfc = await formatCode(compiledSfc, eslintConfigFilePath)
+        // @ts-expect-error This returns the program AST
+        const { body } = parse(compiledSfc, {
+          ecmaVersion: 'latest',
+          sourceType: 'module',
+        }) as n.Program
 
-            let jsSfcScriptSetup: string[] = []
+        jsSfcScriptSetup.push(...this.extractImports(body))
 
-            // @ts-expect-error This returns the program AST
-            const { body } = parse(compiledSfc, {
-                ecmaVersion: 'latest',
-                'sourceType': 'module',
-            }) as n.Program
+        jsSfcScriptSetup.push(...this.extractPropsEmitsSetup(body))
 
-            jsSfcScriptSetup.push(...this.extractImports(body))
+        const jsSfc: string[] = []
 
-            jsSfcScriptSetup.push(...this.extractPropsEmitsSetup(body))
+        // ℹ️ We need to join and split again because jsSfcScriptSetup may contain whole block as single element and we want it to be single line
+        jsSfcScriptSetup.join('\n').split('\n').forEach((line) => {
+          // ℹ️ We need to trim line & comment next line to avoid indentation differences
+          const comment = codeComments.find(cmt => line.trim() === cmt.nextLine.trim())
 
-            const jsSfc: string[] = []
+          if (comment) {
+            // ℹ️ Add blank line before comment
+            jsSfc.push('')
+            jsSfc.push(comment.comment)
+          }
+          jsSfc.push(line)
+        })
 
-            // ℹ️ We need to join and split again because jsSfcScriptSetup may contain whole block as single element and we want it to be single line
-            jsSfcScriptSetup.join("\n").split("\n").forEach(line => {
-                // ℹ️ We need to trim line & comment next line to avoid indentation differences            
-                const comment = codeComments.find(cmt => line.trim() === cmt.nextLine.trim())
+        // Remove first & last empty line
+        if (jsSfc[0] === '')
+          jsSfc.shift()
+        if (jsSfc[jsSfc.length - 1] === '')
+          jsSfc.pop()
 
-                if (comment) {
-                    // ℹ️ Add blank line before comment
-                    jsSfc.push('')
-                    jsSfc.push(comment.comment)
-                }
-                jsSfc.push(line)
-            })
-            
-            // Remove first & last empty line
-            if (jsSfc[0] === '') jsSfc.shift()
-            if (jsSfc[jsSfc.length - 1] === '') jsSfc.pop()
-
-            return ['<script setup>', ...jsSfc, '</script>'].join('\n');
-        } else {
-            return ['<script>', compiledSfc.trim(), '</script>'].join('\n');
-        }
+        return ['<script setup>', ...jsSfc, '</script>'].join('\n')
+      }
+      else {
+        return ['<script>', compiledSfc.trim(), '</script>'].join('\n')
+      }
     }
   }
 
@@ -74,49 +74,47 @@ export class SFCCompiler {
   private extractPropsEmitsSetup(astBody: n.Program['body']): string[] {
     const extractedCode: string[] = []
 
-    astBody.forEach(node => {
-        // defineComponent export
-        if (node.type === 'ExportDefaultDeclaration') {
+    astBody.forEach((node) => {
+      // defineComponent export
+      if (node.type === 'ExportDefaultDeclaration') {
+        // defineComponent properties
+        const options = ((node.declaration as n.CallExpression).arguments[0] as n.ObjectExpression).properties
 
-            // defineComponent properties
-            const options = ((node.declaration as n.CallExpression).arguments[0] as n.ObjectExpression).properties
+        // We need `node.type === 'Property'` because for recursive components there can be `SpreadElement` in between as well
+        const propsProperty: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'props') as n.Property
+        const emitsProperty: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'emits') as n.Property
+        const setupNode: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'setup') as n.Property
 
-
-            // We need `node.type === 'Property'` because for recursive components there can be `SpreadElement` in between as well
-            const propsProperty: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'props') as n.Property
-            const emitsProperty: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'emits') as n.Property
-            const setupNode: n.Property = options.find(node => node.type === 'Property' && (node.key as n.Identifier).name === 'setup') as n.Property
-            
-            if (propsProperty) {
-                // Add new line by pushing empty string
-                extractedCode.push('')
-                extractedCode.push(`const props = defineProps(${generate(propsProperty.value)})`)
-            }
-
-            if (emitsProperty) {
-                // Add new line by pushing empty string
-                extractedCode.push('')
-                extractedCode.push(`const emit = defineEmits(${generate(emitsProperty.value)})`)
-            }
-
-            // setupContent wrapped in curly braces
-            const setupContent = (setupNode.value as n.FunctionExpression).body
-            setupContent.body = setupContent.body.filter(node => node.type !== 'ReturnStatement')
-
-
-            // Add new line by pushing empty string
-            extractedCode.push('')
-            setupContent.body.forEach((_node) => {
-                // ℹ️ Don't include `const props = __props`
-                if (_node.type === "VariableDeclaration") {
-                    const [declaration] = _node.declarations
-                    if (declaration.type === 'VariableDeclarator' && !((declaration.id as n.Identifier).name === 'props' && (declaration.init as n.Identifier).name === '__props'))
-                        extractedCode.push(generateCodeFromAST(_node))
-                } else {
-                    extractedCode.push(generateCodeFromAST(_node))
-                }
-            })
+        if (propsProperty) {
+          // Add new line by pushing empty string
+          extractedCode.push('')
+          extractedCode.push(`const props = defineProps(${generate(propsProperty.value)})`)
         }
+
+        if (emitsProperty) {
+          // Add new line by pushing empty string
+          extractedCode.push('')
+          extractedCode.push(`const emit = defineEmits(${generate(emitsProperty.value)})`)
+        }
+
+        // setupContent wrapped in curly braces
+        const setupContent = (setupNode.value as n.FunctionExpression).body
+        setupContent.body = setupContent.body.filter(node => node.type !== 'ReturnStatement')
+
+        // Add new line by pushing empty string
+        extractedCode.push('')
+        setupContent.body.forEach((_node) => {
+          // ℹ️ Don't include `const props = __props`
+          if (_node.type === 'VariableDeclaration') {
+            const [declaration] = _node.declarations
+            if (declaration.type === 'VariableDeclarator' && !((declaration.id as n.Identifier).name === 'props' && (declaration.init as n.Identifier).name === '__props'))
+              extractedCode.push(generateCodeFromAST(_node))
+          }
+          else {
+            extractedCode.push(generateCodeFromAST(_node))
+          }
+        })
+      }
     })
 
     return extractedCode
@@ -131,7 +129,7 @@ export class SFCCompiler {
     const imports: n.ImportDeclaration[] = astBody.filter(node => node.type === 'ImportDeclaration') as n.ImportDeclaration[]
     const compiledImports: string[] = []
 
-    imports.forEach(i => {
+    imports.forEach((i) => {
       // Remove useless/extra imports
 
       /*
@@ -153,29 +151,28 @@ export class SFCCompiler {
           We need to remove them
       */
 
+      // If import is from vue, process it differently
+      if (i.source.value === 'vue') {
+        // Create specifier array
+        const specifiers: n.ImportSpecifier[] = [] as n.ImportSpecifier[]
 
-          // If import is from vue, process it differently
-          if (i.source.value === 'vue') {
+        // Only add specifiers that are not renamed
+        (i.specifiers as n.ImportSpecifier[]).forEach((s: n.ImportSpecifier) => {
+          if ((s.local && s.local.name) === s.imported.name)
+            specifiers.push(s)
+        })
 
-              // Create specifier array
-              const specifiers: n.ImportSpecifier[] = [] as n.ImportSpecifier[]
+        // If there's no specifiers, don't add import statement else add it
+        if (specifiers.length) {
+          i.specifiers = specifiers
+          compiledImports.push(generate(i))
+        }
+      }
 
-              // Only add specifiers that are not renamed
-              (i.specifiers as n.ImportSpecifier[]).forEach((s: n.ImportSpecifier) => {
-                  if ((s.local && s.local.name) === s.imported.name) specifiers.push(s)
-              })
-
-              // If there's no specifiers, don't add import statement else add it
-              if (specifiers.length) {
-                  i.specifiers = specifiers
-                  compiledImports.push(generate(i))
-              }
-          }
-          
-          // If it's not vue import just add it
-          else {
-              compiledImports.push(generate(i))
-          }
+      // If it's not vue import just add it
+      else {
+        compiledImports.push(generate(i))
+      }
     })
 
     return compiledImports

@@ -32,9 +32,9 @@ export const toCamelCase = (str: string): string => {
     This is => This Is
     This Is => This Is
   */
- const titled = titleCase(spaceBeforeCapital)
+  const titled = titleCase(spaceBeforeCapital)
 
- /*
+  /*
   Remove space between words
   This Is => ThisIs
  */

@@ -1,3 +1,3 @@
-export * from './config';
-export * from './template';
+export * from './config'
+export * from './template'
 

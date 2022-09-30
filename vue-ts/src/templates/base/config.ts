@@ -1,3 +1,8 @@
+export interface DemoConfigItem {
+  find: string | RegExp
+  replace: string
+}
+
 export interface TemplateBaseConfig {
   templateName: string
   projectPath: string
@@ -8,4 +13,5 @@ export interface TemplateBaseConfig {
     jSFull: string
     jSStarter: string
   }
+  demosConfig: (DemoConfigItem[] | null)[]
 }

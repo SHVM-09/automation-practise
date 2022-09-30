@@ -1,8 +1,8 @@
-import path from 'path';
-import * as url from 'url';
+import path from 'path'
+import * as url from 'url'
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+// const __filename = url.fileURLToPath(import.meta.url)
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // projectRoot => automation-scripts/vue
 export const projectPath = path.join(__dirname, '../../')
