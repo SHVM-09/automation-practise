@@ -4,14 +4,6 @@ import fs from 'fs-extra';
 import { globbySync } from 'globby';
 import path from 'path';
 
-export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: string) => void
-
-/*
-
-  
-
-*/
-
 export class FillSnippets {
 
   constructor(private tSFull: string, jSFull: string) {
@@ -19,7 +11,12 @@ export class FillSnippets {
     console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`));
   }
 
-  private getUpdatedSnippet(snippetFilePath: string) {
+  /**
+   * Returns updated snippet by reading demo code from both TS & JS project
+   * @param snippetFilePath Snippet file path of TS Full
+   * @returns Updated snippet
+   */
+  private getUpdatedSnippet(snippetFilePath: string): string {
     
       // Directory that hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
       const demosContainerPath = path.join(snippetFilePath, '..')

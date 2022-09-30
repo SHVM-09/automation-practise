@@ -1,49 +1,21 @@
 import { getCommand } from '@/utils/cli';
-import type { OnSnippetUpdateCallback } from '@templates/base/fillSnippets';
 import { FillSnippets } from '@templates/base/fillSnippets';
 import { GenJS } from '@templates/base/genJS';
 import chalk from 'chalk';
 import { execSync } from 'child_process';
-import fs from 'fs-extra';
 import parseArgs from 'minimist';
-import path from 'path';
 import { config } from './config';
 import { Materio } from './template';
 
 const argv = parseArgs(process.argv.slice(2))
 const materio = new Materio(config)
 
-const materioVersionsPaths = {
-  tSFull: path.join(materio.config.projectPath, 'typescript-version', 'full-version'),
-  tSStarter: path.join(materio.config.projectPath, 'typescript-version', 'starter-kit'),
-  jSFull: path.join(materio.config.projectPath, 'javascript-version', 'full-version'),
-  jSStarter: path.join(materio.config.projectPath, 'javascript-version', 'starter-kit'),
-}
-const materioSrcPaths: typeof materioVersionsPaths = Object.fromEntries(
-  Object.entries(materioVersionsPaths)
-    .map(
-      ([v, _path]) => ([ [v], path.join(_path, 'src') ])
-    )
-)
-
-console.log('argv :>> ', argv);
-
-
 const command = getCommand(argv)
 
-// SECTION fillSnippets
-const onSnippetUpdateCallback: OnSnippetUpdateCallback = (updatedSnippet, snippetFilePath) => {
-  const tsSnippetFilePath = snippetFilePath
-    .replace('javascript-version', 'typescript-version')
-    .replace('.js', '.ts')
-  
-  // Update TS snippet
-  fs.writeFileSync(tsSnippetFilePath, updatedSnippet, { encoding: 'utf-8' })
-}
-
+// 👉 fillSnippets
 if (command === 'fillSnippets') {
 
-  const { tSFull, jSFull } = materioVersionsPaths
+  const { tSFull, jSFull } = materio.config.paths
 
   const snippetFiller = new FillSnippets(tSFull, jSFull)
 
@@ -55,14 +27,15 @@ if (command === 'fillSnippets') {
     execSync('yarn lint', { cwd: p })
   })
 }
-// !SECTION
 
-// SECTION gen-js
+
+// 👉 gen-js
 else if(command === 'gen-js') {
   const jsGenerator = new GenJS(materio.config)
   jsGenerator.genJS()
 }
-// !SECTION
+
+// 👉 Unknown command
 else {
   console.log(chalk.yellowBright('Command not found!'));
 }

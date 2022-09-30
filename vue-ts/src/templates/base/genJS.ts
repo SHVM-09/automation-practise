@@ -16,6 +16,7 @@ export class GenJS {
     this.tempDir = new TempLocation().tempDir
   }
 
+  // 👉 genProjectCopyCommand
   private genProjectCopyCommand(): string {
     let command = `rsync -av --progress ${this.templateConfig.paths.tSFull}/ ${this.tempDir} `
     this.templateConfig.packageCopyIgnorePatterns.forEach(pattern => {
@@ -27,7 +28,8 @@ export class GenJS {
     return command
   }
 
-  private async copyTSFullToTempDir() {
+  // 👉 copyTSFullToTempDir
+  private copyTSFullToTempDir() {
     console.log(`Copying to ${this.tempDir}`);
 
     const commandToCopyProject = this.genProjectCopyCommand()
@@ -35,6 +37,7 @@ export class GenJS {
     execSync(commandToCopyProject)
   }
 
+  // 👉 updateViteConfig
   private updateViteConfig() {
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
 
@@ -54,6 +57,7 @@ export class GenJS {
     fs.writeFileSync(viteConfigPath, viteConfig, { encoding: 'utf-8' })
   }
 
+  // 👉 removeEslintInternalRules
   private removeEslintInternalRules() {
     // Remove eslint internal rules dir
     fs.removeSync(
@@ -76,6 +80,7 @@ export class GenJS {
     fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 4 })
   }
 
+  // 👉 updateEslintConfig
   private updateEslintConfig() {
     const eslintConfigPath = path.join(this.tempDir, '.eslintrc.js')
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
@@ -113,6 +118,7 @@ export class GenJS {
     fs.writeFileSync(eslintConfigPath, eslintConfig, { encoding: 'utf-8' })
   }
 
+  // 👉 updateTSConfig
   private updateTSConfig() {
     // Path to tsconfig.json
     const tsConfigPath = path.join(this.tempDir, 'tsconfig.json')
@@ -127,6 +133,40 @@ export class GenJS {
     fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 4 })
   }
 
+  private removeAllTSFile() {
+    // Remove all TypeScript files
+    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true });
+
+    tSFiles.forEach(f => fs.removeSync(f))
+  }
+
+  private compileSFCs() {
+    const sFCCompiler = new SFCCompiler();
+
+    // Collect all the SFCs
+    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true });
+
+    // Compile all SFCs
+    sFCPaths.forEach(sFCPath => {
+
+      // Read SFC
+      const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' });
+
+      // Compile SFC's script block
+      const compiledSFCScript = sFCCompiler.compileSFCScript(sFC);
+
+      /*
+        If compiledSFCScript is string => It is compiled => Write compiled SFC script block back to SFC
+        else it's undefined => There's no script block => No compilation => Don't touch the file
+      */
+      if (compiledSFCScript) {
+        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim());
+        fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' });
+      }
+    });
+  }
+
+  // 👉 updatePkgJson
   private updatePkgJson() {
     // Path to package.json
     const pkgJsonPath = path.join(this.tempDir, 'package.json')
@@ -159,6 +199,7 @@ export class GenJS {
     fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 4 })
   }
 
+  // 👉 updateIndexHtml
   private updateIndexHtml() {
     // Path to `index.html`
     const indexHTMLPath = path.join(this.tempDir, 'index.html')
@@ -176,6 +217,7 @@ export class GenJS {
   /**
    * Generate `jsconfig.json` from `tsconfig.json` file for vscode
    */
+  // 👉 genJSConfig
   private genJSConfig() {
     // Path to tsconfig.json
     const tsConfigPath = path.join(this.tempDir, 'tsconfig.json')
@@ -210,7 +252,7 @@ export class GenJS {
     ]
 
     const jsConfig = {
-      // ❗ We aren't excluding shims.d.ts file as well
+      // TODO: We aren't excluding shims.d.ts file as well
       include: (tsConfigJSON.include as string[]).filter(i => i !== 'env.d.ts'),
       exclude: tsConfigJSON.exclude,
       compilerOptions: Object.fromEntries(
@@ -226,6 +268,7 @@ export class GenJS {
     fs.writeJsonSync(jsConfigPath, jsConfig, { spaces: 4 })
   }
 
+  // 👉 updateGitIgnore
   private updateGitIgnore() {
     // Path to `.gitignore`
     const gitIgnorePath = path.join(this.tempDir, '.gitignore')
@@ -242,10 +285,12 @@ export class GenJS {
     fs.writeFileSync(gitIgnorePath, gitIgnore, { encoding: 'utf-8' })
   }
 
+  // 👉 replaceJSFullVersion
   private replaceJSFullVersion() {
     fs.moveSync(this.tempDir, this.templateConfig.paths.jSFull, { overwrite: true })
   }
 
+  // 👉 genJS
   genJS() {
     // Copy project to temp dir
     this.copyTSFullToTempDir()
@@ -283,34 +328,10 @@ export class GenJS {
     execSync(`yarn tsc`, { cwd: this.tempDir })
 
     // Remove all TypeScript files
-    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true });
+    this.removeAllTSFile()
 
-    tSFiles.forEach(f => fs.removeSync(f))
-
-    // Initialize new compiler
-    const sFCCompiler = new SFCCompiler()
-
-    // Collect all the SFCs
-    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true });
-
-    // Compile all SFCs
-    sFCPaths.forEach(sFCPath => {
-
-      // Read SFC
-      const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' })
-
-      // Compile SFC's script block
-      const compiledSFCScript = sFCCompiler.compileSFCScript(sFC)
-
-      /*
-        If compiledSFCScript is string => It is compiled => Write compiled SFC script block back to SFC
-        else it's undefined => There's no script block => No compilation => Don't touch the file
-      */
-      if (compiledSFCScript) {
-        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
-        fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
-      }      
-    })
+    // Compile all SFCs written using TS to SFC JS
+    this.compileSFCs()
 
     this.updatePkgJson()
 
