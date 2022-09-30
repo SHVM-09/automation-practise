@@ -6,29 +6,25 @@ import path from 'path';
 
 export type OnSnippetUpdateCallback = (updatedSnippet: string, snippetFilePath: string) => void
 
+/*
+
+  
+
+*/
+
 export class FillSnippets {
-  private projectSrcPath: string
 
-  constructor(projectPath: string) {
+  constructor(private tSFull: string, jSFull: string) {
 
-    console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${projectPath}'`));
-
-    this.projectSrcPath = path.join(projectPath, 'src')
+    console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`));
   }
 
-  /**
-   * Update all the demo snippets in provided file by scrapping all the demos in the same dir as snippet file
-   * @param snippetFilePath Snippet file path
-   * @returns Promise object represents updated code snippet string
-   */
-  private getUpdatedSnippet(snippetFilePath: string): string {
+  private getUpdatedSnippet(snippetFilePath: string) {
     
       // Directory that hold all the snippets. E.g. Alert dir which has all the demos along with code snippet file
       const demosContainerPath = path.join(snippetFilePath, '..')
 
-      const snippetFileName = path.basename(snippetFilePath)
-
-      const shallUpdateTSSnippet = path.extname(snippetFileName) === '.ts'
+      const snippetFileName = path.basename(snippetFilePath) // e.g. demoCodeAlert.ts
 
       // Remove `demoCode` prefix & `.ts` suffix to extract the name. (e.g. demoCodeAlert.ts => Alert)
       // ℹ️ Name will be in pascal case
@@ -41,11 +37,7 @@ export class FillSnippets {
       
       // Loop over all demos and update the snippet
       demos.forEach(demoPath => {
-        const demo = fs.readFileSync(demoPath, { encoding: 'utf-8' })
-          .replace(/`/gi, '\\`')
-          .replace(/\$/gi, '\\$')
-
-        
+        // Get the demo variable name from path => export const color = ... <= color is demoVarName name
         const demoVarName = toCamelCase(path.basename(demoPath, '.vue')
           // slice(4) => Remove 'demo' prefix [DemoSwitchTrueAndFalseValue => SwitchTrueAndFalseValue]
           // slice(4 + componentName.length) => Remove component name [SwitchTrueAndFalseValue => TrueAndFalseValue]
@@ -63,13 +55,25 @@ export class FillSnippets {
         */
         const regexToReplaceDemoContent = new RegExp(`export const ${demoVarName} = {(?:\\s|\n)*?ts: [\`'"]{1}((\n|.)*?)[\`'"]{1},(?:\\s|\n)*?js: [\`'"]{1}((\n|.)*?)[\`'"]{1},?(?:\\s|\n)*?}$`, 'gm')
 
+        // Get content of TypeScript demo
+        const tSDemo = fs.readFileSync(demoPath, { encoding: 'utf-8' })
+          .replace(/`/gi, '\\`')
+          .replace(/\$/gi, '\\$')
+
+        // Generate path of JavaScript demo
+        const jsDemoPath = demoPath
+          .replace('typescript-version', 'javascript-version')
+          .replace('.ts', '.js')
+
+        // Get content of JavaScript demo
+        const jSDemo = fs.readFileSync(jsDemoPath, { encoding: 'utf-8' })
+          .replace(/`/gi, '\\`')
+          .replace(/\$/gi, '\\$')
+
+        // Update snippet
         snippet = snippet.replace(
           regexToReplaceDemoContent,
-          // If we are updating TS snippet => Only update TS snippet, keep JS snippet as it is in TS Version
-          // If we are updating JS snippet => Update Both TS & JS snippets in JS version (TS version will be updated using callback)
-          shallUpdateTSSnippet
-            ? `export const ${demoVarName} = { ts: \`${demo}\`, js: \`$3\` }`
-            : `export const ${demoVarName} = { ts: \`$1\`, js: \`${demo}\` }`
+          `export const ${demoVarName} = { ts: \`${tSDemo}\`, js: \`${jSDemo}\` }`
         )
 
       })
@@ -84,21 +88,27 @@ export class FillSnippets {
 
     console.log(chalk.blueBright('Filling snippets...'));
 
-    // Find snippet all files
-    const snippetsFilesPaths = globbySync('**/demoCode*', {
-      cwd: this.projectSrcPath,
+    // Find snippet all files for TS Full
+    const tSSnippetsFilesPaths = globbySync('**/demoCode*', {
+      cwd: this.tSFull,
       absolute: true,
     })
 
-    // ❗ How we will write for snippet of another project
+    tSSnippetsFilesPaths.forEach(snippetFilePath => {
 
-    snippetsFilesPaths.forEach(snippetFilePath => {
-
-      // update snippet file
+      // update snippet file for TS
       const updatedSnippet = this.getUpdatedSnippet(snippetFilePath);
 
-      // Write updated snippet to file
+      // Write updated snippet to file - TS Full
       fs.writeFileSync(snippetFilePath, updatedSnippet, { encoding: 'utf-8' });
+
+      // Write updated snippet to file JS Full
+      const jSSnippetFilePath = snippetFilePath
+        .replace('typescript-version', 'javascript-version',)
+        .replace('.ts', '.js')
+
+      // Write updated snippet to file - JS Full
+      fs.writeFileSync(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' });
     })
   }
 }

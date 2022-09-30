@@ -42,20 +42,18 @@ const onSnippetUpdateCallback: OnSnippetUpdateCallback = (updatedSnippet, snippe
 }
 
 if (command === 'fillSnippets') {
-  const { ts, js } = argv
-  const { tSFull: tSFullPath, jSFull: jSFullPath } = materioVersionsPaths
 
-  const projectPathForFillingSnippets = js ? jSFullPath : tSFullPath
+  const { tSFull, jSFull } = materioVersionsPaths
 
-  const snippetFiller = new FillSnippets(projectPathForFillingSnippets)
+  const snippetFiller = new FillSnippets(tSFull, jSFull)
 
   snippetFiller.fillSnippet()
 
   // ℹ️ Run linting after filling all snippets to auto format
-  execSync('yarn lint', { cwd: projectPathForFillingSnippets })
-
-  // If ts & js both args are provided also lint ts project
-  if(ts && js) execSync('yarn lint', { cwd: tSFullPath })
+  const projectsToLint = [tSFull, jSFull]
+  projectsToLint.forEach(p => {
+    execSync('yarn lint', { cwd: p })
+  })
 }
 // !SECTION
 
