@@ -4,8 +4,9 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import JSON5 from 'json5'
 import type { TemplateBaseConfig } from './config'
-import { TempLocation } from '@/utils/temp'
 import { SFCCompiler } from '@/sfcCompiler'
+import { updateFile } from '@/utils/node'
+import { TempLocation } from '@/utils/temp'
 
 export class GenJS {
   // private projectSrcPath: string
@@ -38,22 +39,21 @@ export class GenJS {
 
   // 👉 updateViteConfig
   private updateViteConfig() {
-    const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
+    updateFile(
+      path.join(this.tempDir, 'vite.config.ts'),
+      (viteConfig) => {
+        // Replace themeConfig.ts alias to themeConfig.js
+        viteConfig = viteConfig.replace('themeConfig.ts', 'themeConfig.js')
 
-    let viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
+        // enable eslintrc in AutoImport plugin
+        const autoImportEslintConfig = `eslintrc: {
+            enabled: true,
+            filepath: './.eslintrc-auto-import.json',
+        },`
 
-    // Replace themeConfig.ts alias to themeConfig.js
-    viteConfig = viteConfig.replace('themeConfig.ts', 'themeConfig.js')
-
-    // enable eslintrc in AutoImport plugin
-    const autoImportEslintConfig = `eslintrc: {
-        enabled: true,
-        filepath: './.eslintrc-auto-import.json',
-    },`
-
-    viteConfig = viteConfig.replace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
-
-    fs.writeFileSync(viteConfigPath, viteConfig, { encoding: 'utf-8' })
+        return viteConfig.replace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
+      },
+    )
   }
 
   // 👉 removeEslintInternalRules
@@ -199,17 +199,10 @@ export class GenJS {
 
   // 👉 updateIndexHtml
   private updateIndexHtml() {
-    // Path to `index.html`
-    const indexHTMLPath = path.join(this.tempDir, 'index.html')
-
-    // Read index file
-    let indexHTML = fs.readFileSync(indexHTMLPath, { encoding: 'utf-8' })
-
-    // Replace `main.ts` with `main.js`
-    indexHTML = indexHTML.replace('main.ts', 'main.js')
-
-    // Write back to index file
-    fs.writeFileSync(indexHTMLPath, indexHTML, { encoding: 'utf-8' })
+    updateFile(
+      path.join(this.tempDir, 'index.html'),
+      indexHTML => indexHTML.replace('main.ts', 'main.js'),
+    )
   }
 
   /**
@@ -268,19 +261,12 @@ export class GenJS {
 
   // 👉 updateGitIgnore
   private updateGitIgnore() {
-    // Path to `.gitignore`
-    const gitIgnorePath = path.join(this.tempDir, '.gitignore')
-
-    // Read `.gitignore` file
-    let gitIgnore = fs.readFileSync(gitIgnorePath, { encoding: 'utf-8' })
-
-    // Remove all the lines that contains iconify word
-    gitIgnore = gitIgnore.split('\n')
-      .filter(line => !line.includes('iconify'))
-      .join('\n')
-
-    // Write back to gitIgnore file
-    fs.writeFileSync(gitIgnorePath, gitIgnore, { encoding: 'utf-8' })
+    updateFile(
+      path.join(this.tempDir, '.gitignore'),
+      gitIgnore => gitIgnore.split('\n')
+        .filter(line => !line.includes('iconify'))
+        .join('\n'),
+    )
   }
 
   // 👉 replaceJSFullVersion
