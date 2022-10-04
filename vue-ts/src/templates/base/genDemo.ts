@@ -43,11 +43,11 @@ export class GenDemo {
    * This is used to isolate the demo config
    * @param demoNumber localStorage key to update for demo
    */
-  private updateLocalStorageKeys(demoNumber: number) {
+  private updateLocalStorageKeys(demoNumber: number, templateName: string) {
     // default values for demo 1
     let sedFind = '(localStorage.(set|get)Item\\(.*\\.title\\}-)'
     let sedReplace = '\\1demo-1-'
-    let indexHTMLFind = /(localStorage.getItem\('Materio)/g
+    let indexHTMLFind = new RegExp(`(localStorage.getItem\('${templateName})`, 'g')
     let indexHTMLReplace = '$1-demo-1'
 
     // If it's not 1st demo update the find replace strings
@@ -107,7 +107,7 @@ export class GenDemo {
       info(`Generating demo ${demoNumber}`)
 
       info('Updating localStorage keys...')
-      this.updateLocalStorageKeys(demoNumber)
+      this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
 
       // ℹ️ Demo config can be null if there's no changes in themeConfig
       if (demoConfig) {
