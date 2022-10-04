@@ -13,5 +13,6 @@ export interface TemplateBaseConfig {
     jSFull: string
     jSStarter: string
   }
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
   demosConfig: (DemoConfigItem[] | null)[]
 }

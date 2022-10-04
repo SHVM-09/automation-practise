@@ -78,4 +78,5 @@ export const config: MaterioConfig = {
       },
     ],
   ],
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
 }
