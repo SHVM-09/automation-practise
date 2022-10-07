@@ -41,3 +41,7 @@ export const updateFile = (path: string, modifier: UpdateFileModifier) => {
     { encoding: 'utf-8' },
   )
 }
+
+export const removeEmptyDirsRecursively = (path: string) => {
+  execCmd(`find ${path} -type d -empty -delete`)
+}

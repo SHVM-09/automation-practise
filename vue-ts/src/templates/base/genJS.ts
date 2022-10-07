@@ -5,36 +5,20 @@ import { globbySync } from 'globby'
 import JSON5 from 'json5'
 import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
+import { Utils } from '@/templates/base/helper'
+import { info } from '@/utils/logging'
 import { updateFile } from '@/utils/node'
-import { TempLocation } from '@/utils/temp'
 
-export class GenJS {
-  // private projectSrcPath: string
-  private tempDir: string
-
+export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
-    // this.projectSrcPath = path.join(templateConfig.projectPath, 'src')
-    this.tempDir = new TempLocation().tempDir
-  }
-
-  // 👉 genProjectCopyCommand
-  private genProjectCopyCommand(): string {
-    let command = `rsync -av --progress ${this.templateConfig.paths.tSFull}/ ${this.tempDir} `
-    this.templateConfig.packageCopyIgnorePatterns.forEach((pattern) => {
-      // We need to escape the * when using rsync
-      command += `--exclude ${pattern.replace('*', '\\*')} `
-    })
-
-    return command
+    super()
   }
 
   // 👉 copyTSFullToTempDir
   private copyTSFullToTempDir() {
-    console.log(`Copying to ${this.tempDir}`)
+    info(`Copying to ${this.tempDir}`)
 
-    const commandToCopyProject = this.genProjectCopyCommand()
-
-    execSync(commandToCopyProject)
+    this.copyProject(this.templateConfig.paths.tSFull, this.tempDir, this.templateConfig.packageCopyIgnorePatterns)
   }
 
   // 👉 updateViteConfig

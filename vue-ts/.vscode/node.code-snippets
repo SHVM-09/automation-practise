@@ -12,5 +12,12 @@
             "fs.writeFileSync($1Path, $1, { encoding: 'utf-8' })"
         ],
         "description": "Node: Write file sync"
+    },
+    "path.join() method": {
+        "prefix": "pj",
+        "body": [
+            "path.join($1)"
+        ],
+        "description": "path.join() method"
     }
 }

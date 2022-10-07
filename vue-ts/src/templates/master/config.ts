@@ -1,13 +1,16 @@
 import path from 'path'
+import * as url from 'url'
 import type { TemplateBaseConfig } from '@/templates/base'
 import { getTemplatePath } from '@/utils/paths'
 
 type MasterConfig = TemplateBaseConfig
 
-const projectPath = path.join(getTemplatePath('master', 'vue'))
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+const masterVuePath = path.join(getTemplatePath('master', 'vue'))
+
 export const config: MasterConfig = {
   templateName: 'Master',
-  projectPath,
+  projectPath: masterVuePath,
   packageCopyIgnorePatterns: [
     // Directories
     'dist',
@@ -23,11 +26,18 @@ export const config: MasterConfig = {
     '*.log',
     '*.zip',
   ],
+  sKImagesRemovePatterns: [
+    '**/*',
+    '!svg',
+    '!pages',
+    '!avatars',
+  ],
   paths: {
-    tSFull: path.join(projectPath, 'typescript-version', 'full-version'),
-    tSStarter: path.join(projectPath, 'typescript-version', 'starter-kit'),
-    jSFull: path.join(projectPath, 'javascript-version', 'full-version'),
-    jSStarter: path.join(projectPath, 'javascript-version', 'starter-kit'),
+    tSFull: path.join(masterVuePath, 'typescript-version', 'full-version'),
+    tSStarter: path.join(masterVuePath, 'typescript-version', 'starter-kit'),
+    jSFull: path.join(masterVuePath, 'javascript-version', 'full-version'),
+    jSStarter: path.join(masterVuePath, 'javascript-version', 'starter-kit'),
+    dataDir: path.join(__dirname, 'data'),
   },
   demosConfig: [
     // Demo 1
@@ -78,4 +88,8 @@ export const config: MasterConfig = {
     ],
   ],
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+  gh: {
+    ownerName: 'themeselection',
+    repoName: 'master-vue--material',
+  },
 }
