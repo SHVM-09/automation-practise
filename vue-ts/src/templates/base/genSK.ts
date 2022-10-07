@@ -1,13 +1,13 @@
-import type { Tracker } from '@/../types'
-import { Utils } from '@/templates/base/helper'
-import { error } from '@/utils/logging'
-import { removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
+import path from 'path'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import { Octokit } from 'octokit'
-import path from 'path'
 import type { TemplateBaseConfig } from './config'
+import type { Tracker } from '@/../types'
+import { Utils } from '@/templates/base/helper'
+import { error } from '@/utils/logging'
+import { removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
 // TODO: Check do we need to handle extra files for TS/JS
 export class GenSK extends Utils {
@@ -246,7 +246,11 @@ export class GenSK extends Utils {
   }
 
   private replaceStarterKit() {
-    replaceDir(this.tempDir, this.templateConfig.paths.jSStarter)
+    replaceDir(
+      this.tempDir,
+      this.isJS
+        ? this.templateConfig.paths.jSStarter
+        : this.templateConfig.paths.tSStarter)
   }
 
   async genSK() {
@@ -282,7 +286,7 @@ export class GenSK extends Utils {
 
     this.updateViteConfig()
 
-    // Place temp dir content in js full version
+    // Place temp dir content in ts/js starter-kit
     this.replaceStarterKit()
   }
 }
