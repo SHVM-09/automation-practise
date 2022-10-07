@@ -7,7 +7,7 @@ import type { TemplateBaseConfig } from './config'
 import type { Tracker } from '@/../types'
 import { Utils } from '@/templates/base/helper'
 import { error } from '@/utils/logging'
-import { removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
+import { execCmd, removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
 // TODO: Check do we need to handle extra files for TS/JS
 export class GenSK extends Utils {
@@ -130,6 +130,11 @@ export class GenSK extends Utils {
         */
         routerData = routerData.replace(/router\.beforeEach(\n|.)*}\)/gm, '')
 
+        // ℹ️ Remove unused imports. We are removing whole line which includes `isUserLoggedIn` import
+        routerData = routerData.split('\n')
+          .filter(line => !line.includes('isUserLoggedIn'))
+          .join('\n')
+
         return routerData
       },
     )
@@ -160,8 +165,9 @@ export class GenSK extends Utils {
       path.join(this.tempDir, 'src', 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
       (data) => {
         // ❗ Order matters: First of all we will remove i18n, notification & theme-switcher component rendering & import
+        // ℹ️ We will use "<NavbarThemeSwitcher" instead of "NavbarThemeSwitcher" because we don't want to remove its import as we will later add NavbarThemeSwitcher again
         data = data.split('\n')
-          .filter(line => !['NavBarI18n', 'NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavBarI18n', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // ❗ Order matters: now let's replace search button with NavbarThemeSwitcher
@@ -240,6 +246,11 @@ export class GenSK extends Utils {
         // Remove i18n auto import preset from AutoImport plugin
         viteConfig = viteConfig.replace(/'vue-i18n', /g, '')
 
+        // ℹ️ Remove vueI18n import.
+        viteConfig = viteConfig.split('\n')
+          .filter(line => !line.includes('vite-plugin-vue-i18n'))
+          .join('\n')
+
         return viteConfig
       },
     )
@@ -251,6 +262,16 @@ export class GenSK extends Utils {
       this.isJS
         ? this.templateConfig.paths.jSStarter
         : this.templateConfig.paths.tSStarter)
+  }
+
+  private formatCode() {
+    const sKProjectPath = this.isJS ? this.templateConfig.paths.jSStarter : this.templateConfig.paths.tSStarter
+
+    // ℹ️ Run installation if there's no node_modules
+    execCmd('yarn', { cwd: sKProjectPath })
+
+    // ℹ️ Run linting after filling all snippets to auto format
+    execCmd('yarn lint', { cwd: sKProjectPath })
   }
 
   async genSK() {
@@ -288,5 +309,7 @@ export class GenSK extends Utils {
 
     // Place temp dir content in ts/js starter-kit
     this.replaceStarterKit()
+
+    this.formatCode()
   }
 }

@@ -1,0 +1,12 @@
+[
+    {
+        "file": "./pages/login.vue",
+        "gitRepoFilePath": "typescript-version/full-version/src/pages/login.vue",
+        "lastUpdatedAt": "2022-09-01T10:32:01Z"
+    },
+    {
+        "file": "./pages/[...all].vue",
+        "gitRepoFilePath": "typescript-version/full-version/src/pages/[...all].vue",
+        "lastUpdatedAt": "2022-09-01T10:32:01Z"
+    }
+]

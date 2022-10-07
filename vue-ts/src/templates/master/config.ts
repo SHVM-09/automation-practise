@@ -31,6 +31,7 @@ export const config: MasterConfig = {
     '!svg',
     '!pages',
     '!avatars',
+    '!misc',
   ],
   paths: {
     tSFull: path.join(masterVuePath, 'typescript-version', 'full-version'),
