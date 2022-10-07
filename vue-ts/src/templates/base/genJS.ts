@@ -7,7 +7,7 @@ import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import { info } from '@/utils/logging'
-import { updateFile } from '@/utils/node'
+import { replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
@@ -255,7 +255,7 @@ export class GenJS extends Utils {
 
   // 👉 replaceJSFullVersion
   private replaceJSFullVersion() {
-    fs.moveSync(this.tempDir, this.templateConfig.paths.jSFull, { overwrite: true })
+    replaceDir(this.tempDir, this.templateConfig.paths.jSFull)
   }
 
   // 👉 genJS

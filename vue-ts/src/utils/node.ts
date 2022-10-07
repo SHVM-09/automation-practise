@@ -42,6 +42,11 @@ export const updateFile = (path: string, modifier: UpdateFileModifier) => {
   )
 }
 
+export const replaceDir = (src: string, dest: string) => {
+  fs.removeSync(dest)
+  fs.copySync(src, dest)
+}
+
 export const removeEmptyDirsRecursively = (path: string) => {
   execCmd(`find ${path} -type d -empty -delete`)
 }
