@@ -10,18 +10,10 @@ import { error } from '@/utils/logging'
 import { execCmd, removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
 // TODO: Check do we need to handle extra files for TS/JS
+// TODO: There's ts-expect-error in themeConfig.js
 export class GenSK extends Utils {
-  constructor(private templateConfig: TemplateBaseConfig, private isJS: boolean) {
+  constructor(private templateConfig: TemplateBaseConfig) {
     super()
-  }
-
-  private removeBuyNow() {
-    updateFile(
-      path.join(this.tempDir, 'src', 'App.vue'),
-      app => app.split('\n')
-        .filter(line => !line.includes('BuyNow'))
-        .join('\n'),
-    )
   }
 
   private removeViews() {
@@ -114,7 +106,7 @@ export class GenSK extends Utils {
 
   private updateRouter() {
     updateFile(
-      path.join(this.tempDir, 'src', 'router', this.isJS ? 'index.js' : 'index.ts'),
+      path.join(this.tempDir, 'src', 'router', 'index.ts'),
       (routerData) => {
         /*
           Remove root route
@@ -205,7 +197,7 @@ export class GenSK extends Utils {
 
   private updateMainTs() {
     updateFile(
-      path.join(this.tempDir, 'src', this.isJS ? 'main.js' : 'main.ts'),
+      path.join(this.tempDir, 'src', 'main.ts'),
       (data) => {
         // Remove abilitiesPlugin injection in app instance
         data = data.replace(/app\.use\(abilitiesPlugin.*(\n.*){2}/gm, '')
@@ -231,14 +223,14 @@ export class GenSK extends Utils {
   private updateThemeConfig() {
     // Set enableI18n to false in themeConfig.ts
     updateFile(
-      path.join(this.tempDir, `themeConfig.${this.isJS ? 'js' : 'ts'}`),
+      path.join(this.tempDir, 'themeConfig.ts'),
       themeConfig => themeConfig.replace(/enableI18n: \w+/, 'enableI18n: false'),
     )
   }
 
   private updateViteConfig() {
     updateFile(
-      path.join(this.tempDir, `vite.config.${this.isJS ? 'js' : 'ts'}`),
+      path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Remove i18n plugin
         viteConfig = viteConfig.replace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
@@ -257,15 +249,11 @@ export class GenSK extends Utils {
   }
 
   private replaceStarterKit() {
-    replaceDir(
-      this.tempDir,
-      this.isJS
-        ? this.templateConfig.paths.jSStarter
-        : this.templateConfig.paths.tSStarter)
+    replaceDir(this.tempDir, this.templateConfig.paths.tSStarter)
   }
 
   private formatCode() {
-    const sKProjectPath = this.isJS ? this.templateConfig.paths.jSStarter : this.templateConfig.paths.tSStarter
+    const sKProjectPath = this.templateConfig.paths.tSStarter
 
     // ℹ️ Run installation if there's no node_modules
     execCmd('yarn', { cwd: sKProjectPath })
@@ -279,12 +267,12 @@ export class GenSK extends Utils {
 
     // Copy project to temp dir
     this.copyProject(
-      this.isJS ? this.templateConfig.paths.jSFull : this.templateConfig.paths.tSFull,
+      this.templateConfig.paths.tSFull,
       this.tempDir,
       this.templateConfig.packageCopyIgnorePatterns,
     )
 
-    this.removeBuyNow()
+    this.removeBuyNow(this.tempDir)
 
     this.removeViews()
 

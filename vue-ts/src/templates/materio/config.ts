@@ -89,6 +89,10 @@ export const config: MaterioConfig = {
     ],
   ],
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+  documentation: {
+    pageTitle: 'Materio - Vuetify Vuejs Admin Template',
+    docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/',
+  },
   gh: {
     ownerName: 'themeselection',
     repoName: 'materio-vuetify-vuejs-admin-template',

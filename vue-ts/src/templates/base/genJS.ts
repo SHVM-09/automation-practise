@@ -1,4 +1,3 @@
-import { execSync } from 'child_process'
 import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
@@ -6,19 +5,11 @@ import JSON5 from 'json5'
 import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
-import { info } from '@/utils/logging'
-import { replaceDir, updateFile } from '@/utils/node'
+import { execCmd, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
-  constructor(private templateConfig: TemplateBaseConfig) {
+  constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false) {
     super()
-  }
-
-  // 👉 copyTSFullToTempDir
-  private copyTSFullToTempDir() {
-    info(`Copying to ${this.tempDir}`)
-
-    this.copyProject(this.templateConfig.paths.tSFull, this.tempDir, this.templateConfig.packageCopyIgnorePatterns)
   }
 
   // 👉 updateViteConfig
@@ -69,7 +60,7 @@ export class GenJS extends Utils {
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
 
     // Add import resolver package
-    execSync('yarn add eslint-import-resolver-alias', { cwd: this.tempDir })
+    execCmd('yarn add eslint-import-resolver-alias', { cwd: this.tempDir })
 
     // Read eslint config
     let eslintConfig = fs.readFileSync(eslintConfigPath, { encoding: 'utf-8' })
@@ -253,15 +244,21 @@ export class GenJS extends Utils {
     )
   }
 
-  // 👉 replaceJSFullVersion
-  private replaceJSFullVersion() {
-    replaceDir(this.tempDir, this.templateConfig.paths.jSFull)
-  }
-
   // 👉 genJS
   genJS() {
+    const {
+      tSFull: tSFullPath,
+      tSStarter: tSStarterPath,
+      jSFull: jSFullPath,
+      jSStarter: jSStarterPath,
+    } = this.templateConfig.paths
+
     // Copy project to temp dir
-    this.copyTSFullToTempDir()
+    this.copyProject(
+      this.isSK ? tSStarterPath : tSFullPath,
+      this.tempDir,
+      this.templateConfig.packageCopyIgnorePatterns,
+    )
 
     // Update vite config
     this.updateViteConfig()
@@ -287,13 +284,13 @@ export class GenJS extends Utils {
       Install packages
       ℹ️ We need this to run tsc & generate build
     */
-    execSync('yarn', { cwd: this.tempDir })
+    execCmd('yarn', { cwd: this.tempDir })
 
     // ❗ Generate build-icons.js before running tsc
-    execSync('yarn build:icons', { cwd: this.tempDir })
+    execCmd('yarn build:icons', { cwd: this.tempDir })
 
     // Run `tsc` to compile TypeScript files
-    execSync('yarn tsc', { cwd: this.tempDir })
+    execCmd('yarn tsc', { cwd: this.tempDir })
 
     // Remove all TypeScript files
     this.removeAllTSFile()
@@ -316,7 +313,7 @@ export class GenJS extends Utils {
       ℹ️ We need to run build command to generate some `d.ts` files for antfu's vite plugins
       This will mitigate the ESLint errors in next step where we run eslint to auto format the code
     */
-    execSync('yarn build', { cwd: this.tempDir })
+    execCmd('yarn build', { cwd: this.tempDir })
 
     /*
       Remove typescript eslint comments from tsx/ts files
@@ -325,12 +322,12 @@ export class GenJS extends Utils {
       https://stackoverflow.com/a/39382621/10796681
       https://unix.stackexchange.com/a/15309/528729
     */
-    execSync('find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i \'\' -e \'/@typescript-eslint/d;/@ts-expect/d\'', { cwd: this.tempDir })
+    execCmd('find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i \'\' -e \'/@typescript-eslint/d;/@ts-expect/d\'', { cwd: this.tempDir })
 
     // Auto format all files using eslint
-    execSync('yarn lint', { cwd: this.tempDir })
+    execCmd('yarn lint', { cwd: this.tempDir })
 
     // Place temp dir content in js full version
-    this.replaceJSFullVersion()
+    replaceDir(this.tempDir, this.isSK ? jSStarterPath : jSFullPath)
   }
 }

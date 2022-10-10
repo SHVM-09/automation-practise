@@ -17,6 +17,10 @@ export interface TemplateBaseConfig {
   }
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
   demosConfig: (DemoConfigItem[] | null)[]
+  documentation: {
+    pageTitle: string
+    docUrl: string
+  }
   gh: {
     repoName: string
     ownerName: string

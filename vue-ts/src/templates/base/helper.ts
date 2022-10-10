@@ -1,4 +1,5 @@
-import { execCmd } from '@/utils/node'
+import path from 'path'
+import { execCmd, updateFile } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 
 export class Utils {
@@ -22,5 +23,14 @@ export class Utils {
     const commandToCopyProject = this.genProjectCopyCommand(src, dest, ignorePatterns)
 
     execCmd(commandToCopyProject)
+  }
+
+  protected removeBuyNow(projectDir: string) {
+    updateFile(
+      path.join(projectDir, 'src', 'App.vue'),
+      app => app.split('\n')
+        .filter(line => !line.includes('BuyNow'))
+        .join('\n'),
+    )
   }
 }

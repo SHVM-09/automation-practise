@@ -17,8 +17,6 @@ export class GenDemo {
   }
 
   private removeExistingBuildData() {
-    console.log('this.templateConfig.paths.tSFull :>> ', this.templateConfig.paths.tSFull)
-
     // Remove dist dir if exist
     fs.removeSync(path.join(this.templateConfig.paths.tSFull, 'dist'))
 
