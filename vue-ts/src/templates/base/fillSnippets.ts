@@ -3,9 +3,10 @@ import chalk from 'chalk'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import { toCamelCase } from '@/utils/conversions'
+import { execCmd } from '@/utils/node'
 
 export class FillSnippets {
-  constructor(private tSFull: string, jSFull: string) {
+  constructor(private tSFull: string, private jSFull: string) {
     console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`))
   }
 
@@ -101,5 +102,9 @@ export class FillSnippets {
       // Write updated snippet to file - JS Full
       fs.writeFileSync(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' })
     })
+
+    // Lint both versions
+    execCmd('yarn lint', { cwd: this.tSFull })
+    execCmd('yarn lint', { cwd: this.jSFull })
   }
 }

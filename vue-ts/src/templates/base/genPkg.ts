@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
+import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { Utils } from '@/templates/base/helper'
@@ -15,22 +16,19 @@ export class GenPkg extends Utils {
   }
 
   async genPkg() {
-    // SECTION TS
-    // Remove buy now from TS Full version
-    this.removeBuyNow(this.templateConfig.paths.tSFull)
+    const { tSFull, jSFull } = this.templateConfig.paths
 
     // Generate TS SK
     await new GenSK(this.templateConfig).genSK()
 
-    // !SECTION
+    // Generate JS Full
+    new GenJS(this.templateConfig).genJS()
 
-    // SECTION JS
-    // Remove buy now from JS
-    this.removeBuyNow(this.templateConfig.paths.jSFull)
-
+    //  Generate JS SK
     new GenJS(this.templateConfig, true).genJS()
 
-    // !SECTION
+    // Fill snippets
+    new FillSnippets(tSFull, jSFull).fillSnippet()
 
     // Create new temp dir for storing pkg
     const tempPkgDir = new TempLocation().tempDir
@@ -51,15 +49,15 @@ export class GenPkg extends Utils {
     fs.ensureDirSync(tempPkgJSFull)
     fs.ensureDirSync(tempPkgJSStarter)
 
-    // fs.ensureDirSync(path.join(tempPkgDir, 'typescript'))
-    // fs.ensureDirSync(path.join(tempPkgDir, 'javascript'))
-    // TODO: We will need `documentation.html` file
-
     this.copyProject(this.templateConfig.paths.tSFull, tempPkgTSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.paths.tSStarter, tempPkgTSStarter, this.templateConfig.packageCopyIgnorePatterns)
 
     this.copyProject(this.templateConfig.paths.jSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.paths.jSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
+
+    // Remove BuyNow from both full versions
+    this.removeBuyNow(tempPkgTSFull)
+    this.removeBuyNow(tempPkgJSFull)
 
     // Create documentation.html file
     fs.writeFileSync(
