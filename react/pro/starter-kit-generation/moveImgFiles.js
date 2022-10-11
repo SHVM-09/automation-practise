@@ -56,6 +56,7 @@ const getVariableValue = (data, key) => {
 }
 
 const checkAndCreate = (imgPath, src, dest) => {
+ if(!src.includes('undefined') && !dest.includes('undefined')){
   if (fs.existsSync(imgPath)) {
     fs.copyFileSync(src, dest)
     return
@@ -67,6 +68,30 @@ const checkAndCreate = (imgPath, src, dest) => {
         fs.copyFileSync(src, dest)
       }
     })
+  }
+ }
+}
+
+const extractImgPath = (line) => {
+  if(line.includes('jpg')){
+    return {
+      path: line.split('/images')[1].split('.jpg')[0],
+      extension: 'jpg'
+    }
+  
+  }else if(line.includes('jpeg')){
+    return {
+      path: line.split('/images')[1].split('.jpeg')[0],
+      extension: 'jpeg'
+    }
+  }
+  else if(line.includes('ico')){
+    return line.split('/images')[1].split('.ico')[0]
+  }else{
+    return {
+      path: line.split('/images')[1].split('.png')[0],
+      extension: 'png'
+    }
   }
 }
 
@@ -88,7 +113,7 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
           const splitData = data.split('\n')
           splitData.map(line => {
             if (line.includes('/images/')) {
-              const pathBetween = line.split('/images')[1].split('.png')[0]
+              const pathBetween = extractImgPath(line).path
 
               if (line.includes('${')) {
                 const variableName = line.split('${')[1].split('}')[0]
@@ -118,7 +143,7 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
                     )
                   })
                 } else {
-                  const imgPath = line.split('/images')[1].split('.png')[0]
+                  const imgPath = extractImgPath(line).path
                   const imgPathLight = `/images${imgPath.replace('${theme.palette.mode}', 'light')}.png`.trim()
                   const imgPathDark = `/images${imgPath.replace('${theme.palette.mode}', 'dark')}.png`.trim()
 
@@ -137,7 +162,7 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
                   )
                 }
               } else {
-                const fullPath = `/images${pathBetween}.png`.trim()
+                const fullPath = `/images${pathBetween}.${extractImgPath(line).extension}`.trim()
                 const parentPath = handleParentPath(fullPath)
 
                 checkAndCreate(

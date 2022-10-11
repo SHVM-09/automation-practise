@@ -162,7 +162,9 @@ const copyRecursiveSync = (src, dest) => {
       )
     })
   } else {
-    fs.copyFileSync(src, dest)
+    if(fs.existsSync(src)){
+      fs.copyFileSync(src, dest)
+    }
   }
 }
 
