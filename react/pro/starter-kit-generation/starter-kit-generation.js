@@ -35,17 +35,33 @@ const copyHomeAndSecondPage = () => {
 // ** copy updated userDropdown in src/layouts/components folder
 const copyUserDropdown = (parentFolder, version, versionFolder) => {
   const staticPath = 'src/@core/layouts/components/shared-components'
-  fs.copyFile(
-    `${versionFolder}/${staticPath}/UserDropdown.${version}`,
-    `${parentFolder}/${staticPath}/UserDropdown.${version}`,
-    err => {
-      if (err) {
-        console.log(err)
+  const dest = `${parentFolder}/${staticPath}/UserDropdown.${version}`
 
-        return
+    fs.copyFile(
+      `${versionFolder}/${staticPath}/UserDropdown.${version}`,
+      dest,
+      err => {
+        if (err) {
+          console.log(err)
+  
+          return
+        }else{
+          fs.readFile(dest, 'utf-8', (err, data) => {
+            if(err){
+              console.log(err)
+            }else{
+              const replaced = data.replace(new RegExp(/(handleDropdownClose\(')(.*)('.*\))/, 'g'), 'handleDropdownClose()')
+              fs.writeFile(dest, replaced, err => {
+                if(err){
+                  console.log(err)
+                }
+              })
+            }
+          })
+        }
       }
-    }
-  )
+    )
+
 }
 
 const generateFakeDB = (parentFolder, fakeDBPath, version) => {

@@ -378,7 +378,8 @@ const homeAndSecondPagePaths = [
 ]
 
 const imgFilesToKeep = [
-  '/public/vercel.svg'
+  '/public/vercel.svg',
+  '/public/images/favicon.ico',
 ]
 
 module.exports = {

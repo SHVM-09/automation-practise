@@ -24,11 +24,11 @@ yarn install
 # Add javascript version specific eslint plugins
 yarn add babel-eslint @babel/core @babel/eslint-parser 
 
-# Run yarn lint command to fix all the linting error and give space after imports
-yarn lint
-
 # Run yarn format command to format all the files using prettier
 yarn format
+
+# Run yarn lint command to fix all the linting error and give space after imports
+yarn lint
 
 # Copy SourceCode
 cd ../../../automation-scripts/react/pro/copy-source

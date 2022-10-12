@@ -135,9 +135,7 @@ replaceFiles()
                   console.log(err)
 
                   return
-                } else {
-                  console.log('Done')
-                }
+                } 
               })
             }
           })
