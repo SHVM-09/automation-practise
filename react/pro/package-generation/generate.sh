@@ -18,21 +18,21 @@ wait
 cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
 
-# cd ../../../../master-react-mui-nextjs/typescript-version/full-version
-# yarn format
+cd ../../../../master-react-mui-nextjs/typescript-version/full-version
+yarn format
 
-# wait
+wait
 
-# cd ../../
-
-
-# mv package master-react-mui-nextjs
+cd ../../
 
 
-# # Zip the package
-# zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
-# # # Remove package folder
-# rm -rf master-react-mui-nextjs
+mv package master-react-mui-nextjs
+
+
+# Zip the package
+zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+# # Remove package folder
+rm -rf master-react-mui-nextjs
 
 # cd ../automation-scripts/react/pro/package-generation
 
