@@ -42,7 +42,9 @@ const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/next.config.js`,
   `${pathConfig.fullVersionTSXPath}/next.d.ts`,
   `${pathConfig.fullVersionTSXPath}/package.json`,
-  `${pathConfig.fullVersionTSXPath}/tsconfig.json`
+  `${pathConfig.fullVersionTSXPath}/tsconfig.json`,
+  `${pathConfig.fullVersionTSXPath}/.npmrc`,
+  `${pathConfig.fullVersionTSXPath}/.nvmrc`,
 ]
 
 const filesToCopyJSX = [
@@ -55,7 +57,9 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/.prettierrc.js`,
   `${pathConfig.fullVersionJSXPath}/next.config.js`,
   `${pathConfig.fullVersionJSXPath}/package.json`,
-  `${pathConfig.fullVersionJSXPath}/jsconfig.json`
+  `${pathConfig.fullVersionJSXPath}/jsconfig.json`,
+  `${pathConfig.fullVersionJSXPath}/.npmrc`,
+  `${pathConfig.fullVersionJSXPath}/.nvmrc`,
 ]
 
 const foldersToRemoveTSX = [
