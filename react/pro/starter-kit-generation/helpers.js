@@ -384,6 +384,8 @@ const homeAndSecondPagePaths = [
 const imgFilesToKeep = [
   '/public/vercel.svg',
   '/public/images/favicon.ico',
+  '/public/images/favicon.png',
+  '/public/images/apple-touch-icon.png'
 ]
 
 module.exports = {

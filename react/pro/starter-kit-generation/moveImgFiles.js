@@ -189,7 +189,9 @@ const generate = () => {
     setTimeout(() => {
       imgFilesToKeep.map(file => {
         if (fs.existsSync(`${pathConfig.starterKitTSXPath}/public`)) {
-          fs.copyFileSync(`${pathConfig.fullVersionTSXPath}${file}`, `${pathConfig.starterKitTSXPath}${file}`)
+          if(fs.existsSync(`${pathConfig.fullVersionTSXPath}${file}`)){
+            fs.copyFileSync(`${pathConfig.fullVersionTSXPath}${file}`, `${pathConfig.starterKitTSXPath}${file}`)
+          }
         }
       })
     }, 500)
