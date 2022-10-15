@@ -14,6 +14,8 @@ export interface TemplateBaseConfig {
     jSFull: string
     jSStarter: string
     dataDir: string
+    freeJS: string
+    freeTS: string
   }
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
   demosConfig: (DemoConfigItem[] | null)[]

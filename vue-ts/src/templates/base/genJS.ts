@@ -8,7 +8,7 @@ import { Utils } from '@/templates/base/helper'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
-  constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false) {
+  constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
     super()
   }
 
@@ -251,11 +251,26 @@ export class GenJS extends Utils {
       tSStarter: tSStarterPath,
       jSFull: jSFullPath,
       jSStarter: jSStarterPath,
+      freeTS: freeTSPath,
+      freeJS: freeJSPath,
     } = this.templateConfig.paths
+
+    const source = (() => {
+      // If generating JS of free version => copy from free version TS
+      if (this.isFree)
+        return freeTSPath
+
+      // If it's starter-kit => Copy from Starter TS
+      if (this.isSK)
+        return tSStarterPath
+
+      // If both free & sk isn't true use Full version's TS
+      return tSFullPath
+    })()
 
     // Copy project to temp dir
     this.copyProject(
-      this.isSK ? tSStarterPath : tSFullPath,
+      source,
       this.tempDir,
       this.templateConfig.packageCopyIgnorePatterns,
     )
@@ -327,7 +342,20 @@ export class GenJS extends Utils {
     // Auto format all files using eslint
     execCmd('yarn lint', { cwd: this.tempDir })
 
+    const replaceDest = (() => {
+      // If generating JS for free version => Replace with free JS
+      if (this.isFree)
+        return freeJSPath
+
+      // If generating SK JS => Replace with JS Starter
+      if (this.isSK)
+        return jSStarterPath
+
+      // If both free & sk isn't true use Full version's JS as replace destination
+      return jSFullPath
+    })()
+
     // Place temp dir content in js full version
-    replaceDir(this.tempDir, this.isSK ? jSStarterPath : jSFullPath)
+    replaceDir(this.tempDir, replaceDest)
   }
 }

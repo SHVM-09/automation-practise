@@ -7,6 +7,7 @@ type MaterioConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
+const materioVueFreePath = materioVuePath.replace('vue', 'vue-free')
 
 export const config: MaterioConfig = {
   templateName: 'Materio',
@@ -39,6 +40,8 @@ export const config: MaterioConfig = {
     jSFull: path.join(materioVuePath, 'javascript-version', 'full-version'),
     jSStarter: path.join(materioVuePath, 'javascript-version', 'starter-kit'),
     dataDir: path.join(__dirname, 'data'),
+    freeTS: path.join(materioVueFreePath, 'typescript-version'),
+    freeJS: path.join(materioVueFreePath, 'javascript-version'),
   },
   demosConfig: [
     // Demo 1

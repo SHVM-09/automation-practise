@@ -39,6 +39,8 @@ export const config: MasterConfig = {
     jSFull: path.join(masterVuePath, 'javascript-version', 'full-version'),
     jSStarter: path.join(masterVuePath, 'javascript-version', 'starter-kit'),
     dataDir: path.join(__dirname, 'data'),
+    freeTS: '/tmp',
+    freeJS: '/tmp',
   },
   demosConfig: [
     // Demo 1
