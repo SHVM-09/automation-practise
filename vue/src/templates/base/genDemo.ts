@@ -45,7 +45,7 @@ export class GenDemo {
     // default values for demo 1
     let sedFind = '(localStorage.(set|get)Item\\(.*\\.title\\}-)'
     let sedReplace = '\\1demo-1-'
-    let indexHTMLFind = new RegExp(`(localStorage.getItem\('${templateName})`, 'g')
+    let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
     let indexHTMLReplace = '$1-demo-1'
 
     // If it's not 1st demo update the find replace strings
