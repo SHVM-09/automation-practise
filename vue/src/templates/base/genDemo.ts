@@ -67,9 +67,11 @@ export class GenDemo {
       https://unix.stackexchange.com/a/15309/528729
 
       Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
+
+      ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
     */
     execCmd(
-      `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i "" -r -e "s/${sedFind}/${sedReplace}/g" {} \\;`,
+      `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
       { cwd: this.templateConfig.paths.tSFull },
     )
 
