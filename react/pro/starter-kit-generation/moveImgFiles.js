@@ -11,9 +11,10 @@ const handleParentPath = path => path.substring(0, path.lastIndexOf('/')).replac
 
 const getVariableValue = (data, key) => {
   const arr = []
-  const splitData = data.split('\r\n')
-
+  const splitData = data.split('\n')
+  
   splitData.forEach(line => {
+    
     if (line.includes(key)) {
       if (!line.includes('${')) {
         if (line.includes('?')) {
@@ -117,7 +118,7 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
 
               if (line.includes('${')) {
                 const variableName = line.split('${')[1].split('}')[0]
-
+                
                 if (variableName !== 'theme.palette.mode') {
                   getVariableValue(data, variableName).map(r => {
                     const replaced = line

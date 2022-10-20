@@ -156,7 +156,7 @@ const generateTSXStarter = () => {
                           resolve()
                         })
                       })
-                      Promise.all(foldersPromise)
+                      Promise.all(foldersPromise).then(() => fs.rmSync(`${pathConfig.starterKitTSXPath}/src/views/pages/auth/register-multi-steps/`, { recursive: true, force: true }))
                         .then(() => {
                           copyHomeAndSecondPage()
                         })
@@ -265,7 +265,7 @@ const generateJSXStarter = () => {
                             })
                           })
 
-                          Promise.all(folderPromise)
+                          Promise.all(folderPromise).then(() => fs.rmSync(`${pathConfig.starterKitJSXPath}/src/views/pages/auth/register-multi-steps/`, { recursive: true, force: true }))
                             .then(() => {
                               copyHomeAndSecondPage()
                             })
