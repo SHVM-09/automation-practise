@@ -1,34 +1,11 @@
 {
-    "python.defaultInterpreterPath": "${workspaceRoot}/.venv/bin/python3",
-    "python.formatting.provider": "black",
-    "files.defaultLanguage": "python",
     "cSpell.words": [
+        "antfu",
+        "customizer",
+        "globby",
+        "iconify",
         "Materio",
-        "typer",
-        "vite"
-    ],
-    "python.analysis.extraPaths": [
-        // "./src",
-        // "${workspaceFolder}",
-    ],
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/__pycache__": true,
-        "**/.pytest_cache": true,
-        "**/.mypy_cache": true
-    },
-    "autoDocstring.quoteStyle": "'''",
-    // Pytest
-    "python.testing.pytestArgs": [
-        "tests",
-        "-s",
-        "-v"
-    ],
-    "python.testing.pytestEnabled": true,
-    "python.analysis.typeCheckingMode": "strict",
-    "python.linting.mypyEnabled": true,
+        "rulesdir",
+        "typecheck"
+    ]
 }

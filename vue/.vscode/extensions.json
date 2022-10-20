@@ -1,10 +1,12 @@
 {
     "recommendations": [
+        "exodiusstudios.comment-anchors",
         "editorconfig.editorconfig",
         "usernamehw.errorlens",
-        "almenon.arepl",
-        "njpwerner.autodocstring",
-        "ms-python.vscode-pylance",
-        "ms-python.python"
+        "dbaeumer.vscode-eslint",
+        "xabikos.javascriptsnippets",
+        "wallabyjs.quokka-vscode",
+        "sburg.vscode-javascript-booster",
+        "johnsoncodehk.vscode-tsconfig-helper"
     ]
 }

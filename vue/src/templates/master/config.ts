@@ -90,10 +90,10 @@ export const config: MasterConfig = {
       },
     ],
   ],
-  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/master-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
     pageTitle: 'Master - Vuetify Vuejs Admin Template',
-    docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/',
+    docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/',
   },
   gh: {
     ownerName: 'themeselection',

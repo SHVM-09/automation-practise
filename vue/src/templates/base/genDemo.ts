@@ -45,7 +45,7 @@ export class GenDemo {
     // default values for demo 1
     let sedFind = '(localStorage.(set|get)Item\\(.*\\.title\\}-)'
     let sedReplace = '\\1demo-1-'
-    let indexHTMLFind = new RegExp(`(localStorage.getItem\('${templateName})`, 'g')
+    let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
     let indexHTMLReplace = '$1-demo-1'
 
     // If it's not 1st demo update the find replace strings
@@ -67,9 +67,11 @@ export class GenDemo {
       https://unix.stackexchange.com/a/15309/528729
 
       Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
+
+      ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
     */
     execCmd(
-      `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i "" -r -e "s/${sedFind}/${sedReplace}/g" {} \\;`,
+      `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
       { cwd: this.templateConfig.paths.tSFull },
     )
 

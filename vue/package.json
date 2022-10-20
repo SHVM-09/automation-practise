@@ -34,5 +34,6 @@
     "minimist": "^1.2.6",
     "tsx": "^3.9.0",
     "typescript": "*"
-  }
+  },
+  "packageManager": "yarn"
 }
