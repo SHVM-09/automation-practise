@@ -2,7 +2,7 @@
 tsc --project ../../configs/tsconfig.json
 
 # Copy package.json, eslintrc, gitignore, prettierrc, Readme, editorconfig files into newly created folder javascript-version
-cp ../../../../master-react-mui-nextjs/typescript-version/package.json ../../../../master-react-mui-nextjs/typescript-version/next.config.js ../../../../master-react-mui-nextjs/typescript-version/next-env.d.ts ../../../../master-react-mui-nextjs/typescript-version/.gitignore ../../../../master-react-mui-nextjs/typescript-version/.prettierrc.js ../../../../master-react-mui-nextjs/typescript-version/.editorconfig ../../../../master-react-mui-nextjs/typescript-version/.env.development ../../../../master-react-mui-nextjs/javascript-version/
+cp ../../../../master-react-mui-nextjs/typescript-version/package.json ../../../../master-react-mui-nextjs/typescript-version/next.config.js ../../../../master-react-mui-nextjs/typescript-version/next-env.d.ts ../../../../master-react-mui-nextjs/typescript-version/.gitignore ../../../../master-react-mui-nextjs/typescript-version/.prettierrc.js ../../../../master-react-mui-nextjs/typescript-version/.editorconfig ../../../../master-react-mui-nextjs/typescript-version/.env ../../../../master-react-mui-nextjs/javascript-version/
 
 # Copy .vscode & public directories into javascript-version for assets and .vscode configurations
 cp -r  ../../../../master-react-mui-nextjs/typescript-version/public ../../../../master-react-mui-nextjs/typescript-version/styles ../../../../master-react-mui-nextjs/javascript-version/
