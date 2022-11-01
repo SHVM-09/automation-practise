@@ -34,7 +34,7 @@ const removeTypeFiles = function (dir, callback) {
 
 const removeTypesFolder = () => {
   fs.rmSync(
-    `${pathConfig.fullVersionJSXPath}/src/types`,
+    `${pathConfig.basePathJSX}/src/types`,
     {
       force: true,
       recursive: true
@@ -42,14 +42,14 @@ const removeTypesFolder = () => {
   )
 }
 
-removeTypeFiles(pathConfig.fullVersionJSXPath, () => console.log('Removed Type Files'))
+removeTypeFiles(pathConfig.basePathJSX, () => console.log('Removed Type Files'))
   .then(() => {
     removeTypesFolder()
   })
   .then(() => {
     // ** Remove ts and tsx extensions from yarn format and yarn lint commands from package.json file
-    if (fs.existsSync(pathConfig.fullVersionJSXPath)) {
-      fs.readFile(pathConfig.fullVersionJSXPath, 'utf8', function (err, data) {
+    if (fs.existsSync(pathConfig.basePathJSX)) {
+      fs.readFile(pathConfig.basePathJSX, 'utf8', function (err, data) {
         if (err) {
           return console.log(err)
         }
@@ -63,7 +63,7 @@ removeTypeFiles(pathConfig.fullVersionJSXPath, () => console.log('Removed Type F
 
         const dataToWrite = finalResult.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '')
 
-        fs.writeFile(pathConfig.fullVersionJSXPath, dataToWrite, 'utf8', function (err) {
+        fs.writeFile(pathConfig.basePathJSX, dataToWrite, 'utf8', function (err) {
           if (err) return console.log(err)
         })
       })
@@ -88,7 +88,7 @@ removeTypeFiles(pathConfig.fullVersionJSXPath, () => console.log('Removed Type F
       })
     }
 
-    renameFiles(pathConfig.fullVersionJSXPath)
+    renameFiles(pathConfig.basePathJSX)
   })
   .then(() => {
     console.log('Removed TS Files')

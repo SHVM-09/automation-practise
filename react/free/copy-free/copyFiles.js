@@ -15,20 +15,20 @@ const foldersToKeep = [
   `${fullVersionPath}/src/pages/forms/form-layouts`,
   `${fullVersionPath}/src/views/forms/form-layouts`,
   {
-    to: `${pathConfig.fullVersionTSXPath}/src/pages/login`,
+    to: `${pathConfig.basePathTSX}/src/pages/login`,
     from: `${fullVersionPath}/src/pages/pages/auth/login-v1`
   },
   {
-    to: `${pathConfig.fullVersionTSXPath}/src/pages/register`,
+    to: `${pathConfig.basePathTSX}/src/pages/register`,
     from: `${fullVersionPath}/src/pages/pages/auth/register-v1`
   },
   {
     from: `${fullVersionPath}/src/pages/ui/cards/basic/`,
-    to: `${pathConfig.fullVersionTSXPath}/src/pages/ui/cards/`
+    to: `${pathConfig.basePathTSX}/src/pages/ui/cards/`
   },
   {
     from: `${fullVersionPath}/src/views/ui/cards/basic`,
-    to: `${pathConfig.fullVersionTSXPath}/src/views/ui/cards`
+    to: `${pathConfig.basePathTSX}/src/views/ui/cards`
   }
 ]
 
@@ -43,61 +43,61 @@ const filesToKeep = [
 ]
 
 const foldersToDelete = [
-  `${pathConfig.fullVersionTSXPath}/src/hooks`,
-  `${pathConfig.fullVersionTSXPath}/src/store`,
-  `${pathConfig.fullVersionTSXPath}/src/context`,
-  `${pathConfig.fullVersionTSXPath}/src/@fake-db`,
-  `${pathConfig.fullVersionTSXPath}/src/types/apps`,
-  `${pathConfig.fullVersionTSXPath}/src/configs/acl.ts`,
-  `${pathConfig.fullVersionTSXPath}/src/configs/auth.ts`,
-  `${pathConfig.fullVersionTSXPath}/src/configs/i18n.ts`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/mui`,
-  `${pathConfig.fullVersionTSXPath}/src/configs/firebase.ts`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/auth`,
-  `${pathConfig.fullVersionTSXPath}/src/navigation/horizontal`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/acl`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/sidebar`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/repeater`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/recharts`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/hook/useClipboard.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/customizer`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/horizontal`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/custom-radio`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/keen-slider`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/react-cleave`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/fullcalendar`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/custom-checkbox`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/react-dropzone`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/Direction.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/react-hot-toast`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/HorizontalLayout.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/Autocomplete.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/BuyNowButton.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/Translations.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/horizontal`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/components/react-draft-wysiwyg`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/styles/libs/react-draft-wysiwyg`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/BlankLayoutWithAppBar.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/blank-layout-with-appBar`,
-  `${pathConfig.fullVersionTSXPath}/src/layouts/components/vertical/ServerSideNavItems.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/shared-components/LanguageDropdown.tsx`,
-  `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/shared-components/ShortcutsDropdown.tsx`
+  `${pathConfig.basePathTSX}/src/hooks`,
+  `${pathConfig.basePathTSX}/src/store`,
+  `${pathConfig.basePathTSX}/src/context`,
+  `${pathConfig.basePathTSX}/src/@fake-db`,
+  `${pathConfig.basePathTSX}/src/types/apps`,
+  `${pathConfig.basePathTSX}/src/configs/acl.ts`,
+  `${pathConfig.basePathTSX}/src/configs/auth.ts`,
+  `${pathConfig.basePathTSX}/src/configs/i18n.ts`,
+  `${pathConfig.basePathTSX}/src/@core/styles/mui`,
+  `${pathConfig.basePathTSX}/src/configs/firebase.ts`,
+  `${pathConfig.basePathTSX}/src/@core/components/auth`,
+  `${pathConfig.basePathTSX}/src/navigation/horizontal`,
+  `${pathConfig.basePathTSX}/src/layouts/components/acl`,
+  `${pathConfig.basePathTSX}/src/@core/components/sidebar`,
+  `${pathConfig.basePathTSX}/src/@core/components/repeater`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/recharts`,
+  `${pathConfig.basePathTSX}/src/@core/hook/useClipboard.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/components/customizer`,
+  `${pathConfig.basePathTSX}/src/layouts/components/horizontal`,
+  `${pathConfig.basePathTSX}/src/@core/components/custom-radio`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/keen-slider`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/react-cleave`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/fullcalendar`,
+  `${pathConfig.basePathTSX}/src/@core/components/custom-checkbox`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/react-dropzone`,
+  `${pathConfig.basePathTSX}/src/layouts/components/Direction.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/react-hot-toast`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/HorizontalLayout.tsx`,
+  `${pathConfig.basePathTSX}/src/layouts/components/Autocomplete.tsx`,
+  `${pathConfig.basePathTSX}/src/layouts/components/BuyNowButton.tsx`,
+  `${pathConfig.basePathTSX}/src/layouts/components/Translations.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/components/horizontal`,
+  `${pathConfig.basePathTSX}/src/@core/components/react-draft-wysiwyg`,
+  `${pathConfig.basePathTSX}/src/@core/styles/libs/react-draft-wysiwyg`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/BlankLayoutWithAppBar.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/components/blank-layout-with-appBar`,
+  `${pathConfig.basePathTSX}/src/layouts/components/vertical/ServerSideNavItems.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/components/shared-components/LanguageDropdown.tsx`,
+  `${pathConfig.basePathTSX}/src/@core/layouts/components/shared-components/ShortcutsDropdown.tsx`
 ]
 
 const coreFilesToModify = [
   {
-    from: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/Layout.tsx`,
+    from: `${pathConfig.basePathTSX}/src/@core/layouts/Layout.tsx`,
     to: `./components/Layout.tsx`
   },
   {
-    from: `${pathConfig.fullVersionTSXPath}/src/layouts/UserLayout.tsx`,
+    from: `${pathConfig.basePathTSX}/src/layouts/UserLayout.tsx`,
     to: `./components/UserLayout.tsx`
   }
 ]
 
 const dataToReplace = [
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/pages/_app.tsx`,
+    file: `${pathConfig.basePathTSX}/src/pages/_app.tsx`,
     replacements: [
       {
         from: new RegExp(/\/\/ \*\* React Imports/),
@@ -247,7 +247,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/VerticalLayout.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/layouts/VerticalLayout.tsx`,
     replacements: [
       {
         from: "import Customizer from 'src/@core/components/customizer'",
@@ -272,7 +272,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/layouts/components/acl/CanViewNavSectionTitle.tsx`,
+    file: `${pathConfig.basePathTSX}/src/layouts/components/acl/CanViewNavSectionTitle.tsx`,
     replacements: [
       {
         from: ', useContext',
@@ -317,7 +317,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/layouts/components/acl/CanViewNavLink.tsx`,
+    file: `${pathConfig.basePathTSX}/src/layouts/components/acl/CanViewNavLink.tsx`,
     replacements: [
       {
         from: ', useContext',
@@ -362,7 +362,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/layouts/components/acl/CanViewNavGroup.tsx`,
+    file: `${pathConfig.basePathTSX}/src/layouts/components/acl/CanViewNavGroup.tsx`,
     replacements: [
       {
         from: ', useContext',
@@ -411,7 +411,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/layouts/components/vertical/AppBarContent.tsx`,
+    file: `${pathConfig.basePathTSX}/src/layouts/components/vertical/AppBarContent.tsx`,
     replacements: [
       {
         from: "import LanguageDropdown from 'src/@core/layouts/components/shared-components/LanguageDropdown'",
@@ -444,7 +444,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/vertical/navigation/VerticalNavGroup.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/layouts/components/vertical/navigation/VerticalNavGroup.tsx`,
     replacements: [
       {
         from: "import CanViewNavGroup from 'src/layouts/components/acl/CanViewNavGroup'",
@@ -469,7 +469,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/vertical/navigation/VerticalNavLink.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/layouts/components/vertical/navigation/VerticalNavLink.tsx`,
     replacements: [
       {
         from: "import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'",
@@ -494,7 +494,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/vertical/navigation/VerticalNavSectionTitle.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/layouts/components/vertical/navigation/VerticalNavSectionTitle.tsx`,
     replacements: [
       {
         from: "import CanViewNavSectionTitle from 'src/layouts/components/acl/CanViewNavSectionTitle'",
@@ -519,7 +519,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/theme/ThemeComponent.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/theme/ThemeComponent.tsx`,
     replacements: [
       {
         from: new RegExp(/\/\/ \*\* Direction component for LTR or RTL/),
@@ -540,7 +540,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/layouts/UserLayout.tsx`,
+    file: `${pathConfig.basePathTSX}/src/layouts/UserLayout.tsx`,
     replacements: [
       {
         from: "import BuyNowButton from './components/BuyNowButton'",
@@ -553,7 +553,7 @@ const dataToReplace = [
     ]
   },
   {
-    file: `${pathConfig.fullVersionTSXPath}/src/@core/layouts/components/shared-components/UserDropdown.tsx`,
+    file: `${pathConfig.basePathTSX}/src/@core/layouts/components/shared-components/UserDropdown.tsx`,
     replacements: [
       {
         from: new RegExp(/\/\/ \*\* Context/),
@@ -606,7 +606,7 @@ const copyRecursiveSync = (src, dest) => {
 // ** Copy TS Version
 const copyTSVersion = () => {
   return new Promise(resolve => {
-    copyRecursiveSync(pathConfig.fullVersionTSXPath.replace('-free', ''), pathConfig.fullVersionTSXPath)
+    copyRecursiveSync(fullVersionPath, pathConfig.basePathTSX)
     resolve()
   })
 }
@@ -614,7 +614,7 @@ const copyTSVersion = () => {
 // ** Copy Initial Project
 copyTSVersion()
   .then(() => {
-    fs.rm(`${pathConfig.fullVersionTSXPath}/src/pages`, { force: true, recursive: true }, err => {
+    fs.rm(`${pathConfig.basePathTSX}/src/pages`, { force: true, recursive: true }, err => {
       if (err) {
         console.log(err)
       } else {
@@ -623,7 +623,7 @@ copyTSVersion()
     })
   })
   .then(() =>
-    fs.rm(`${pathConfig.fullVersionTSXPath}/src/views`, { recursive: true }, err => {
+    fs.rm(`${pathConfig.basePathTSX}/src/views`, { recursive: true }, err => {
       if (err) {
         console.log(err)
       } else {
@@ -639,7 +639,7 @@ copyTSVersion()
           if (typeof f === 'string') {
             if (fs.existsSync(f)) {
               const fol = f.substring(f.lastIndexOf('src'))
-              copyRecursiveSync(f, `${pathConfig.fullVersionTSXPath}/${fol}`)
+              copyRecursiveSync(f, `${pathConfig.basePathTSX}/${fol}`)
             }
           } else {
             if (fs.existsSync(f.from)) {
@@ -657,7 +657,7 @@ copyTSVersion()
         filesToKeep.forEach(f => {
           if (fs.existsSync(f)) {
             const file = f.substring(f.lastIndexOf('src'))
-            fs.copyFileSync(f, `${pathConfig.fullVersionTSXPath}/${file}`)
+            fs.copyFileSync(f, `${pathConfig.basePathTSX}/${file}`)
           }
         })
       }, 500)
@@ -665,21 +665,21 @@ copyTSVersion()
     }).then(() => {
       setTimeout(() => {
         fs.writeFileSync(
-          `${pathConfig.fullVersionTSXPath}/src/pages/index.tsx`,
+          `${pathConfig.basePathTSX}/src/pages/index.tsx`,
           fs.readFileSync('./components/index.tsx').toString()
         )
       }, 500)
     }).then(() => {
       setTimeout(() => {
         fs.writeFileSync(
-          `${pathConfig.fullVersionTSXPath}/src/pages/ui/cards/index.tsx`,
-          fs.readFileSync(`${pathConfig.fullVersionTSXPath}/src/pages/ui/cards/index.tsx`).toString().replace(new RegExp('src/views/ui/cards/basic/', 'g'), 'src/views/ui/cards/')
+          `${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`,
+          fs.readFileSync(`${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`).toString().replace(new RegExp('src/views/ui/cards/basic/', 'g'), 'src/views/ui/cards/')
         )
       }, 500)
     }).then(() => {
       setTimeout(() => {
-        fs.rmSync(`${pathConfig.fullVersionTSXPath}/src/views/pages/auth/register-multi-steps`, { recursive: true, force: true })
-        fs.rmSync(`${pathConfig.fullVersionTSXPath}/src/views/pages/auth/FooterIllustrationsV2.tsx`)
+        fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/register-multi-steps`, { recursive: true, force: true })
+        fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/FooterIllustrationsV2.tsx`)
       }, 600)
     })
   })
@@ -689,23 +689,23 @@ copyTSVersion()
       new Promise(resolve => {
         copyRecursiveSync(
           `${fullVersionPath}/src/pages/dashboards/analytics`,
-          `${pathConfig.fullVersionTSXPath}/src/pages/dashboard`
+          `${pathConfig.basePathTSX}/src/pages/dashboard`
         )
         resolve()
       })
         .then(() => {
           copyRecursiveSync(
             `${fullVersionPath}/src/views/dashboards/analytics`,
-            `${pathConfig.fullVersionTSXPath}/src/views/dashboard`
+            `${pathConfig.basePathTSX}/src/views/dashboard`
           )
         })
         .then(() => {
-          fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/dashboard/index.tsx`, 'utf-8', (err, data) => {
+          fs.readFile(`${pathConfig.basePathTSX}/src/pages/dashboard/index.tsx`, 'utf-8', (err, data) => {
             if (err) {
               console.log(err)
             } else {
               const replaced = data.replace(new RegExp('src/views/dashboards/analytics/', 'g'), 'src/views/dashboard/')
-              fs.writeFileSync(`${pathConfig.fullVersionTSXPath}/src/pages/dashboard/index.tsx`, replaced)
+              fs.writeFileSync(`${pathConfig.basePathTSX}/src/pages/dashboard/index.tsx`, replaced)
             }
           })
         })
@@ -714,7 +714,7 @@ copyTSVersion()
   // ** Copy Navigation
   .then(() => {
     fs.writeFileSync(
-      `${pathConfig.fullVersionTSXPath}/src/navigation/vertical/index.ts`,
+      `${pathConfig.basePathTSX}/src/navigation/vertical/index.ts`,
       fs.readFileSync('./components/vertical/index.ts').toString()
     )
   })
@@ -753,13 +753,13 @@ copyTSVersion()
   // ** Copy Account Settings
   .then(() => {
     setTimeout(() => {
-      fs.mkdir(`${pathConfig.fullVersionTSXPath}/src/pages/pages/account-settings/`, { recursive: true }, err => {
+      fs.mkdir(`${pathConfig.basePathTSX}/src/pages/pages/account-settings/`, { recursive: true }, err => {
         if (err) {
           console.log(err)
         } else {
           copyRecursiveSync(
             `${fullVersionPath}/src/views/pages/account-settings/TabAccount.tsx`,
-            `${pathConfig.fullVersionTSXPath}/src/pages/pages/account-settings/index.tsx`
+            `${pathConfig.basePathTSX}/src/pages/pages/account-settings/index.tsx`
           )
         }
       })

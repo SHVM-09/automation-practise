@@ -63,7 +63,7 @@ const data = `module.exports = {
 
 // ** write eslintrc file in javascript-version directory
 fs.writeFile(
-  `${pathConfig.fullVersionJSXPath}/.eslintrc.js`,
+  `${pathConfig.basePathJSX}/.eslintrc.js`,
   data,
   err => {
     if (err) {

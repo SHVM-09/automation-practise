@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "baseUrl": "../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/",
+    "rootDir": "../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/src/",
+    "outDir": "../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/src/",
+    "target": "esnext",
+    "lib": ["ES2020"],
+    "pretty": true,
+    "allowJs": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "skipDefaultLibCheck": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "jsx": "preserve"
+  },
+  "include": ["../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/src/"],
+  "exclude": ["../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/node_modules"]
+}
