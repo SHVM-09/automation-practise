@@ -2,14 +2,6 @@ const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
 
-const srcDirPath = `${pathConfig.fullVersionJSXPath.replace(
-  '/full-version',
-  ''
-)}/src`
-const packageFilePath = `${pathConfig.fullVersionJSXPath.replace(
-  '/full-version',
-  ''
-)}/package.json`
 
 // ** Removes type/types.js files
 const removeTypeFiles = function (dir, callback) {
@@ -42,7 +34,7 @@ const removeTypeFiles = function (dir, callback) {
 
 const removeTypesFolder = () => {
   fs.rmSync(
-    `${pathConfig.fullVersionJSXPath.replace('full-version', '')}/src/types`,
+    `${pathConfig.fullVersionJSXPath}/src/types`,
     {
       force: true,
       recursive: true
@@ -50,14 +42,14 @@ const removeTypesFolder = () => {
   )
 }
 
-removeTypeFiles(srcDirPath, () => console.log('Removed Type Files'))
+removeTypeFiles(pathConfig.fullVersionJSXPath, () => console.log('Removed Type Files'))
   .then(() => {
     removeTypesFolder()
   })
   .then(() => {
     // ** Remove ts and tsx extensions from yarn format and yarn lint commands from package.json file
-    if (fs.existsSync(packageFilePath)) {
-      fs.readFile(packageFilePath, 'utf8', function (err, data) {
+    if (fs.existsSync(pathConfig.fullVersionJSXPath)) {
+      fs.readFile(pathConfig.fullVersionJSXPath, 'utf8', function (err, data) {
         if (err) {
           return console.log(err)
         }
@@ -71,7 +63,7 @@ removeTypeFiles(srcDirPath, () => console.log('Removed Type Files'))
 
         const dataToWrite = finalResult.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '')
 
-        fs.writeFile(packageFilePath, dataToWrite, 'utf8', function (err) {
+        fs.writeFile(pathConfig.fullVersionJSXPath, dataToWrite, 'utf8', function (err) {
           if (err) return console.log(err)
         })
       })
@@ -96,7 +88,7 @@ removeTypeFiles(srcDirPath, () => console.log('Removed Type Files'))
       })
     }
 
-    renameFiles(srcDirPath)
+    renameFiles(pathConfig.fullVersionJSXPath)
   })
   .then(() => {
     console.log('Removed TS Files')

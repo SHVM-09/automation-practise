@@ -1,10 +1,7 @@
 const fs = require('fs')
 const pathConfig = require('../../configs/paths.json')
 
-const jsConfigPath = `${pathConfig.fullVersionJSXPath.replace(
-  '/full-version',
-  ''
-)}/jsconfig.json`
+const jsConfigPath = `${pathConfig.fullVersionJSXPath}/jsconfig.json`
 
 const jsConfig = {
   compilerOptions: {
