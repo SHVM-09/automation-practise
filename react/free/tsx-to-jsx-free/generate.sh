@@ -2,10 +2,10 @@
 tsc --project ./tsconfig.json
 
 # Copy package.json, eslintrc, gitignore, prettierrc, Readme, editorconfig files into newly created folder javascript-version
-cp ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/package.json ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/next.config.js ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/next-env.d.ts ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/gitignore ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/prettierrc.js ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/editorconfig ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/env ../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/
+cp ../../../../master-react-mui-nextjs/typescript-version/package.json ../../../../master-react-mui-nextjs/typescript-version/next.config.js ../../../../master-react-mui-nextjs/typescript-version/next-env.d.ts ../../../../master-react-mui-nextjs/typescript-version/gitignore ../../../../master-react-mui-nextjs/typescript-version/prettierrc.js ../../../../master-react-mui-nextjs/typescript-version/editorconfig ../../../../master-react-mui-nextjs/typescript-version/env ../../../../master-react-mui-nextjs/javascript-version/
 
 # Copy .vscode & public directories into javascript-version for assets and .vscode configurations
-cp -r  ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/public ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/styles ../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/
+cp -r  ../../../../master-react-mui-nextjs/typescript-version/public ../../../../master-react-mui-nextjs/typescript-version/styles ../../../../master-react-mui-nextjs/javascript-version/
 
 # Remove Typescript from the javascript-version
 node create-jsconfig.js
@@ -16,7 +16,7 @@ node remove-ts.js
 # Create .eslint in javascript-version
 node update-eslint.js
 
-cd ../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/
+cd ../../../../master-react-mui-nextjs/javascript-version/
 
 # install node_modules
 yarn install

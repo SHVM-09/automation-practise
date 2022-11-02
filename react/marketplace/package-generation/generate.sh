@@ -6,8 +6,8 @@
 # cd ../package-generation
 
 # # Remove already generated package
-# if [ -d "../../../materio-mui-react-nextjs-admin-template-free/package" ]; then
-#     rm -rf ../../../materio-mui-react-nextjs-admin-template-free/package
+# if [ -d "../../../master-react-mui-nextjs/package" ]; then
+#     rm -rf ../../../master-react-mui-nextjs/package
 # fi
 # wait
 # generate package folder
@@ -15,16 +15,16 @@ node package-generation.js $1
 
 wait
 
-cp ../../../../materio-mui-react-nextjs-admin-template-free/documentation.html ../../../../materio-mui-react-nextjs-admin-template-free/CHANGELOG.md ../../../../materio-mui-react-nextjs-admin-template-free/package
+cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
 wait 
 
-cd ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/full-version
+cd ../../../../master-react-mui-nextjs/typescript-version/full-version
 yarn format
 
 
-if [ -d "../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/full-version" ]; then
-    cd ../../../../materio-mui-react-nextjs-admin-template-free/javascript-version/full-version
+if [ -d "../../../../master-react-mui-nextjs/javascript-version/full-version" ]; then
+    cd ../../../../master-react-mui-nextjs/javascript-version/full-version
     yarn format
 fi
 
@@ -36,7 +36,7 @@ node replace.js
 
 wait
 
-cd ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/full-version
+cd ../../../../master-react-mui-nextjs/typescript-version/full-version
 
 wait
 mkdir ../../package-standard
@@ -46,19 +46,19 @@ cp ../../package/documentation.html  ../../package-standard/documentation.html
 
 wait 
 
-mv ../../package ../../materio-mui-react-nextjs-admin-template-free
-mv ../../package-standard ../../materio-mui-react-nextjs-admin-template-free-standard
+mv ../../package ../../master-react-mui-nextjs
+mv ../../package-standard ../../master-react-mui-nextjs-standard
 
 wait
 
 # Zip the package
 cd ../../
-zip -r materio-mui-react-nextjs-admin-template-free.zip materio-mui-react-nextjs-admin-template-free
-zip -r materio-mui-react-nextjs-admin-template-free-standard.zip materio-mui-react-nextjs-admin-template-free-standard
+zip -r master-react-mui-nextjs.zip master-react-mui-nextjs
+zip -r master-react-mui-nextjs-standard.zip master-react-mui-nextjs-standard
 
 # Remove package folder
-rm -rf materio-mui-react-nextjs-admin-template-free
-rm -rf materio-mui-react-nextjs-admin-template-free-standard
+rm -rf master-react-mui-nextjs
+rm -rf master-react-mui-nextjs-standard
 
 
 

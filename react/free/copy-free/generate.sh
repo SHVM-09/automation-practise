@@ -1,4 +1,4 @@
-rm -rf ../../../../materio-mui-react-nextjs-admin-template-free/*
+rm -rf ../../../../master-react-mui-nextjs/*
 
 wait
 

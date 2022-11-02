@@ -7,7 +7,7 @@ for i in 1 2 3 4 5 6
 do
 # Replace necessary in src folder
 	node replace.js demo-$i $1 $2
-  cd ../../../../materio-mui-react-nextjs-admin-template-free/typescript-version/full-version/
+  cd ../../../../master-react-mui-nextjs/typescript-version/full-version/
 # Build the template with replaced content
   yarn build
   yarn next export
