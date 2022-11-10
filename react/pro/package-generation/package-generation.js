@@ -31,13 +31,11 @@ const copyRecursiveSync = (src, dest) => {
   const isDirectory = exists && stats.isDirectory()
   if (isDirectory) {
     !fs.existsSync(dest) ? fs.mkdirSync(dest) : null
-    if(!src.includes('node_modules')){
+    if (!src.includes('node_modules')) {
       fs.readdirSync(src).forEach(function (childItemName) {
-        copyRecursiveSync(
-          path.join(src, childItemName),
-          path.join(dest, childItemName)
-        )
-      })}
+        copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
+      })
+    }
   } else {
     if (fs.existsSync(src)) {
       fs.copyFileSync(src, dest)
@@ -47,18 +45,11 @@ const copyRecursiveSync = (src, dest) => {
 
 // ** Copy ./vscode
 const copyVSCode = () => {
-  copyRecursiveSync(
-    `${pathConfig.packagePath.replace('/package', '')}/.vscode`,
-    `${pathConfig.packagePath}/.vscode`
-  )
+  copyRecursiveSync(`${pathConfig.packagePath.replace('/package', '')}/.vscode`, `${pathConfig.packagePath}/.vscode`)
 }
 
 // ** Remove BuyNow & Replace "^" & "~" in package.json file
-const updateContent = (
-  userLayoutPath,
-  BuyNowComponentPath,
-  PackageJSONPath
-) => {
+const updateContent = (userLayoutPath, BuyNowComponentPath, PackageJSONPath) => {
   const userLayoutPromise = () => {
     return new Promise(resolve => {
       if (fs.existsSync(userLayoutPath)) {
@@ -66,10 +57,7 @@ const updateContent = (
           if (err) console.log(err)
           else {
             const result = data
-              .replace(
-                "import BuyNowButton from './components/BuyNowButton'",
-                ''
-              )
+              .replace("import BuyNowButton from './components/BuyNowButton'", '')
               .replace('<BuyNowButton />', '')
             fs.writeFile(userLayoutPath, result, err => {
               if (err) console.log(err)
@@ -121,149 +109,184 @@ const updateContent = (
     })
 }
 
-// ** Generates TSX package
-const generateTSXPackage = () => {
-  fs.mkdir(
-    `${pathConfig.packagePath}/typescript-version/full-version`,
-    { recursive: true },
-    err => {
+const readAndWriteIconsBundle = file => {
+  if (fs.existsSync(file)) {
+    fs.readFile(file, 'utf-8', (err, data) => {
       if (err) {
         console.log(err)
-
-        return
       } else {
-        const copyPromise = filesToCopyTSX.map(file => {
-          return new Promise(resolve => {
-            const dest = file.replace(
-              pathConfig.basePathTSX,
-              `${pathConfig.packagePath}/typescript-version`
-            )
-            copyRecursiveSync(file, dest)
-            resolve()
-          })
-        })
-        Promise.all(copyPromise)
-          .then(() => {
-            updateContent(
-              userLayoutPathTSX,
-              BuyNowComponentPathTSX,
-              PackageJSONPathTSX
-            )
-          })
-          .then(() => {
-            if (fs.existsSync(pathConfig.starterKitTSXPath)) {
-              fs.mkdir(
-                `${pathConfig.packagePath}/typescript-version/starter-kit`,
-                err => {
-                  if (err) {
-                    console.log(err)
-                  } else {
-                    const copyStarterPromise = () =>
-                      new Promise(resolve => {
-                        copyRecursiveSync(
-                          pathConfig.starterKitTSXPath,
-                          `${pathConfig.packagePath}/typescript-version/starter-kit`
-                        )
-                        resolve()
-                      })
+        const splitData = data.split('\n')
+        const lineMDIndex = splitData.findIndex(line => line.includes('line-md.json'))
+        const bxIndex = splitData.findIndex(line => line.includes('bx:')) - 1
+        const twemojiIndex = splitData.findIndex(line => line.includes('twemoji:')) + 1
 
-                    copyStarterPromise().then(() => {
-                      const configsPathStarter = `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs`
-                      if(fs.existsSync(`${configsPathStarter}/firebase.ts`)){
-                        fs.writeFileSync(`${configsPathStarter}/firebase.ts`, fs.readFileSync('./files/firebase.ts',).toString())
-                      }else{
-                        console.log(`${pathConfig.packagePath}/typescript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`)
-                      }                      
-                    })
-                  }
-                }
-              )
-            }
-          }).then(() => {
-            const configsPathFullVersion = `${pathConfig.packagePath}/typescript-version/full-version/src/configs`
-            if(fs.existsSync(`${configsPathFullVersion}/firebase.ts`)){
-              fs.writeFileSync(`${configsPathFullVersion}/firebase.ts`, fs.readFileSync('./files/firebase.ts',).toString())
-            }else{
-              console.log(`${pathConfig.packagePath}/typescript-version/full-version/src/configs/firebase.ts File Does Not Exist!`)
-            }
-          })
+        splitData[lineMDIndex - 1] = `/* \n ${splitData[lineMDIndex - 1]}`
+        splitData[lineMDIndex + 2] = `${splitData[lineMDIndex + 2]}\n */`
+        splitData[bxIndex] = `/* \n ${splitData[bxIndex]}`
+        splitData[twemojiIndex] = `${splitData[twemojiIndex]}\n */`
+
+        fs.writeFileSync(file, splitData.join('\n'))
       }
+    })
+  }
+}
+
+const updateIconsBundle = arr => {
+  new Promise(resolve => {
+    arr.forEach(file => {
+      readAndWriteIconsBundle(file)
+    })
+    resolve()
+  }).then(() => {
+    setTimeout(() => {
+      arr.forEach(file => {
+        readAndWriteIconsBundle(file.replace('full-version', 'starter-kit'))
+      })
+    }, 500)
+  })
+}
+
+// ** Generates TSX package
+const generateTSXPackage = () => {
+  fs.mkdir(`${pathConfig.packagePath}/typescript-version/full-version`, { recursive: true }, err => {
+    if (err) {
+      console.log(err)
+
+      return
+    } else {
+      const copyPromise = filesToCopyTSX.map(file => {
+        return new Promise(resolve => {
+          const dest = file.replace(pathConfig.basePathTSX, `${pathConfig.packagePath}/typescript-version`)
+          copyRecursiveSync(file, dest)
+          resolve()
+        })
+      })
+      Promise.all(copyPromise)
+        .then(() => {
+          updateContent(userLayoutPathTSX, BuyNowComponentPathTSX, PackageJSONPathTSX)
+        })
+        .then(() => {
+          if (fs.existsSync(pathConfig.starterKitTSXPath)) {
+            fs.mkdir(`${pathConfig.packagePath}/typescript-version/starter-kit`, err => {
+              if (err) {
+                console.log(err)
+              } else {
+                const copyStarterPromise = () =>
+                  new Promise(resolve => {
+                    copyRecursiveSync(
+                      pathConfig.starterKitTSXPath,
+                      `${pathConfig.packagePath}/typescript-version/starter-kit`
+                    )
+                    resolve()
+                  })
+
+                copyStarterPromise().then(() => {
+                  const configsPathStarter = `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs`
+                  if (fs.existsSync(`${configsPathStarter}/firebase.ts`)) {
+                    fs.writeFileSync(
+                      `${configsPathStarter}/firebase.ts`,
+                      fs.readFileSync('./files/firebase.ts').toString()
+                    )
+                  } else {
+                    console.log(
+                      `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`
+                    )
+                  }
+                })
+              }
+            })
+          }
+        })
+        .then(() => {
+          const configsPathFullVersion = `${pathConfig.packagePath}/typescript-version/full-version/src/configs`
+          if (fs.existsSync(`${configsPathFullVersion}/firebase.ts`)) {
+            fs.writeFileSync(`${configsPathFullVersion}/firebase.ts`, fs.readFileSync('./files/firebase.ts').toString())
+          } else {
+            console.log(
+              `${pathConfig.packagePath}/typescript-version/full-version/src/configs/firebase.ts File Does Not Exist!`
+            )
+          }
+        })
+        .then(() => {
+          const arr = [
+            `${pathConfig.packageTSXPath}/src/iconify-bundle/bundle-icons-react.ts`,
+            `${pathConfig.packageTSXPath}/src/iconify-bundle/bundle-icons-react.js`
+          ]
+          updateIconsBundle(arr)
+        })
     }
-  )
+  })
 }
 
 // ** Generates JSX package if javascript-version dir exists
 const generateJSXPackage = () => {
-  fs.mkdir(
-    `${pathConfig.packagePath}/javascript-version/full-version`,
-    { recursive: true },
-    err => {
-      if (err) {
-        console.log(err)
+  fs.mkdir(`${pathConfig.packagePath}/javascript-version/full-version`, { recursive: true }, err => {
+    if (err) {
+      console.log(err)
 
-        return
-      } else {
-        const copyPromise = filesToCopyJSX.map(file => {
-          return new Promise(resolve => {
-            const dest = file.replace(
-              pathConfig.basePathJSX,
-              `${pathConfig.packagePath}/javascript-version`
-            )
-            copyRecursiveSync(file, dest)
-            resolve()
-          })
+      return
+    } else {
+      const copyPromise = filesToCopyJSX.map(file => {
+        return new Promise(resolve => {
+          const dest = file.replace(pathConfig.basePathJSX, `${pathConfig.packagePath}/javascript-version`)
+          copyRecursiveSync(file, dest)
+          resolve()
         })
+      })
 
-        Promise.all(copyPromise)
-          .then(() => {
-            updateContent(
-              userLayoutPathJSX,
-              BuyNowComponentPathJSX,
-              PackageJSONPathJSX
-            )
-          })
-          .then(() => {
-            if (fs.existsSync(pathConfig.starterKitJSXPath)) {
-              fs.mkdir(
-                `${pathConfig.packagePath}/javascript-version/starter-kit`,
-                err => {
-                  if (err) {
-                    console.log(err)
+      Promise.all(copyPromise)
+        .then(() => {
+          updateContent(userLayoutPathJSX, BuyNowComponentPathJSX, PackageJSONPathJSX)
+        })
+        .then(() => {
+          if (fs.existsSync(pathConfig.starterKitJSXPath)) {
+            fs.mkdir(`${pathConfig.packagePath}/javascript-version/starter-kit`, err => {
+              if (err) {
+                console.log(err)
+              } else {
+                const copyStarterPromise = () =>
+                  new Promise(resolve => {
+                    copyRecursiveSync(
+                      pathConfig.starterKitJSXPath,
+                      `${pathConfig.packagePath}/javascript-version/starter-kit`
+                    )
+                    resolve()
+                  })
+                copyStarterPromise().then(() => {
+                  const configsPathStarter = `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs`
+
+                  if (fs.existsSync(`${configsPathStarter}/firebase.js`)) {
+                    fs.writeFileSync(
+                      `${configsPathStarter}/firebase.js`,
+                      fs.readFileSync('./files/firebase.ts').toString()
+                    )
                   } else {
-                    const copyStarterPromise = () =>
-                      new Promise(resolve => {
-                        copyRecursiveSync(
-                          pathConfig.starterKitJSXPath,
-                          `${pathConfig.packagePath}/javascript-version/starter-kit`
-                        )
-                        resolve()
-                      })
-                    copyStarterPromise().then(() => {
-
-                      const configsPathStarter = `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs`
-
-                      if(fs.existsSync(`${configsPathStarter}/firebase.js`)){
-                        fs.writeFileSync(`${configsPathStarter}/firebase.js`, fs.readFileSync('./files/firebase.ts',).toString())
-                      }else{
-                        console.log(`${pathConfig.packagePath}/javascript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`)
-                      }
-                    })
+                    console.log(
+                      `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`
+                    )
                   }
-                }
-              )
-            }
-          }).then(() => {
-            const configsPath = `${pathConfig.packagePath}/javascript-version/full-version/src/configs`
+                })
+              }
+            })
+          }
+        })
+        .then(() => {
+          const configsPath = `${pathConfig.packagePath}/javascript-version/full-version/src/configs`
 
-            if(fs.existsSync(`${configsPath}/firebase.js`)){
-              fs.writeFileSync(`${configsPath}/firebase.js`, fs.readFileSync('./files/firebase.ts',).toString())
-            }else{
-              console.log(`${pathConfig.packagePath}/javascript-version/full-version/src/configs/firebase.ts File Does Not Exist!`)
-            }           
-          })
-      }
+          if (fs.existsSync(`${configsPath}/firebase.js`)) {
+            fs.writeFileSync(`${configsPath}/firebase.js`, fs.readFileSync('./files/firebase.ts').toString())
+          } else {
+            console.log(
+              `${pathConfig.packagePath}/javascript-version/full-version/src/configs/firebase.ts File Does Not Exist!`
+            )
+          }
+        })
+        .then(() => {
+          const arr = [`${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`]
+          updateIconsBundle(arr)
+        })
     }
-  )
+  })
 }
 
 // ** Generates package based on args
@@ -292,14 +315,14 @@ if (!fs.existsSync(pathConfig.packagePath)) {
     if (err) {
       console.log(err)
     } else {
-      const generatePromise = () =>new Promise(resolve => {
-        generate()
-        copyVSCode()
-        resolve()
-      })
-      
-      generatePromise()
-      .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
+      const generatePromise = () =>
+        new Promise(resolve => {
+          generate()
+          copyVSCode()
+          resolve()
+        })
+
+      generatePromise().then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
     }
   })
 } else {
@@ -311,15 +334,14 @@ if (!fs.existsSync(pathConfig.packagePath)) {
         if (err) {
           console.log(err)
         } else {
-         
-          const generatePromise = () =>new Promise(resolve => {
-            generate()
-            copyVSCode()
-            resolve()
-          })
-          
-          generatePromise()
-          .then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
+          const generatePromise = () =>
+            new Promise(resolve => {
+              generate()
+              copyVSCode()
+              resolve()
+            })
+
+          generatePromise().then(() => removeTest(pathConfig.packageTSXPath, pathConfig.packageJSXPath))
         }
       })
     }
