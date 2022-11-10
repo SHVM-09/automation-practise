@@ -2,11 +2,24 @@ const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
 const { removeTest, copyTestDirs } = require('../../remove-test/remove-test')
-const { i18nPath, templateName, nextConfigPath, themeConfigPath, settingsContextFile } = require('./helpers')
+const {
+  i18nPath,
+  TSGTMHead,
+  TSGTMBody,
+  PXGTMHead,
+  PXGTMBody,
+  templateName,
+  nextConfigPath,
+  themeConfigPath,
+  settingsContextFile
+} = require('./helpers')
 
 let demo = 'demo-1'
 const demoArgs = process.argv.slice(2)
 let URL = pathConfig.demoURL
+
+let GTMHead = TSGTMHead
+let GTMBody = TSGTMBody
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
@@ -22,6 +35,8 @@ if (demoArgs.length > 1 && demoArgs.includes('staging')) {
 }
 
 if (demoArgs.length > 1 && demoArgs.includes('pixinvent')) {
+  GTMHead = PXGTMHead
+  GTMBody = PXGTMBody
   if (!demoArgs.includes('staging')) {
     URL = `/demo${pathConfig.demoURL}`
   } else {
@@ -91,6 +106,27 @@ const replaceBasePathInI18n = () => {
 
 replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
+  .then(() => {
+    fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
+      if (err) {
+        console.log(err)
+      } else {
+        fs.writeFile(
+          `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
+          data
+            .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
+            .replace('<body>', '<body>\n' + GTMBody),
+          err => {
+            if (err) {
+              console.log(err)
+
+              return
+            }
+          }
+        )
+      }
+    })
+  })
   .then(() => {
     // ** Replace settings in localStorage if settingsContextFile exist
     if (fs.existsSync(settingsContextFile)) {
