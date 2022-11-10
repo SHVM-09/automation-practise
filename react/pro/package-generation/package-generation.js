@@ -43,11 +43,6 @@ const copyRecursiveSync = (src, dest) => {
   }
 }
 
-// ** Copy ./vscode
-const copyVSCode = () => {
-  copyRecursiveSync(`${pathConfig.packagePath.replace('/package', '')}/.vscode`, `${pathConfig.packagePath}/.vscode`)
-}
-
 // ** Remove BuyNow & Replace "^" & "~" in package.json file
 const updateContent = (userLayoutPath, BuyNowComponentPath, PackageJSONPath) => {
   const userLayoutPromise = () => {
@@ -318,7 +313,6 @@ if (!fs.existsSync(pathConfig.packagePath)) {
       const generatePromise = () =>
         new Promise(resolve => {
           generate()
-          copyVSCode()
           resolve()
         })
 
@@ -337,7 +331,6 @@ if (!fs.existsSync(pathConfig.packagePath)) {
           const generatePromise = () =>
             new Promise(resolve => {
               generate()
-              copyVSCode()
               resolve()
             })
 

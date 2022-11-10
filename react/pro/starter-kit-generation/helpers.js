@@ -34,6 +34,7 @@ const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/styles`,
   `${pathConfig.fullVersionTSXPath}/.editorconfig`,
   `${pathConfig.fullVersionTSXPath}/.env`,
+  `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/.eslintrc.json`,
   `${pathConfig.fullVersionTSXPath}/.gitignore`,
   `${pathConfig.fullVersionTSXPath}/.prettierrc.js`,
@@ -44,7 +45,7 @@ const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/package.json`,
   `${pathConfig.fullVersionTSXPath}/tsconfig.json`,
   `${pathConfig.fullVersionTSXPath}/.npmrc`,
-  `${pathConfig.fullVersionTSXPath}/.nvmrc`,
+  `${pathConfig.fullVersionTSXPath}/.nvmrc`
 ]
 
 const filesToCopyJSX = [
@@ -52,6 +53,7 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/styles`,
   `${pathConfig.fullVersionJSXPath}/.editorconfig`,
   `${pathConfig.fullVersionJSXPath}/.env`,
+  `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/.eslintrc.js`,
   `${pathConfig.fullVersionJSXPath}/.gitignore`,
   `${pathConfig.fullVersionJSXPath}/.prettierrc.js`,
@@ -59,7 +61,7 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/package.json`,
   `${pathConfig.fullVersionJSXPath}/jsconfig.json`,
   `${pathConfig.fullVersionJSXPath}/.npmrc`,
-  `${pathConfig.fullVersionJSXPath}/.nvmrc`,
+  `${pathConfig.fullVersionJSXPath}/.nvmrc`
 ]
 
 const foldersToRemoveTSX = [
@@ -156,17 +158,12 @@ const copyRecursiveSync = (src, dest) => {
   const stats = exists && fs.statSync(src)
   const isDirectory = exists && stats.isDirectory()
   if (isDirectory) {
-    !fs.existsSync(dest)
-      ? fs.mkdirSync(dest, { recursive: true, force: true })
-      : null
+    !fs.existsSync(dest) ? fs.mkdirSync(dest, { recursive: true, force: true }) : null
     fs.readdirSync(src).forEach(function (childItemName) {
-      copyRecursiveSync(
-        path.join(src, childItemName),
-        path.join(dest, childItemName)
-      )
+      copyRecursiveSync(path.join(src, childItemName), path.join(dest, childItemName))
     })
   } else {
-    if(fs.existsSync(src)){
+    if (fs.existsSync(src)) {
       fs.copyFileSync(src, dest)
     }
   }
@@ -360,7 +357,6 @@ const filesToRemove = [
   `${pathConfig.starterKitTSXPath}/src/views/pages/auth/FooterIllustrationsV1.tsx`,
   `${pathConfig.starterKitJSXPath}/src/views/pages/auth/FooterIllustrationsV1.js`
 ]
-
 
 const homeAndSecondPagePaths = [
   {

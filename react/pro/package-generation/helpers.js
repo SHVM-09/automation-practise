@@ -9,6 +9,7 @@ const BuyNowComponentPathJSX = `${pathConfig.packagePath}/javascript-version/ful
 
 const filesToCopyTSX = [
   `${pathConfig.demoConfigsPathTSX}`,
+  `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/public`,
   `${pathConfig.fullVersionTSXPath}/src`,
   `${pathConfig.fullVersionTSXPath}/styles`,
@@ -31,6 +32,7 @@ const filesToCopyTSX = [
 
 const filesToCopyJSX = [
   `${pathConfig.demoConfigsPathJSX}`,
+  `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/public`,
   `${pathConfig.fullVersionJSXPath}/src`,
   `${pathConfig.fullVersionJSXPath}/styles`,

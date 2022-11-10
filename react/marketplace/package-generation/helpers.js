@@ -14,6 +14,7 @@ const filesToCopyTSX = [
   `${pathConfig.fullVersionTSXPath}/styles`,
   `${pathConfig.fullVersionTSXPath}/.editorconfig`,
   `${pathConfig.fullVersionTSXPath}/.env`,
+  `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/.eslintrc.json`,
   `${pathConfig.fullVersionTSXPath}/.gitignore`,
   `${pathConfig.fullVersionTSXPath}/.prettierrc.js`,
@@ -34,6 +35,7 @@ const filesToCopyJSX = [
   `${pathConfig.fullVersionJSXPath}/styles`,
   `${pathConfig.fullVersionJSXPath}/.editorconfig`,
   `${pathConfig.fullVersionJSXPath}/.env`,
+  `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/.eslintrc.js`,
   `${pathConfig.fullVersionJSXPath}/.gitignore`,
   `${pathConfig.fullVersionJSXPath}/.prettierrc.js`,
@@ -47,10 +49,7 @@ const filesToCopyJSX = [
 const dataToReplace = [
   // HTML
   {
-    file: `${pathConfig.packageTSXPath.replace(
-      'typescript-version/full-version',
-      ''
-    )}/documentation.html`,
+    file: `${pathConfig.packageTSXPath.replace('typescript-version/full-version', '')}/documentation.html`,
     replacements: [
       {
         from: new RegExp('https://demos.themeselection.com', 'g'),
@@ -72,10 +71,7 @@ const dataToReplace = [
         to: 'https://mui.com/store/license'
       },
       {
-        from: new RegExp(
-          `https://demos.themeselection.com${pathConfig.demoURL}/documentation`,
-          'g'
-        ),
+        from: new RegExp(`https://demos.themeselection.com${pathConfig.demoURL}/documentation`, 'g'),
         to: `https://demos.themeselection.com/marketplace${pathConfig.demoURL}/documentation`
       }
     ]
@@ -139,10 +135,7 @@ const dataToReplace = [
         to: 'https://mui.com/store/license'
       },
       {
-        from: new RegExp(
-          `https://demos.themeselection.com${pathConfig.demoURL}/documentation`,
-          'g'
-        ),
+        from: new RegExp(`https://demos.themeselection.com${pathConfig.demoURL}/documentation`, 'g'),
         to: `https://demos.themeselection.com/marketplace${pathConfig.demoURL}/documentation`
       }
     ]
@@ -209,10 +202,7 @@ const dataToReplace = [
         to: 'https://mui.com/store/license'
       },
       {
-        from: new RegExp(
-          `https://demos.themeselection.com${pathConfig.demoURL}/documentation`,
-          'g'
-        ),
+        from: new RegExp(`https://demos.themeselection.com${pathConfig.demoURL}/documentation`, 'g'),
         to: `https://demos.themeselection.com/marketplace${pathConfig.demoURL}/documentation`
       }
     ]
@@ -232,10 +222,7 @@ const dataToReplace = [
         to: 'https://mui.com/store/license'
       },
       {
-        from: new RegExp(
-          `https://demos.themeselection.com${pathConfig.demoURL}/documentation`,
-          'g'
-        ),
+        from: new RegExp(`https://demos.themeselection.com${pathConfig.demoURL}/documentation`, 'g'),
         to: `https://demos.themeselection.com/marketplace${pathConfig.demoURL}/documentation`
       }
     ]
