@@ -107,25 +107,35 @@ const replaceBasePathInI18n = () => {
 replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
   .then(() => {
-    fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
-      if (err) {
-        console.log(err)
-      } else {
-        fs.writeFile(
-          `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
-          data
-            .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
-            .replace('<body>', '<body>\n' + GTMBody),
-          err => {
+    setTimeout(() => {
+      fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
+        if (err) {
+          console.log(err)
+        } else {
+          fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
             if (err) {
               console.log(err)
 
               return
+            } else {
+              fs.writeFile(
+                `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
+                data
+                  .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
+                  .replace('<body>', '<body>\n' + GTMBody),
+                err => {
+                  if (err) {
+                    console.log(err)
+
+                    return
+                  }
+                }
+              )
             }
-          }
-        )
-      }
-    })
+          })
+        }
+      })
+    }, 500)
   })
   .then(() => {
     // ** Replace settings in localStorage if settingsContextFile exist

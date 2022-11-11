@@ -116,29 +116,31 @@ const removeBasePathInI18n = () => {
 removeBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 removeBasePathInI18n()
   .then(() => {
-    fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
-      if (err) {
-        console.log(err)
-      } else {
-        const replaced = data
-          .replace(GTMHead, '')
-          .replace(GTMBody, '')
-          .replace('<script dangerouslySetInnerHTML={{ __html: `` }} />', '')
-          .replace('<Head>\n', '<Head>')
-          .replace('<body>\n', '<body>')
-        fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
-          if (err) {
-            console.log(err)
-          } else {
-            fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, replaced, err => {
-              if (err) {
-                console.log(err)
-              }
-            })
-          }
-        })
-      }
-    })
+    setTimeout(() => {
+      fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
+        if (err) {
+          console.log(err)
+        } else {
+          const replaced = data
+            .replace(GTMHead, '')
+            .replace(GTMBody, '')
+            .replace('<script dangerouslySetInnerHTML={{ __html: `` }} />', '')
+            .replace('<Head>\n', '<Head>')
+            .replace('<body>\n', '<body>')
+          fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
+            if (err) {
+              console.log(err)
+            } else {
+              fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, replaced, err => {
+                if (err) {
+                  console.log(err)
+                }
+              })
+            }
+          })
+        }
+      })
+    }, 1000)
   })
   .then(() => {
     // ** Reset replaced settings in localStorage if settingsContextFile exist
