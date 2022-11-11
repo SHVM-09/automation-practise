@@ -115,9 +115,9 @@ const readAndWriteIconsBundle = file => {
         const bxIndex = splitData.findIndex(line => line.includes('bx:')) - 1
         const twemojiIndex = splitData.findIndex(line => line.includes('twemoji:')) + 1
 
-        splitData[lineMDIndex - 1] = `/* \n ${splitData[lineMDIndex - 1]}`
+        splitData[lineMDIndex - 1] = `\n/* \n ${splitData[lineMDIndex - 1]}`
         splitData[lineMDIndex + 2] = `${splitData[lineMDIndex + 2]}\n */`
-        splitData[bxIndex] = `/* \n ${splitData[bxIndex]}`
+        splitData[bxIndex] = `\n/* \n ${splitData[bxIndex]}`
         splitData[twemojiIndex] = `${splitData[twemojiIndex]}\n */`
 
         fs.writeFileSync(file, splitData.join('\n'))
@@ -277,7 +277,7 @@ const generateJSXPackage = () => {
           }
         })
         .then(() => {
-          const arr = [`${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`]
+          const arr = [`${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`, `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`]
           updateIconsBundle(arr)
         })
     }
