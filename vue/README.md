@@ -2,6 +2,8 @@
 
 ## Welcome
 
+Make sure to enable watcher for VSCode extension [sync-env](https://marketplace.visualstudio.com/items?itemName=dongido.sync-env)
+
 ### Running automation scripts
 
 You can run automation via scripts. You can find each template's scripts in `src/templates/<template-name>/scripts`

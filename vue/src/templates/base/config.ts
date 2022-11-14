@@ -26,5 +26,6 @@ export interface TemplateBaseConfig {
   gh: {
     repoName: string
     ownerName: string
+    branch?: string
   }
 }

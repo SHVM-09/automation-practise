@@ -47,8 +47,13 @@ export class GenSK extends Utils {
     await Promise.all(
       tracker.map(
         async (trackableFile, index) => {
+          // Allow fetching commits from branch other than main
+          let url = 'GET /repos/{owner}/{repo}/commits'
+          if (this.templateConfig.gh.branch)
+            url += `?sha=${this.templateConfig.gh.branch}`
+
           // Get commit details of tracking file
-          const res = await octokit.request('GET /repos/{owner}/{repo}/commits', {
+          const res = await octokit.request(url, {
             owner: this.templateConfig.gh.ownerName,
             repo: this.templateConfig.gh.repoName,
             path: trackableFile.gitRepoFilePath,
