@@ -34,7 +34,7 @@ export class GenSK extends Utils {
     dotenv.config()
 
     // create new octokit instance
-    const octokit = new Octokit({ auth: process.env.githubPersonalToken })
+    const octokit = new Octokit({ auth: process.env.GitHubPersonalToken })
 
     // Tracker file
     const trackerPath = path.join(this.templateConfig.paths.dataDir, 'tracker.json')
@@ -96,11 +96,25 @@ export class GenSK extends Utils {
 
   private replacePages() {
     const destPath = path.join(this.tempDir, 'src', 'pages')
+    console.log(path.join(destPath, '[...all].vue'))
+    console.log(path.join(destPath, '..'))
+
+    // Temporary move 404 page outside of pages dir because we will remove whole pages dir in upcoming statements
+    fs.moveSync(
+      path.join(destPath, '[...all].vue'),
+      path.join(destPath, '..', '[...all].vue'),
+    )
 
     fs.removeSync(destPath)
     fs.copySync(
       path.join(this.templateConfig.paths.dataDir, 'pages'),
       destPath,
+    )
+
+    // Move 404 page from src (we moved above) to pages dir
+    fs.moveSync(
+      path.join(destPath, '..', '[...all].vue'),
+      path.join(destPath, '[...all].vue'),
     )
   }
 
