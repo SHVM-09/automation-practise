@@ -1,3 +1,8 @@
+export interface GTMConfig {
+  headScript: string
+  bodyNoScript: string
+}
+
 export interface DemoConfigItem {
   find: string | RegExp
   replace: string
@@ -28,4 +33,5 @@ export interface TemplateBaseConfig {
     ownerName: string
     branch?: string
   }
+  gtm: GTMConfig
 }

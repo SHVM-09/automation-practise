@@ -5,7 +5,9 @@
         "globby",
         "iconify",
         "Materio",
+        "pixinvent",
         "rulesdir",
+        "themeselection",
         "typecheck"
     ]
 }

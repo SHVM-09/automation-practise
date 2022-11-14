@@ -1,6 +1,7 @@
 import path from 'path'
 import * as url from 'url'
 import type { TemplateBaseConfig } from '@/templates/base'
+import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
 import { getTemplatePath } from '@/utils/paths'
 
 type VuexyConfig = TemplateBaseConfig
@@ -100,6 +101,7 @@ export const config: VuexyConfig = {
   gh: {
     ownerName: 'pixinvent',
     repoName: 'vuexy-vuejs-admin-template',
-    branch: 'next'
+    branch: 'next',
   },
+  gtm: pixinventGTMConfig,
 }

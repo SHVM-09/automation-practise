@@ -1,6 +1,7 @@
 import path from 'path'
 import * as url from 'url'
 import type { TemplateBaseConfig } from '@/templates/base'
+import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
 import { getTemplatePath } from '@/utils/paths'
 
 type MaterioConfig = TemplateBaseConfig
@@ -100,4 +101,5 @@ export const config: MaterioConfig = {
     ownerName: 'themeselection',
     repoName: 'materio-vuetify-vuejs-admin-template',
   },
+  gtm: themeselectionGTMConfig,
 }
