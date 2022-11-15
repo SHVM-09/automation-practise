@@ -8,6 +8,7 @@
         "pixinvent",
         "rulesdir",
         "themeselection",
-        "typecheck"
+        "typecheck",
+        "Vuexy"
     ]
 }

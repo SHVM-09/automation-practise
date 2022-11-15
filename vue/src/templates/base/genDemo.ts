@@ -44,9 +44,14 @@ export class GenDemo {
   private updateLocalStorageKeys(demoNumber: number, templateName: string) {
     // default values for demo 1
     let sedFind = '(localStorage.(set|get)Item\\(.*\\.title\\}-)'
-    let sedReplace = '\\1demo-1-'
+    let sedReplace = '\\1vue-demo-1-'
+
+    // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
+    const sedFindAuthKeys = '(localStorage.(set|get)Item\\(\')([a-zA-Z]+)'
+    const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-\\3`
+
     let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
-    let indexHTMLReplace = '$1-demo-1'
+    let indexHTMLReplace = '$1-vue-demo-1'
 
     // If it's not 1st demo update the find replace strings
     if (demoNumber !== 1) {
@@ -59,16 +64,26 @@ export class GenDemo {
       indexHTMLFind = new RegExp(findStr, 'g')
       indexHTMLReplace = replaceStr
     }
+    else {
+      /*
+        As we want to update the auth keys just once, we will update only when generating first demo
+        ℹ️ Prefix auth keys with <template-name>-vue-
+
+        https://stackoverflow.com/a/39382621/10796681
+        https://unix.stackexchange.com/a/15309/528729
+
+        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
+
+        ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
+      */
+      execCmd(
+        `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFindAuthKeys}/${sedReplaceAuthKeys}/g" '{}' \\;`,
+        { cwd: this.templateConfig.paths.tSFull },
+      )
+    }
 
     /*
-      Add demo number when mutating localStorage item
-
-      https://stackoverflow.com/a/39382621/10796681
-      https://unix.stackexchange.com/a/15309/528729
-
       Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
-
-      ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
     */
     execCmd(
       `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
