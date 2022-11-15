@@ -93,7 +93,7 @@ export const config: VuexyConfig = {
       },
     ],
   ],
-  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
     pageTitle: 'Vuexy - Vuetify Vuejs Admin Template',
     docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-dashboard-template/documentation/',
