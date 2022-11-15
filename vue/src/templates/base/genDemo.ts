@@ -43,11 +43,11 @@ export class GenDemo {
    */
   private updateLocalStorageKeys(demoNumber: number, templateName: string) {
     // default values for demo 1
-    let sedFind = '(localStorage.(set|get)Item\\(.*\\.title\\}-)'
+    let sedFind = '(localStorage.(set|get|remove)Item\\(.*\\.title\\}-)'
     let sedReplace = '\\1vue-demo-1-'
 
     // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
-    const sedFindAuthKeys = '(localStorage.(set|get)Item\\(\')([a-zA-Z]+)'
+    const sedFindAuthKeys = '(localStorage.(set|get|remove)Item\\(\')([a-zA-Z]+)'
     const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-\\3`
 
     let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
@@ -72,7 +72,7 @@ export class GenDemo {
         https://stackoverflow.com/a/39382621/10796681
         https://unix.stackexchange.com/a/15309/528729
 
-        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
+        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
 
         ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
       */
@@ -83,7 +83,7 @@ export class GenDemo {
     }
 
     /*
-      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
+      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
     */
     execCmd(
       `find ./src \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,

@@ -65,7 +65,11 @@ export class GenPkg extends Utils {
       generateDocContent(this.templateConfig.documentation.pageTitle, this.templateConfig.documentation.docUrl),
     )
 
-    execCmd(`zip -r materio-vuetify-vuejs-admin-template.zip ${tempPkgTS}`, { cwd: this.templateConfig.projectPath })
+    const zipPath = path.join(
+      this.templateConfig.projectPath,
+      `${this.templateConfig.templateName.toLowerCase()}-vuetify-vuejs-admin-template.zip`,
+    )
+    execCmd(`zip -r ${zipPath} .`, { cwd: tempPkgDir })
     success(`✅ Package generated at: ${this.templateConfig.projectPath}`)
   }
 }

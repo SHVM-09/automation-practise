@@ -101,8 +101,6 @@ export class GenSK extends Utils {
 
   private replacePages() {
     const destPath = path.join(this.tempDir, 'src', 'pages')
-    console.log(path.join(destPath, '[...all].vue'))
-    console.log(path.join(destPath, '..'))
 
     // Temporary move 404 page outside of pages dir because we will remove whole pages dir in upcoming statements
     fs.moveSync(
@@ -175,10 +173,10 @@ export class GenSK extends Utils {
     updateFile(
       path.join(this.tempDir, 'src', 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
       (data) => {
-        // ❗ Order matters: First of all we will remove i18n, notification & theme-switcher component rendering & import
+        // ❗ Order matters: First of all we will remove i18n, shortcuts, notification & theme-switcher component rendering & import
         // ℹ️ We will use "<NavbarThemeSwitcher" instead of "NavbarThemeSwitcher" because we don't want to remove its import as we will later add NavbarThemeSwitcher again
         data = data.split('\n')
-          .filter(line => !['NavBarI18n', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavBarI18n', 'NavbarShortcuts', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // ❗ Order matters: now let's replace search button with NavbarThemeSwitcher
@@ -195,9 +193,9 @@ export class GenSK extends Utils {
     updateFile(
       path.join(this.tempDir, 'src', 'layouts', 'components', 'DefaultLayoutWithHorizontalNav.vue'),
       (data) => {
-        // Remove i18n & notification
+        // Remove i18n, shortcuts & notification
         data = data.split('\n')
-          .filter(line => !['NavBarI18n', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavBarI18n', 'NavbarShortcuts', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // Remove search button
@@ -251,6 +249,9 @@ export class GenSK extends Utils {
     updateFile(
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
+        // Remove additional email routes
+        viteConfig = viteConfig.replace(/(Pages\({)(?:\n\s{5,}.+)+\n\s+(.*)/gm, '$1$2')
+
         // Remove i18n plugin
         viteConfig = viteConfig.replace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 

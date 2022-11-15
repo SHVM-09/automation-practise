@@ -4,11 +4,11 @@ export default [
   {
     title: 'Home',
     to: { name: 'index' },
-    icon: { icon: 'mdi-home-outline' },
+    icon: { icon: 'tabler-smart-home' },
   },
   {
     title: 'Second page',
     to: { name: 'second-page' },
-    icon: { icon: 'mdi-file-document-outline' },
+    icon: { icon: 'tabler-file' },
   },
 ] as VerticalNavItems
