@@ -118,7 +118,7 @@ const readAndWriteIconsBundle = file => {
         splitData[lineMDIndex + 2] = `${splitData[lineMDIndex + 2]}\n */`
         splitData[jsonGGIndex] = `\n/* \n ${splitData[jsonGGIndex]}`
         splitData[twemojiIndex] = splitData[twemojiIndex].includes('svg: [')
-          ? `\n${splitData[twemojiIndex]}\n */`
+          ? `*/\n${splitData[twemojiIndex]}\n`
           : `${splitData[twemojiIndex]}\n */`
 
         fs.writeFileSync(file, splitData.join('\n'))
