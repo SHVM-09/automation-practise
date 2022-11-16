@@ -2,8 +2,9 @@ import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import type { TemplateBaseConfig } from './config'
-import { info, success } from '@/utils/logging'
+import { FillSnippets } from './fillSnippets'
 import { execCmd, updateFile } from '@/utils/node'
+import { info, success } from '@/utils/logging'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) {}
@@ -114,6 +115,11 @@ export class GenDemo {
 
   generate(isStaging: boolean) {
     info('isStaging: ', isStaging.toString())
+
+    const { tSFull, jSFull } = this.templateConfig.paths
+
+    // Fill snippets
+    new FillSnippets(tSFull, jSFull).fillSnippet()
 
     // Remove existing build files & dirs
     this.removeExistingBuildData()
