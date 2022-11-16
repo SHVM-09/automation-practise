@@ -112,13 +112,14 @@ const readAndWriteIconsBundle = file => {
       } else {
         const splitData = data.split('\n')
         const lineMDIndex = splitData.findIndex(line => line.includes('line-md.json'))
-        const bxIndex = splitData.findIndex(line => line.includes('bx:')) - 1
+        const jsonGGIndex = splitData.findIndex(line => line.includes('json/gg.json')) + 2
         const twemojiIndex = splitData.findIndex(line => line.includes('twemoji:')) + 1
-
         splitData[lineMDIndex - 1] = `\n/* \n ${splitData[lineMDIndex - 1]}`
         splitData[lineMDIndex + 2] = `${splitData[lineMDIndex + 2]}\n */`
-        splitData[bxIndex] = `\n/* \n ${splitData[bxIndex]}`
-        splitData[twemojiIndex] = `${splitData[twemojiIndex]}\n */`
+        splitData[jsonGGIndex] = `\n/* \n ${splitData[jsonGGIndex]}`
+        splitData[twemojiIndex] = splitData[twemojiIndex].includes('svg: [')
+          ? `\n${splitData[twemojiIndex]}\n */`
+          : `${splitData[twemojiIndex]}\n */`
 
         fs.writeFileSync(file, splitData.join('\n'))
       }
@@ -277,7 +278,10 @@ const generateJSXPackage = () => {
           }
         })
         .then(() => {
-          const arr = [`${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`, `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`]
+          const arr = [
+            `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`,
+            `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`
+          ]
           updateIconsBundle(arr)
         })
     }

@@ -4,9 +4,7 @@
     "rootDir": "../../../master-react-mui-nextjs/typescript-version/full-version/src",
     "outDir": "../../../master-react-mui-nextjs/javascript-version/full-version/src",
     "target": "esnext",
-    "lib": [
-      "ES2020"
-    ],
+    "lib": ["ES2020"],
     "pretty": true,
     "allowJs": true,
     "noEmitHelpers": true,
@@ -19,10 +17,6 @@
     "moduleResolution": "node",
     "jsx": "preserve"
   },
-  "include": [
-    "../../../master-react-mui-nextjs/typescript-version/full-version/src"
-  ],
-  "exclude": [
-    "../../../master-react-mui-nextjs/typescript-version/full-version/node_modules"
-  ]
+  "include": ["../../../master-react-mui-nextjs/typescript-version/full-version/src"],
+  "exclude": ["../../../master-react-mui-nextjs/typescript-version/full-version/node_modules"]
 }
