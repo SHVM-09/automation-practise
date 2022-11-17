@@ -1,4 +1,5 @@
 import path from 'path'
+import type { GTMConfig, TemplateBaseConfig } from './config'
 import { execCmd, updateFile } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 
@@ -34,3 +35,19 @@ export class Utils {
     )
   }
 }
+
+export const injectGTM = (filePath: string, gtmConfig: GTMConfig) => {
+  /*
+      ℹ️ headScript should be as high as possible inside head tag
+      ℹ️ bodyNoScript should be placed immediately after opening body tag
+    */
+  updateFile(
+    // Path to `index.html`
+    filePath,
+    htmlContent => htmlContent
+      .replace('<head>', `<head>\n${gtmConfig.headScript}`)
+      .replace('<body>', `<body>\n${gtmConfig.bodyNoScript}`),
+  )
+}
+
+export const getDocsSsrHtmlPath = (templateConfig: TemplateBaseConfig) => path.join(templateConfig.paths.docs, '.vuepress', 'theme', 'templates', 'ssr.html')

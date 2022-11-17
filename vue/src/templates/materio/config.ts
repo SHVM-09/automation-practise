@@ -43,6 +43,7 @@ export const config: MaterioConfig = {
     dataDir: path.join(__dirname, 'data'),
     freeTS: path.join(materioVueFreePath, 'typescript-version'),
     freeJS: path.join(materioVueFreePath, 'javascript-version'),
+    docs: path.join(materioVuePath, 'docs'),
   },
   demosConfig: [
     // Demo 1

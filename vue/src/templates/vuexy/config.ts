@@ -44,6 +44,7 @@ export const config: VuexyConfig = {
     dataDir: path.join(__dirname, 'data'),
     freeTS: path.join(vuexyVueFreePath, 'typescript-version'),
     freeJS: path.join(vuexyVueFreePath, 'javascript-version'),
+    docs: path.join(vuexyVuePath, 'docs'),
   },
   demosConfig: [
     // Demo 1

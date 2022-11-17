@@ -42,6 +42,7 @@ export const config: MasterConfig = {
     dataDir: path.join(__dirname, 'data'),
     freeTS: '/tmp',
     freeJS: '/tmp',
+    docs: path.join(masterVuePath, 'docs'),
   },
   demosConfig: [
     // Demo 1

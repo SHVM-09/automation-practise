@@ -3,6 +3,7 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
+import { injectGTM } from './helper'
 import { execCmd, updateFile } from '@/utils/node'
 import { info, success } from '@/utils/logging'
 
@@ -99,20 +100,6 @@ export class GenDemo {
     )
   }
 
-  private injectGTM() {
-    /*
-      ℹ️ headScript should be as high as possible inside head tag
-      ℹ️ bodyNoScript should be placed immediately after opening body tag
-    */
-    updateFile(
-      // Path to `index.html`
-      path.join(this.templateConfig.paths.tSFull, 'index.html'),
-      htmlContent => htmlContent
-        .replace('<head>', `<head>\n${this.templateConfig.gtm.headScript}`)
-        .replace('<body>', `<body>\n${this.templateConfig.gtm.bodyNoScript}`),
-    )
-  }
-
   generate(isStaging: boolean) {
     info('isStaging: ', isStaging.toString())
 
@@ -129,7 +116,10 @@ export class GenDemo {
     this.updateBuildCommand()
 
     // inject GTM code in index.html file
-    this.injectGTM()
+    injectGTM(
+      path.join(this.templateConfig.paths.tSFull, 'index.html'),
+      this.templateConfig.gtm,
+    )
 
     const themeConfigPath = path.join(this.templateConfig.paths.tSFull, 'themeConfig.ts')
     const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
