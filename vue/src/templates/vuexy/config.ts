@@ -102,6 +102,7 @@ export const config: VuexyConfig = {
   gh: {
     ownerName: 'pixinvent',
     repoName: 'vuexy-vuejs-admin-template',
+    branch: 'dev',
   },
   gtm: pixinventGTMConfig,
 }
