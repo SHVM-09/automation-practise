@@ -20,7 +20,7 @@ export class Utils {
     return command
   }
 
-  protected copyProject(src: string, dest: string, ignorePatterns: string[]) {
+  protected copyProject(src: string, dest: string, ignorePatterns: string[] = []) {
     const commandToCopyProject = this.genProjectCopyCommand(src, dest, ignorePatterns)
 
     execCmd(commandToCopyProject)

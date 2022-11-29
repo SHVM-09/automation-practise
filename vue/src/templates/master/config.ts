@@ -102,4 +102,7 @@ export const config: MasterConfig = {
     repoName: 'master-vue--material',
   },
   gtm: themeselectionGTMConfig,
+  laravel: {
+    pkgName: 'master-vuetify-vuejs-laravel-admin-template',
+  },
 }

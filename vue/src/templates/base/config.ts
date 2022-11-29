@@ -35,4 +35,7 @@ export interface TemplateBaseConfig {
     branch?: string
   }
   gtm: GTMConfig
+  laravel: {
+    pkgName: string
+  }
 }
