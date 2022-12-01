@@ -30,6 +30,7 @@ export const config: MaterioConfig = {
   ],
   sKImagesRemovePatterns: [
     '**/*',
+    '!logo.svg',
     '!svg',
     '!pages',
     '!avatars',

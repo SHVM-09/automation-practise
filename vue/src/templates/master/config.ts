@@ -29,6 +29,7 @@ export const config: MasterConfig = {
   ],
   sKImagesRemovePatterns: [
     '**/*',
+    '!logo.svg',
     '!svg',
     '!pages',
     '!avatars',

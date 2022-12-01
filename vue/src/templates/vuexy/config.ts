@@ -30,6 +30,7 @@ export const config: VuexyConfig = {
   ],
   sKImagesRemovePatterns: [
     '**/*',
+    '!logo.svg',
     '!svg',
     '!iconify-svg',
     '!pages',

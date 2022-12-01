@@ -176,11 +176,14 @@ export class GenSK extends Utils {
         // ❗ Order matters: First of all we will remove i18n, shortcuts, notification & theme-switcher component rendering & import
         // ℹ️ We will use "<NavbarThemeSwitcher" instead of "NavbarThemeSwitcher" because we don't want to remove its import as we will later add NavbarThemeSwitcher again
         data = data.split('\n')
-          .filter(line => !['NavBarI18n', 'NavbarShortcuts', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavSearchBar', 'NavBarI18n', 'NavbarShortcuts', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
-        // ❗ Order matters: now let's replace search button with NavbarThemeSwitcher
-        data = data.replace(/^(\s+)<\/VBtn>\s+<VBtn(\n|.)*<\/VBtn>/gm, '$1</VBtn>\n\n$1<NavbarThemeSwitcher />')
+        // ❗ Order matters: now let's NavbarThemeSwitcher just before VSpacer
+        data = data.replace(
+          /(?<indentation> *)(?<vSpacerOpeningTag><VSpacer)/gm,
+          '$<indentation><NavbarThemeSwitcher />\n\n$<indentation>$<vSpacerOpeningTag>',
+        )
 
         // This doesn't require order: Comment out customizer
         data = data.replace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
@@ -195,7 +198,7 @@ export class GenSK extends Utils {
       (data) => {
         // Remove i18n, shortcuts & notification
         data = data.split('\n')
-          .filter(line => !['NavBarI18n', 'NavbarShortcuts', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavSearchBar', 'NavBarI18n', 'NavbarShortcuts', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // Remove search button
@@ -250,7 +253,10 @@ export class GenSK extends Utils {
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Remove additional email routes
-        viteConfig = viteConfig.replace(/(Pages\({)(?:\n\s{5,}.+)+\n\s+(.*)/gm, '$1$2')
+        viteConfig = viteConfig.replace(
+          /(?<pagesStart>Pages\({)(?<beforeOnRoutesGeneratedConfig>(?:.|\n)*\n)(?<commentBeforeOnRoutesGenerated>\n\s*\/\/.*\n)(?<onRoutesGenerated>\s+onRoutesGenerated.*(?:\n\s{7,}.+)+\n.*\n)/gm,
+          '$1$2',
+        )
 
         // Remove i18n plugin
         viteConfig = viteConfig.replace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')

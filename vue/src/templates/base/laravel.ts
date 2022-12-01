@@ -3,9 +3,14 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
+import { addImport, addVitePlugin } from '@/utils/file'
 import { execCmd, readFileSyncUTF8, updateFile, writeFileSyncUTF8 } from '@/utils/node'
+import { replacePath } from '@/utils/paths'
 
 // TODO: Make sure to update the version in package.json file
+
+type Lang = 'ts' | 'js'
+type LangConfigFile = 'tsconfig.json' | 'jsconfig.json'
 
 export class Laravel extends Utils {
   private projectPath: string
@@ -18,56 +23,10 @@ export class Laravel extends Utils {
     this.resourcesPath = path.join(this.projectPath, 'resources')
   }
 
-  /**
-   * ℹ️ This can be generic utility function
-   * Adds received import string as last import statement
-   *
-   * https://regex101.com/r/3NfiKn/2
-   *
-   * @param data data source to add import
-   * @param importStatement import statement as string
-   * @returns Returns modified data
-   */
-  private addImport = (data: string, importStatement: string) => data.replace(/(import .*\n)(\n*)(?!import)/gm, `$1${importStatement}\n$2`)
-
-  // ℹ️ This can be generic utility function
-  // https://regex101.com/r/ba5Vcn/2
-  private addVitePlugin = (data: string, pluginConfig: string, insertTrailingComma = true) => data.replace(/(( +)plugins:\s*\[)/gm, `$1\n$2$2${pluginConfig}${insertTrailingComma ? ',' : ''}`)
-
-  // ℹ️ This can be generic utility function
-  // Thanks: https://stackoverflow.com/a/58032766/10796681
-  private removeTrailingAndLeadingSlashes = (str: string) => str.replace(/^\/|\/$/g, '')
-
-  /**
-   * ℹ️ This can be generic utility function
-   * Safely replace path inside string. It will preserve the path formats (relative & absolute).
-   *
-   * https://regex101.com/r/rh4M7t/1
-   *
-   * @param data data to find and replace path in
-   * @param oldPath old to replace
-   * @param newPath new path to replace with
-   * @returns returns data with old path replaced with new path
-   */
-  private replacePath(data: string, oldPath: string, newPath: string) {
-    const _oldPath = this.removeTrailingAndLeadingSlashes(oldPath)
-    const _newPath = this.removeTrailingAndLeadingSlashes(newPath)
-
-    // escape forward slashes
-    const oldPathPattern = _oldPath.replace(/\//gm, '\\/')
-
-    const pattern = new RegExp(`(\.?[\/]?)${oldPathPattern}\\b(\/|'|")`, 'gm')
-
-    return data.replace(pattern, `$1${_newPath}$2`)
-  }
-
   // https://regex101.com/r/rh4M7t/1
-  // private replaceSrcWithResourcesTS = (str: string) => str.replace(/(\.?[\/]?)src\b(\/|'|")/g, '$1resources/ts$2')
-  private replaceSrcWithResourcesTS = (str: string) => this.replacePath(str, 'src', 'resources/ts')
+  private replaceSrcWithResourcesLang = (str: string, lang: Lang) => replacePath(str, 'src', `resources/${lang}`)
 
-  private bootstrapLaravelInTempDir(isTs = true) {
-    const lang = isTs ? 'ts' : 'js'
-
+  private bootstrapLaravelInTempDir(lang: Lang, sourcePath: string) {
     // Create new laravel project
     execCmd(
       `composer create laravel/laravel ${this.templateConfig.laravel.pkgName}`,
@@ -79,7 +38,7 @@ export class Laravel extends Utils {
       path.join(this.resourcesPath, 'js'),
     )
     fs.ensureDirSync(
-      path.join(this.resourcesPath, isTs ? 'ts' : 'js'),
+      path.join(this.resourcesPath, lang),
     )
 
     // remove css dir
@@ -94,7 +53,7 @@ export class Laravel extends Utils {
 
     // replace welcome.blade.php content with index.html
     const indexHtmlContent = readFileSyncUTF8(
-      path.join(this.templateConfig.paths.tSFull, 'index.html'),
+      path.join(sourcePath, 'index.html'),
     )
 
     writeFileSyncUTF8(
@@ -109,42 +68,40 @@ export class Laravel extends Utils {
     )
   }
 
-  private updatePkgJson() {
+  private updatePkgJson(sourcePath: string, lang: Lang) {
     const pkgJSONFileName = 'package.json'
     const pkgJSONPath = path.join(this.projectPath, pkgJSONFileName)
 
     const laravelVitePluginVersion = fs.readJSONSync(pkgJSONPath).devDependencies['laravel-vite-plugin']
     const vuePkgJSON = fs.readJSONSync(
-      path.join(this.templateConfig.paths.tSFull, pkgJSONFileName),
+      path.join(sourcePath, pkgJSONFileName),
     )
 
     // Add laravel-vite-plugin in devDependencies
     vuePkgJSON.devDependencies['laravel-vite-plugin'] = laravelVitePluginVersion
 
     // update path in build:icons script
-    vuePkgJSON.scripts['build:icons'] = this.replaceSrcWithResourcesTS(vuePkgJSON.scripts['build:icons'])
+    vuePkgJSON.scripts['build:icons'] = this.replaceSrcWithResourcesLang(vuePkgJSON.scripts['build:icons'], lang)
 
     fs.writeJSONSync(pkgJSONPath, vuePkgJSON, {
       spaces: 2,
     })
   }
 
-  private updateViteConfig(isTs = true) {
-    const lang = isTs ? 'ts' : 'js'
-
+  private updateViteConfig(lang: Lang) {
     const viteConfigPath = path.join(this.projectPath, `vite.config.${lang}`)
 
     updateFile(viteConfigPath, (viteConfig) => {
       // Add laravel vite plugin import
-      viteConfig = this.addImport(viteConfig, 'import laravel from \'laravel-vite-plugin\'')
+      viteConfig = addImport(viteConfig, 'import laravel from \'laravel-vite-plugin\'')
 
       // add laravel vite plugin in plugins array
       // ℹ️ We aren't adding trailing command because `addVitePlugin` does this
       const laravelPluginConfig = `laravel({
-  input: ['resources/js/main.${lang}'],
+  input: ['resources/${lang}/main.${lang}'],
   refresh: true,
 })`
-      viteConfig = this.addVitePlugin(viteConfig, laravelPluginConfig)
+      viteConfig = addVitePlugin(viteConfig, laravelPluginConfig)
 
       viteConfig = viteConfig.replace(/vue\(\)/g, `vue({
   template: {
@@ -160,27 +117,25 @@ export class Laravel extends Utils {
     })
   }
 
-  private copyVueProjectFiles() {
+  private copyVueProjectFiles(lang: Lang, sourcePath: string) {
     // copy vue project src directory in ts/js dir
     this.copyProject(
-      path.join(this.templateConfig.paths.tSFull, 'src'),
-      path.join(this.resourcesPath, 'ts'),
+      path.join(sourcePath, 'src'),
+      path.join(this.resourcesPath, lang),
     )
 
     // copy vue project's root files in laravel project
     const rootFilesToCopy = globbySync(
       // ℹ️ We will manually update gitignore file because we have to merge those two files
-      ['*', '!package.json', '!index.html', '!DS_Store', '!.gitignore'],
+      ['*', '!package.json', '!index.html', '!.DS_Store', '!.gitignore'],
       {
-        cwd: this.templateConfig.paths.tSFull,
+        cwd: sourcePath,
         onlyFiles: true,
         deep: 0,
         absolute: true,
         dot: true,
       },
     )
-
-    console.log('rootFilesToCopy :>> ', rootFilesToCopy)
 
     rootFilesToCopy.forEach((filePath) => {
       fs.copyFileSync(
@@ -191,15 +146,25 @@ export class Laravel extends Utils {
 
     // copy .vscode dir
     fs.copySync(
-      path.join(this.templateConfig.paths.tSFull, '.vscode'),
+      path.join(sourcePath, '.vscode'),
       path.join(this.projectPath, '.vscode'),
     )
+
+    // Copy vue project's public files in laravel project's public dir
+    const publicFilesToCopy = globbySync('*', {
+      cwd: path.join(sourcePath, 'public'),
+      dot: true,
+      absolute: true,
+    })
+    publicFilesToCopy.forEach((filePath) => {
+      fs.copyFileSync(
+        filePath,
+        path.join(this.projectPath, 'public', path.basename(filePath)),
+      )
+    })
   }
 
-  private useStylesDir(isTs = true) {
-    const lang = isTs ? 'ts' : 'js'
-    const codeConfigFile = isTs ? 'tsconfig.json' : 'jsconfig.json'
-
+  private useStylesDir(lang: Lang, langConfigFile: LangConfigFile) {
     // add new alias in vite config
     // https://regex101.com/r/1RYdYv/2
     updateFile(
@@ -208,7 +173,7 @@ export class Laravel extends Utils {
     )
 
     // add new alias in tsconfig/jsconfig
-    const configFilePath = path.join(this.projectPath, codeConfigFile)
+    const configFilePath = path.join(this.projectPath, langConfigFile)
     const config = fs.readJSONSync(configFilePath)
     config.compilerOptions.paths['@core-scss/*'] = ['resources/styles/@core']
     fs.writeJsonSync(
@@ -235,52 +200,81 @@ export class Laravel extends Utils {
     );
 
     // update paths in files
-    [codeConfigFile, 'vite.config.ts'].forEach((fileName) => {
+    [langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
-        data => this.replacePath(data, 'resources/ts/styles', 'resources/styles'),
+        data => replacePath(data, `resources/${lang}/styles`, 'resources/styles'),
       )
     })
 
     // update relative path to @core's vuetify SASS var file
     updateFile(
       path.join(stylesDirPath, 'variables', '_vuetify.scss'),
-      data => this.replacePath(data, '../@core-scss', '@core'),
+      data => replacePath(data, '../@core-scss', '@core'),
     )
-
-    // TODO: Need to update path in eslintrc in JS version of template
   }
 
-  genTSFull() {
+  private moveImages(lang: Lang, langConfigFile: LangConfigFile) {
+    const assetsDir = path.join(this.resourcesPath, lang, 'assets')
+    // Move images dir from resources/ts/assets/images to resource/images
+    fs.moveSync(
+      path.join(assetsDir, 'images'),
+      path.join(this.resourcesPath, 'images'),
+    )
+
+    // remove assets dir because it's now empty
+    fs.removeSync(assetsDir)
+
+    // update path in files
+    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
+      updateFile(
+        path.join(this.projectPath, fileName),
+        data => replacePath(data, `resources/${lang}/assets/images`, 'resources/images'),
+      )
+    })
+  }
+
+  private genLaravel(isSk = false, isJS = false) {
+    const sourcePath = isJS
+      ? isSk
+        ? this.templateConfig.paths.jSStarter
+        : this.templateConfig.paths.jSFull
+      : isSk
+        ? this.templateConfig.paths.tSStarter
+        : this.templateConfig.paths.tSFull
+
+    const lang: Lang = isJS ? 'js' : 'ts'
+    const langConfigFile: LangConfigFile = lang === 'ts' ? 'tsconfig.json' : 'jsconfig.json'
+
+    console.log('this.projectPath :>> ', this.projectPath)
+
     // create new laravel project
-    this.bootstrapLaravelInTempDir()
+    this.bootstrapLaravelInTempDir(lang, sourcePath)
 
-    execCmd(`code ${this.projectPath}`)
-
-    this.copyVueProjectFiles()
+    this.copyVueProjectFiles(lang, sourcePath)
 
     // if iconify icon sources have src/assets/images path replace with resources/images
     updateFile(
-      path.join(this.resourcesPath, 'ts', '@iconify', 'build-icons.ts'),
-      data => this.replacePath(data, 'src/assets/images', 'resources/images'),
+      path.join(this.resourcesPath, lang, '@iconify', `build-icons.${lang}`),
+      data => replacePath(data, 'src/assets/images', 'resources/images'),
     )
 
     // update package.json
-    this.updatePkgJson()
+    this.updatePkgJson(sourcePath, lang)
 
     // handle gitignore file merge
     updateFile(
       path.join(this.projectPath, '.gitignore'),
       data => data += `\n${readFileSyncUTF8(
-        path.join(this.templateConfig.paths.tSFull, '.gitignore'),
+        path.join(sourcePath, '.gitignore'),
       )}`,
-    );
+    )
 
     // Thanks: https://stackoverflow.com/questions/74609771/how-to-use-foreach-on-inline-array-when-using-typescript
-    ['components.d.ts', '.eslintrc.js', 'tsconfig.json', 'vite.config.ts'].forEach((fileName) => {
+    ;['components.d.ts', '.eslintrc.js', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
-        data => this.replaceSrcWithResourcesTS(data),
+        data => this.replaceSrcWithResourcesLang(data, lang),
       )
     })
 
@@ -293,11 +287,33 @@ export class Laravel extends Utils {
     )
 
     // Update vite config
-    this.updateViteConfig()
+    this.updateViteConfig(lang)
 
     // install packages
     execCmd('yarn', { cwd: this.projectPath })
 
-    this.useStylesDir()
+    this.useStylesDir(lang, langConfigFile)
+
+    // execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
+
+    this.moveImages(lang, langConfigFile)
+
+    execCmd(`code ${this.projectPath}`)
+  }
+
+  genTSFull() {
+    this.genLaravel()
+  }
+
+  genTSStarter() {
+    this.genLaravel(true)
+  }
+
+  genJSFull() {
+    this.genLaravel(false, true)
+  }
+
+  genJSStarter() {
+    this.genLaravel(true, true)
   }
 }
