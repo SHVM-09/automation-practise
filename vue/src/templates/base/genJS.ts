@@ -2,9 +2,12 @@ import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import JSON5 from 'json5'
+
 import type { TemplateBaseConfig } from './config'
+
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
+import '@/utils/injectMustReplace'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
@@ -18,7 +21,7 @@ export class GenJS extends Utils {
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Replace themeConfig.ts alias to themeConfig.js
-        viteConfig = viteConfig.replace('themeConfig.ts', 'themeConfig.js')
+        viteConfig = viteConfig.mustReplace('themeConfig.ts', 'themeConfig.js')
 
         // enable eslintrc in AutoImport plugin
         const autoImportEslintConfig = `eslintrc: {
@@ -26,7 +29,7 @@ export class GenJS extends Utils {
             filepath: './.eslintrc-auto-import.json',
         },`
 
-        return viteConfig.replace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
+        return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
       },
     )
   }
@@ -74,20 +77,20 @@ export class GenJS extends Utils {
       .join('\n')
 
     // Remove eslint internal rules
-    eslintConfig = eslintConfig.replace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
+    eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
 
     /*
       Add auto-import json file in extends array
       Regex: https://regex101.com/r/1RYdYv/2
     */
-    eslintConfig = eslintConfig.replace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
+    eslintConfig = eslintConfig.mustReplace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
 
     // Add vite aliases in eslint import config
     const viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
     const importAliases = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
     const importAliasesEslintConfig = `alias: {'extensions': ['.ts', '.js', '.tsx', '.jsx', '.mjs'], 'map': ${JSON.stringify([...importAliases].map(m => m.groups && Object.values(m.groups)))}}`
 
-    eslintConfig = eslintConfig.replace(/(module\.exports = {(\n|.)*\s{6}},)((\n|.)*)/g, `$1${importAliasesEslintConfig}$3`)
+    eslintConfig = eslintConfig.mustReplace(/(module\.exports = {(\n|.)*\s{6}},)((\n|.)*)/g, `$1${importAliasesEslintConfig}$3`)
 
     fs.writeFileSync(eslintConfigPath, eslintConfig, { encoding: 'utf-8' })
   }
@@ -133,7 +136,7 @@ export class GenJS extends Utils {
         else it's undefined => There's no script block => No compilation => Don't touch the file
       */
       if (compiledSFCScript) {
-        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
+        const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
         fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
       }
     })
@@ -176,7 +179,7 @@ export class GenJS extends Utils {
   private updateIndexHtml() {
     updateFile(
       path.join(this.tempDir, 'index.html'),
-      indexHTML => indexHTML.replace('main.ts', 'main.js'),
+      indexHTML => indexHTML.mustReplace('main.ts', 'main.js'),
     )
   }
 
@@ -197,7 +200,7 @@ export class GenJS extends Utils {
     // ❗ This isn't working => ts => js
 
     // Replace `.ts` extensions with `.js` extension
-    tsConfig = tsConfig.replace('.ts', '.js')
+    tsConfig = tsConfig.mustReplace('.ts', '.js')
 
     // Parse modified tsConfig as JSON
     const tsConfigJSON = JSON5.parse(tsConfig)

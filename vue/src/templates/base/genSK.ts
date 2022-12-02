@@ -3,9 +3,12 @@ import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import { Octokit } from 'octokit'
+
 import type { TemplateBaseConfig } from './config'
+
 import type { Tracker } from '@/../types'
 import { Utils } from '@/templates/base/helper'
+import '@/utils/injectMustReplace'
 import { error } from '@/utils/logging'
 import { execCmd, removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
@@ -130,14 +133,14 @@ export class GenSK extends Utils {
           ℹ️ We assume we won't add any extra route manually other than root route
           Regex: https://regex101.com/r/uMDiMU/3
         */
-        routerData = routerData.replace(/routes: \[(\n|.)*],/gm, 'routes: [\n    ...setupLayouts(routes)\n  ],')
+        routerData = routerData.mustReplace(/routes: \[(\n|.)*],/gm, 'routes: [\n    ...setupLayouts(routes)\n  ],')
 
         /*
           Remove router.beforeEach hook
           ℹ️ Assumes last `)}` in router file is of router.beforeEach hook
           Regex: https://regex101.com/r/Dv64Hy/1
         */
-        routerData = routerData.replace(/router\.beforeEach(\n|.)*}\)/gm, '')
+        routerData = routerData.mustReplace(/router\.beforeEach(\n|.)*}\)/gm, '')
 
         // ℹ️ Remove unused imports. We are removing whole line which includes `isUserLoggedIn` import
         routerData = routerData.split('\n')
@@ -180,13 +183,13 @@ export class GenSK extends Utils {
           .join('\n')
 
         // ❗ Order matters: now let's NavbarThemeSwitcher just before VSpacer
-        data = data.replace(
+        data = data.mustReplace(
           /(?<indentation> *)(?<vSpacerOpeningTag><VSpacer)/gm,
           '$<indentation><NavbarThemeSwitcher />\n\n$<indentation>$<vSpacerOpeningTag>',
         )
 
         // This doesn't require order: Comment out customizer
-        data = data.replace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
+        data = data.mustReplace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
 
         return data
       },
@@ -202,13 +205,13 @@ export class GenSK extends Utils {
           .join('\n')
 
         // Remove search button
-        data = data.replace(/<VBtn(\n|.)*<\/VBtn>/gm, '')
+        // data = data.mustReplace(/<VBtn(\n|.)*<\/VBtn>/gm, '')
 
         // add me-2 class to ThemeSwitcher
-        data = data.replace(/<NavbarThemeSwitcher \/>/g, '<NavbarThemeSwitcher class="me-2" />')
+        data = data.mustReplace(/<NavbarThemeSwitcher \/>/g, '<NavbarThemeSwitcher class="me-2" />')
 
         // Comment out customizer
-        data = data.replace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
+        data = data.mustReplace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
 
         return data
       },
@@ -220,7 +223,7 @@ export class GenSK extends Utils {
       path.join(this.tempDir, 'src', 'main.ts'),
       (data) => {
         // Remove abilitiesPlugin injection in app instance
-        data = data.replace(/app\.use\(abilitiesPlugin.*(\n.*){2}/gm, '')
+        data = data.mustReplace(/app\.use\(abilitiesPlugin.*(\n.*){2}/gm, '')
 
         // Remove i18n, acl & fake-db => Remove lines that contains specific word
         data = data.split('\n')
@@ -244,7 +247,7 @@ export class GenSK extends Utils {
     // Set enableI18n to false in themeConfig.ts
     updateFile(
       path.join(this.tempDir, 'themeConfig.ts'),
-      themeConfig => themeConfig.replace(/enableI18n: \w+/, 'enableI18n: false'),
+      themeConfig => themeConfig.mustReplace(/enableI18n: \w+/, 'enableI18n: false'),
     )
   }
 
@@ -253,16 +256,16 @@ export class GenSK extends Utils {
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Remove additional email routes
-        viteConfig = viteConfig.replace(
+        viteConfig = viteConfig.mustReplace(
           /(?<pagesStart>Pages\({)(?<beforeOnRoutesGeneratedConfig>(?:.|\n)*\n)(?<commentBeforeOnRoutesGenerated>\n\s*\/\/.*\n)(?<onRoutesGenerated>\s+onRoutesGenerated.*(?:\n\s{7,}.+)+\n.*\n)/gm,
           '$1$2',
         )
 
         // Remove i18n plugin
-        viteConfig = viteConfig.replace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
+        viteConfig = viteConfig.mustReplace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 
         // Remove i18n auto import preset from AutoImport plugin
-        viteConfig = viteConfig.replace(/'vue-i18n', /g, '')
+        viteConfig = viteConfig.mustReplace(/'vue-i18n', /g, '')
 
         // ℹ️ Remove vueI18n import.
         viteConfig = viteConfig.split('\n')

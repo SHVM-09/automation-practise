@@ -1,14 +1,16 @@
 import path from 'path'
 import * as url from 'url'
+
 import type { TemplateBaseConfig } from '@/templates/base'
 import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
+import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
 type VuexyConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
-const vuexyVueFreePath = vuexyVuePath.replace('vue', 'vue-free')
+const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
 export const config: VuexyConfig = {
   templateName: 'Vuexy',
@@ -106,4 +108,7 @@ export const config: VuexyConfig = {
     branch: 'dev',
   },
   gtm: pixinventGTMConfig,
+  laravel: {
+    pkgName: 'vuexy-vuetify-vuejs-laravel-admin-template',
+  },
 }

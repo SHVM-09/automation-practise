@@ -1,9 +1,12 @@
 import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
+
 import { addImport, addVitePlugin } from '@/utils/file'
+import '@/utils/injectMustReplace'
 import { execCmd, readFileSyncUTF8, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { replacePath } from '@/utils/paths'
 
@@ -61,10 +64,10 @@ export class Laravel extends Utils {
 
       indexHtmlContent
         // Remove main.ts import because we will use @vite directive
-        .replace(/<script type="module".*/, '')
+        .mustReplace(/<script type="module".*/, '')
 
         // Add vite directive just before closing head to include main.{ts|js} file
-        .replace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`),
+        .mustReplace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`),
     )
   }
 
@@ -103,7 +106,7 @@ export class Laravel extends Utils {
 })`
       viteConfig = addVitePlugin(viteConfig, laravelPluginConfig)
 
-      viteConfig = viteConfig.replace(/vue\(\)/g, `vue({
+      viteConfig = viteConfig.mustReplace(/vue\(\)/g, `vue({
   template: {
       transformAssetUrls: {
           base: null,
@@ -169,7 +172,7 @@ export class Laravel extends Utils {
     // https://regex101.com/r/1RYdYv/2
     updateFile(
       path.join(this.projectPath, `vite.config.${lang}`),
-      viteConfig => viteConfig.replace(/(alias: \{\n(\s+))/gm, '$1\'@core-scss\': fileURLToPath(new URL(\'./resources/styles/@core\', import.meta.url)),\n$2'),
+      viteConfig => viteConfig.mustReplace(/(alias: \{\n(\s+))/gm, '$1\'@core-scss\': fileURLToPath(new URL(\'./resources/styles/@core\', import.meta.url)),\n$2'),
     )
 
     // add new alias in tsconfig/jsconfig
@@ -281,7 +284,7 @@ export class Laravel extends Utils {
     // update laravel routes file so that it redirect all traffic to welcome.blade.php file
     updateFile(
       path.join(this.projectPath, 'routes', 'web.php'),
-      data => data.replace(/^Route(.|\n)*/gm, `Route::get('{any?}', function() {
+      data => data.mustReplace(/^Route(.|\n)*/gm, `Route::get('{any?}', function() {
     return view( 'welcome');
 })->where('any', '.*');`),
     )
