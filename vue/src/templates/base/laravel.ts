@@ -44,23 +44,27 @@ export class Laravel extends Utils {
       path.join(this.resourcesPath, lang),
     )
 
-    // remove css dir
-    fs.removeSync(
+    // Remove unwanted files
+    ;[
+      // We will use application.blade.php dir instead of welcome.blade.php
+      path.join(this.resourcesPath, 'views', 'welcome.blade.php'),
+
+      // We don't need css dir
       path.join(this.resourcesPath, 'css'),
-    )
 
-    // remove existing vite config file
-    fs.removeSync(
+      // remove existing vite config file. We will add new later from vue project
       path.join(this.projectPath, 'vite.config.js'),
-    )
+    ].forEach((path) => {
+      fs.removeSync(path)
+    })
 
-    // replace welcome.blade.php content with index.html
+    // add application.blade.php with content of index.html
     const indexHtmlContent = readFileSyncUTF8(
       path.join(sourcePath, 'index.html'),
     )
 
     writeFileSyncUTF8(
-      path.join(this.resourcesPath, 'views', 'welcome.blade.php'),
+      path.join(this.resourcesPath, 'views', 'application.blade.php'),
 
       indexHtmlContent
         // Remove main.ts import because we will use @vite directive
@@ -82,6 +86,9 @@ export class Laravel extends Utils {
 
     // Add laravel-vite-plugin in devDependencies
     vuePkgJSON.devDependencies['laravel-vite-plugin'] = laravelVitePluginVersion
+
+    // remove preview from scripts as preview command is not relevant for laravel
+    delete vuePkgJSON.scripts.preview
 
     // update path in build:icons script
     vuePkgJSON.scripts['build:icons'] = this.replaceSrcWithResourcesLang(vuePkgJSON.scripts['build:icons'], lang)
@@ -281,11 +288,11 @@ export class Laravel extends Utils {
       )
     })
 
-    // update laravel routes file so that it redirect all traffic to welcome.blade.php file
+    // update laravel routes file so that it redirect all traffic to application.blade.php file
     updateFile(
       path.join(this.projectPath, 'routes', 'web.php'),
       data => data.mustReplace(/^Route(.|\n)*/gm, `Route::get('{any?}', function() {
-    return view( 'welcome');
+    return view('application');
 })->where('any', '.*');`),
     )
 
