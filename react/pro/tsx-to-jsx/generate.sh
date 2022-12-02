@@ -13,6 +13,9 @@ node create-jsconfig.js
 # Remove Typescript from the javascript-version
 node remove-ts.js
 
+# Update Imports in javascript-version
+node update-bundle-icons.js
+
 # Create .eslint in javascript-version
 node update-eslint.js
 

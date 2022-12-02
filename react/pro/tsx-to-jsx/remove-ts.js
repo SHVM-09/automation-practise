@@ -52,12 +52,9 @@ removeTypeFiles(srcDirPath, () => console.log('Removed Type Files'))
           return console.log(err)
         }
 
-        const result = data.replace(/,ts,tsx/g, '')
+        const result = data.replace(/,ts,tsx/g, '').replace('tsc -b src/iconify-bundle && ', '')
 
-        let finalResult = result.replace(
-          new RegExp(/(\r\n|\n|\r)\s*("(@types|typescript))(.*)/, 'g'),
-          ``
-        )
+        let finalResult = result.replace(new RegExp(/(\r\n|\n|\r)\s*("(@types|typescript))(.*)/, 'g'), ``)
 
         const dataToWrite = finalResult.replace(/\,(?!\s*?[\{\[\"\'\w])/g, '')
 
