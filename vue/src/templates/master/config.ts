@@ -8,6 +8,7 @@ type MasterConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const masterVuePath = path.join(getTemplatePath('master', 'vue'))
+const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
 
 export const config: MasterConfig = {
   templateName: 'Master',
@@ -105,5 +106,11 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'master-vuetify-vuejs-laravel-admin-template',
+    paths: {
+      TSFull: path.join(masterVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(masterVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(masterVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(masterVueLaravelPath, 'javascript-version', 'starter-kit'),
+    },
   },
 }

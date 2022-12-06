@@ -7,8 +7,9 @@ import { Utils } from './helper'
 
 import { addImport, addVitePlugin } from '@/utils/file'
 import '@/utils/injectMustReplace'
-import { execCmd, readFileSyncUTF8, updateFile, writeFileSyncUTF8 } from '@/utils/node'
+import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { replacePath } from '@/utils/paths'
+import { TempLocation } from '@/utils/temp'
 
 // TODO: Make sure to update the version in package.json file
 
@@ -22,6 +23,12 @@ export class Laravel extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
     super()
 
+    this.projectPath = path.join(this.tempDir, this.templateConfig.laravel.pkgName)
+    this.resourcesPath = path.join(this.projectPath, 'resources')
+  }
+
+  private initializePaths() {
+    this.tempDir = new TempLocation().tempDir
     this.projectPath = path.join(this.tempDir, this.templateConfig.laravel.pkgName)
     this.resourcesPath = path.join(this.projectPath, 'resources')
   }
@@ -244,24 +251,25 @@ export class Laravel extends Utils {
     })
   }
 
-  genLaravel(options?: { isSk?: boolean; isJS?: boolean }) {
-    const { isSk = false, isJS = false } = options || {}
+  genLaravel(options?: { isSK?: boolean; isJS?: boolean }) {
+    /*
+      ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
+      because `genLaravel` method is called multiple times after initializing the class once
+    */
+    this.initializePaths()
 
-    console.log('isSk :>> ', isSk)
-    console.log('isJS :>> ', isJS)
+    const { isSK = false, isJS = false } = options || {}
 
     const sourcePath = isJS
-      ? isSk
+      ? isSK
         ? this.templateConfig.paths.jSStarter
         : this.templateConfig.paths.jSFull
-      : isSk
+      : isSK
         ? this.templateConfig.paths.tSStarter
         : this.templateConfig.paths.tSFull
 
     const lang: Lang = isJS ? 'js' : 'ts'
     const langConfigFile: LangConfigFile = lang === 'ts' ? 'tsconfig.json' : 'jsconfig.json'
-
-    console.log('this.projectPath :>> ', this.projectPath)
 
     // create new laravel project
     this.bootstrapLaravelInTempDir(lang, sourcePath)
@@ -313,6 +321,22 @@ export class Laravel extends Utils {
 
     this.moveImages(lang, langConfigFile)
 
-    console.log(`Generated at ${this.projectPath}`)
+    const replaceDest = (() => {
+      const paths = this.templateConfig.laravel.paths
+      // If generating JS for free version => Replace with free JS
+      // if (this.isFree)
+      //   return freeJSPath
+
+      if (isJS)
+        return isSK ? paths.JSStarter : paths.JSFull
+      else
+        return isSK ? paths.TSStarter : paths.TSFull
+    })()
+
+    // Make sure dest dir exist. This is useful if we are generating laravel for first time.
+    fs.ensureDirSync(replaceDest)
+
+    // Place temp dir content in js full version
+    replaceDir(this.projectPath, replaceDest)
   }
 }

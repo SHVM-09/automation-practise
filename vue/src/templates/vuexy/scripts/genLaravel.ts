@@ -8,7 +8,7 @@ const laravel = new Laravel(vuexy.config)
 laravel.genLaravel()
 
 // Laravel TS Starter
-laravel.genLaravel({ isSk: true })
+laravel.genLaravel({ isSK: true })
 
 // Laravel JS Full
 laravel.genLaravel({ isJS: true })
@@ -16,5 +16,5 @@ laravel.genLaravel({ isJS: true })
 // Laravel JS Starter
 laravel.genLaravel({
   isJS: true,
-  isSk: true,
+  isSK: true,
 })

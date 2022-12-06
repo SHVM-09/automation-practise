@@ -10,6 +10,7 @@ type VuexyConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
+const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
 const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
 export const config: VuexyConfig = {
@@ -110,5 +111,11 @@ export const config: VuexyConfig = {
   gtm: pixinventGTMConfig,
   laravel: {
     pkgName: 'vuexy-vuetify-vuejs-laravel-admin-template',
+    paths: {
+      TSFull: path.join(vuexyVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(vuexyVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
+    },
   },
 }

@@ -37,5 +37,11 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   laravel: {
     pkgName: string
+    paths: {
+      TSFull: string
+      TSStarter: string
+      JSFull: string
+      JSStarter: string
+    }
   }
 }
