@@ -244,7 +244,12 @@ export class Laravel extends Utils {
     })
   }
 
-  private genLaravel(isSk = false, isJS = false) {
+  genLaravel(options?: { isSk?: boolean; isJS?: boolean }) {
+    const { isSk = false, isJS = false } = options || {}
+
+    console.log('isSk :>> ', isSk)
+    console.log('isJS :>> ', isJS)
+
     const sourcePath = isJS
       ? isSk
         ? this.templateConfig.paths.jSStarter
@@ -308,22 +313,6 @@ export class Laravel extends Utils {
 
     this.moveImages(lang, langConfigFile)
 
-    execCmd(`code ${this.projectPath}`)
-  }
-
-  genTSFull() {
-    this.genLaravel()
-  }
-
-  genTSStarter() {
-    this.genLaravel(true)
-  }
-
-  genJSFull() {
-    this.genLaravel(false, true)
-  }
-
-  genJSStarter() {
-    this.genLaravel(true, true)
+    console.log(`Generated at ${this.projectPath}`)
   }
 }
