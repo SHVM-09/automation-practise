@@ -112,9 +112,10 @@ export class GenDemo {
     // Remove existing build files & dirs
     this.removeExistingBuildData()
 
-    info('Updating build command to remove vue-tsc...')
+    // ℹ️ We no longer have vue-tsc command in build script
+    // info('Updating build command to remove vue-tsc...')
     // Update build command to ignore vue-tsc errors
-    this.updateBuildCommand()
+    // this.updateBuildCommand()
 
     // inject GTM code in index.html file
     injectGTM(

@@ -61,7 +61,9 @@ export class FillSnippets {
       // Generate path of JavaScript demo
       const jsDemoPath = demoPath
         .mustReplace('typescript-version', 'javascript-version')
-        .mustReplace('.ts', '.js')
+
+      // Q: Why we have below replace because we don't have any demo with extension ts and in glob we are only globbing .vue files
+      // .mustReplace('.ts', '.js')
 
       // // Get content of JavaScript demo
       const jSDemo = fs.readFileSync(jsDemoPath, { encoding: 'utf-8' })
