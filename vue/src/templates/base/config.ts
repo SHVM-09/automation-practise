@@ -8,8 +8,11 @@ export interface DemoConfigItem {
   replace: string
 }
 
+export type TemplateDomain = 'ts' | 'pi'
+
 export interface TemplateBaseConfig {
   templateName: string
+  templateDomain: TemplateDomain
   projectPath: string
   packageCopyIgnorePatterns: string[]
   sKImagesRemovePatterns: string[]
@@ -43,5 +46,6 @@ export interface TemplateBaseConfig {
       JSFull: string
       JSStarter: string
     }
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
   }
 }

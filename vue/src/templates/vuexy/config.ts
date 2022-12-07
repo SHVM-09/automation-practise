@@ -15,6 +15,7 @@ const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
 export const config: VuexyConfig = {
   templateName: 'Vuexy',
+  templateDomain: 'pi',
   projectPath: vuexyVuePath,
   packageCopyIgnorePatterns: [
     // Directories
@@ -117,5 +118,6 @@ export const config: VuexyConfig = {
       JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   },
 }

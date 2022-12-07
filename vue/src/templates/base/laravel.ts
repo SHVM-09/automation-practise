@@ -3,10 +3,11 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
 import type { TemplateBaseConfig } from './config'
-import { Utils } from './helper'
+import { Utils, injectGTM } from './helper'
 
 import { addImport, addVitePlugin } from '@/utils/file'
 import '@/utils/injectMustReplace'
+import { info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -294,7 +295,7 @@ export class Laravel extends Utils {
     )
 
     // Thanks: https://stackoverflow.com/questions/74609771/how-to-use-foreach-on-inline-array-when-using-typescript
-    ;['components.d.ts', '.eslintrc.js', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
+    ;['components.d.ts', '.eslintrc.js', '.gitignore', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
         data => this.replaceSrcWithResourcesLang(data, lang),
@@ -338,5 +339,185 @@ export class Laravel extends Utils {
 
     // Place temp dir content in js full version
     replaceDir(this.projectPath, replaceDest)
+  }
+
+  // TODO: This is duplicated from base/genDemo.ts
+  private updateBuildCommand() {
+    // Remove vue-tsc from build command in package.json file
+    updateFile(
+      path.join(this.templateConfig.laravel.paths.TSFull, 'package.json'),
+      data => data.mustReplace(/&& vue-tsc --noEmit /g, ''),
+    )
+  }
+
+  /**
+   * TODO: This is duplicated from base/genDemo.ts
+   * Modifies the files to attach the demo-$number pattern to make all demos unique
+   * This is used to isolate the demo config
+   * @param demoNumber localStorage key to update for demo
+   */
+  private updateLocalStorageKeys(demoNumber: number, templateName: string) {
+    // default values for demo 1
+    let sedFind = '(localStorage.(set|get|remove)Item\\(.*\\.title\\}-)'
+    let sedReplace = '\\1vue-laravel-demo-1-'
+
+    // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
+    const sedFindAuthKeys = '(localStorage.(set|get|remove)Item\\(\')([a-zA-Z]+)'
+    const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-laravel-\\3`
+
+    let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
+    let indexHTMLReplace = '$1-vue-laravel-demo-1'
+
+    // If it's not 1st demo update the find replace strings
+    if (demoNumber !== 1) {
+      const findStr = (() => `demo-${demoNumber - 1}`)()
+      const replaceStr = `demo-${demoNumber}`
+
+      sedFind = findStr
+      sedReplace = replaceStr
+
+      indexHTMLFind = new RegExp(findStr, 'g')
+      indexHTMLReplace = replaceStr
+    }
+    else {
+      /*
+        As we want to update the auth keys just once, we will update only when generating first demo
+        ℹ️ Prefix auth keys with <template-name>-vue-
+
+        https://stackoverflow.com/a/39382621/10796681
+        https://unix.stackexchange.com/a/15309/528729
+
+        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
+
+        ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
+      */
+      execCmd(
+        `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFindAuthKeys}/${sedReplaceAuthKeys}/g" '{}' \\;`,
+        { cwd: this.templateConfig.laravel.paths.TSFull },
+      )
+    }
+
+    /*
+      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
+    */
+    execCmd(
+      `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
+      { cwd: this.templateConfig.laravel.paths.TSFull },
+    )
+
+    // update index.html as well
+    updateFile(
+      // Path to `index.html`
+      path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'views', 'application.blade.php'),
+      data => data.mustReplace(indexHTMLFind, indexHTMLReplace),
+    )
+  }
+
+  genDemos(isStaging: boolean) {
+    info('isStaging: ', isStaging.toString())
+
+    const { TSFull } = this.templateConfig.laravel.paths
+
+    info('Updating build command to remove vue-tsc...')
+    // Update build command to ignore vue-tsc errors
+    this.updateBuildCommand()
+
+    // inject GTM code in index.html file
+    injectGTM(
+      path.join(TSFull, 'resources', 'views', 'application.blade.php'),
+      this.templateConfig.gtm,
+    )
+
+    // update index.php file
+    const indexPhpPath = path.join(this.templateConfig.laravel.paths.TSFull, 'public', 'index.php')
+
+    // We need to update the path of some laravel core file as we have laravel core outside of html dir in our server
+    const laravelCoreRelativePath = (() => {
+      /*
+          ℹ️ Calculating the relative laravel-core-container path
+          pixinvent => 4 dir up (+1 if staging)
+          ThemeSelection => 5 dir up (+1 if staging)
+        */
+      const numOfDirsToTraverseUpwards = (this.templateConfig.templateDomain === 'pi' ? 4 : 5) + (isStaging ? 1 : 0)
+
+      // '/' + '../'.repeat(4) => '/../../../../'
+      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}/`
+    })()
+
+    updateFile(indexPhpPath, (data) => {
+      return data
+        .mustReplace(/(?<=__DIR__.')([\.\/]+)(?=\w)/g, laravelCoreRelativePath)
+
+        // Add app bind
+        .mustReplace(/(?<=^\$app.*\n)/gm, '\n$app->bind(\'path.public\', function() { return base_path(\'demo-1\'); });\n')
+    })
+
+    const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
+    const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
+
+    this.templateConfig.demosConfig.forEach((demoConfig, demoIndex) => {
+      // Generate demo number
+      const demoNumber = demoIndex + 1
+
+      info(`Generating demo ${demoNumber}`)
+
+      // ℹ️ If demo isn't first demo => Update thw demo-<demoNumber> in index.php file
+      if (demoIndex)
+        updateFile(indexPhpPath, data => data.mustReplace(/demo-\d+/g, `demo-${demoNumber}`))
+
+      info('Updating localStorage keys...')
+      this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
+
+      // ℹ️ Demo config can be null if there's no changes in themeConfig
+      if (demoConfig) {
+        // clone themeConfig
+        let demoThemeConfig = themeConfig
+
+        // Loop over demo config and make changes in cloned themeConfig
+        demoConfig.forEach((changes) => {
+          demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
+        })
+
+        // Update themeConfig file
+        fs.writeFileSync(themeConfigPath, demoThemeConfig, { encoding: 'utf-8' })
+      }
+
+      // Create base path based on demoNumber and env (staging|production)
+      const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging)
+
+      // Update .env file
+      updateFile(
+        path.join(this.templateConfig.laravel.paths.TSFull, '.env'),
+        data => data.mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/, `$1\nASSET_URL=${demoDeploymentBase}`),
+      )
+
+      // Run build
+      execCmd(`yarn build --base=${demoDeploymentBase}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+
+      // At the moment of this script execution, we will have "public" in root the TSFull
+      // Duplicate public to demo-$demoNumber
+      fs.copySync(
+        path.join(this.templateConfig.laravel.paths.TSFull, 'public'),
+        path.join(this.templateConfig.laravel.paths.TSFull, `demo-${demoNumber}`),
+      )
+
+      // Reset the themeConfig
+      fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
+
+      success(`✅ Demo ${demoNumber} generation completed`)
+    })
+
+    // Remove node_modules & public dir
+    ;['node_modules', 'public'].forEach((dirName) => {
+      fs.removeSync(path.join(this.templateConfig.laravel.paths.TSFull, dirName))
+    })
+
+    info('Creating zip...')
+    // Generate zip of ts full including demo & laravel
+    execCmd(`zip -r ${this.templateConfig.laravel.pkgName}.zip ${this.templateConfig.laravel.paths.TSFull}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+
+    // Reset changes we done via git checkout
+    // Thanks: https://stackoverflow.com/a/21213235/10796681
+    execCmd('git status >/dev/null 2>&1 && git checkout .', { cwd: this.templateConfig.laravel.paths.TSFull })
   }
 }
