@@ -40,6 +40,7 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   laravel: {
     pkgName: string
+    projectPath: string
     paths: {
       TSFull: string
       TSStarter: string
@@ -47,5 +48,10 @@ export interface TemplateBaseConfig {
       JSStarter: string
     }
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
+    documentation: {
+      pageTitle: string
+      docUrl: string
+    }
+    demoPathOnServer: (demoNumber: number, isStaging: boolean) => string
   }
 }

@@ -5,8 +5,8 @@ import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { Utils } from '@/templates/base/helper'
-import { success } from '@/utils/logging'
-import { execCmd } from '@/utils/node'
+import { error, success } from '@/utils/logging'
+import { ask, execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 import { generateDocContent } from '@/utils/template'
 
@@ -15,7 +15,7 @@ export class GenPkg extends Utils {
     super()
   }
 
-  async genPkg() {
+  async genPkg(isInteractive = true) {
     const { tSFull, jSFull } = this.templateConfig.paths
 
     // Generate TS SK
@@ -64,6 +64,33 @@ export class GenPkg extends Utils {
       path.join(tempPkgDir, 'documentation.html'),
       generateDocContent(this.templateConfig.documentation.pageTitle, this.templateConfig.documentation.docUrl),
     )
+
+    if (isInteractive) {
+      const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pkgJson: Record<string, any> = fs.readJsonSync(tempPkgTSFullPackageJsonPath)
+
+      const packageVersionToUpdate = await ask(`Optional, Update package version in package.json. (Current version: ${pkgJson.version as string}) Don't prefix 'v': `)
+
+      console.log('packageVersionToUpdate :>> ', packageVersionToUpdate)
+
+      if (packageVersionToUpdate) {
+        // Check if input is valid version
+        if (!/(\d\.){2}\d/.test(packageVersionToUpdate))
+          error(`Entered version: ${packageVersionToUpdate} doesn't match the pattern. e.g. 0.0.0`)
+
+        // Loop over all package.json files and update version
+        ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((tempPkgPath) => {
+          const pkgJsonPath = path.join(tempPkgPath, 'package.json')
+
+          const pkgJson = fs.readJSONSync(pkgJsonPath)
+          pkgJson.version = packageVersionToUpdate
+
+          fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
+        })
+      }
+    }
 
     const zipPath = path.join(
       this.templateConfig.projectPath,
