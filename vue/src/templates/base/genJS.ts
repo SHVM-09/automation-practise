@@ -54,7 +54,7 @@ export class GenJS extends Utils {
     delete vsCodeConfig['eslint.options'].rulePaths
 
     // Write back to config file
-    fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 4 })
+    fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 2 })
   }
 
   // 👉 updateEslintConfig
@@ -107,7 +107,7 @@ export class GenJS extends Utils {
     tsConfig.compilerOptions.sourceMap = false
 
     // Write back to tsconfig
-    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 4 })
+    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 2 })
   }
 
   private removeAllTSFile() {
@@ -172,7 +172,7 @@ export class GenJS extends Utils {
     )
 
     // Write updated json to file
-    fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 4 })
+    fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
   }
 
   // 👉 updateIndexHtml
@@ -220,9 +220,16 @@ export class GenJS extends Utils {
       'types',
     ]
 
+    // ℹ️ Don't include d.ts files
+    const jsConfigInclude = (tsConfigJSON.include as string[]).filter(i => !i.endsWith('d.ts'))
+
+    // Change extension from .ts to .js except files that have double dots or dashes
+    jsConfigInclude.forEach((i, index) => {
+      jsConfigInclude[index] = i.replace(/(?<=^\w+.)ts/gm, 'js')
+    })
+
     const jsConfig = {
-      // TODO: We aren't excluding shims.d.ts file as well
-      include: (tsConfigJSON.include as string[]).filter(i => i !== 'env.d.ts'),
+      include: jsConfigInclude,
       exclude: tsConfigJSON.exclude,
       compilerOptions: Object.fromEntries(
         Object.entries(tsConfigJSON.compilerOptions)
@@ -234,16 +241,19 @@ export class GenJS extends Utils {
     const jsConfigPath = path.join(this.tempDir, 'jsconfig.json')
 
     // Write back to jsConfig as JSON
-    fs.writeJsonSync(jsConfigPath, jsConfig, { spaces: 4 })
+    fs.writeJsonSync(jsConfigPath, jsConfig, { spaces: 2 })
+
+    // remove tsConfig
+    fs.removeSync(tsConfigPath)
   }
 
   // 👉 updateGitIgnore
   private updateGitIgnore() {
     updateFile(
       path.join(this.tempDir, '.gitignore'),
-      gitIgnore => gitIgnore.split('\n')
-        .filter(line => !line.includes('iconify'))
-        .join('\n'),
+
+      // replace: src/@iconify/*.js => src/@iconify/icons-bundle.js
+      gitIgnore => gitIgnore.mustReplace(/(?<=.*@iconify\/)\*\.js/gm, 'icons-bundle.js'),
     )
   }
 
@@ -275,6 +285,11 @@ export class GenJS extends Utils {
     this.copyProject(
       source,
       this.tempDir,
+
+      /*
+        ℹ️ Don't include env & shims file because those are TS only files.
+        We will copy components.d.ts & auto-imports.d.ts for "yarn tsc" to run without errors
+      */
       this.templateConfig.packageCopyIgnorePatterns,
     )
 
@@ -344,6 +359,10 @@ export class GenJS extends Utils {
 
     // Auto format all files using eslint
     execCmd('yarn lint', { cwd: this.tempDir })
+
+    // ℹ️ Remove d.ts files from JS project
+    const dTsFiles = globbySync(['*.d.ts'], { cwd: this.tempDir, absolute: true })
+    dTsFiles.forEach(f => fs.removeSync(f))
 
     const replaceDest = (() => {
       // If generating JS for free version => Replace with free JS

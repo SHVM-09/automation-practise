@@ -1,7 +1,8 @@
 import type { ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
 import { execSync } from 'child_process'
-import chalk from 'chalk'
+import readline from 'readline'
 import fs from 'fs-extra'
+import chalk from 'chalk'
 
 export function execCmd(command: string): Buffer | undefined
 export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string | undefined
@@ -52,4 +53,19 @@ export const replaceDir = (src: string, dest: string) => {
 
 export const removeEmptyDirsRecursively = (path: string) => {
   execCmd(`find ${path} -type d -empty -delete`)
+}
+
+export const ask = (que: string) => {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+
+  return new Promise<string>(resolve => rl.question(que, (ans) => {
+    rl.close()
+    resolve(ans)
+  }))
+}
+
+export const askBoolean = async (que: string) => {
+  const response = await ask(`${que} [y/n]: `)
+
+  return ['y', 'yes', 'true'].includes(response.toLowerCase())
 }

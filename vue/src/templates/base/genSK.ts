@@ -12,8 +12,6 @@ import '@/utils/injectMustReplace'
 import { error } from '@/utils/logging'
 import { execCmd, removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
-// TODO: Check do we need to handle extra files for TS/JS
-// TODO: There's ts-expect-error in themeConfig.js
 export class GenSK extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
     super()
@@ -99,7 +97,7 @@ export class GenSK extends Utils {
 
     // If tracker data is update => Update the tracker file
     if (isTrackerDataUpdated)
-      fs.writeJSONSync(trackerPath, tracker, { spaces: 4 })
+      fs.writeJSONSync(trackerPath, tracker, { spaces: 2 })
   }
 
   private replacePages() {

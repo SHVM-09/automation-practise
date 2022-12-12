@@ -11,6 +11,7 @@ import { info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
+import { generateDocContent } from '@/utils/template'
 
 // TODO: Make sure to update the version in package.json file
 
@@ -79,7 +80,10 @@ export class Laravel extends Utils {
         .mustReplace(/<script type="module".*/, '')
 
         // Add vite directive just before closing head to include main.{ts|js} file
-        .mustReplace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`),
+        .mustReplace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`)
+
+        // use laravel's asset helper
+        .mustReplace(/\/(favicon\.ico|loader.css|logo.png)/g, '{{ asset(\'$1\') }}'),
     )
   }
 
@@ -252,7 +256,7 @@ export class Laravel extends Utils {
     })
   }
 
-  genLaravel(options?: { isSK?: boolean; isJS?: boolean }) {
+  private genLaravel(options?: { isSK?: boolean; isJS?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
       because `genLaravel` method is called multiple times after initializing the class once
@@ -276,6 +280,20 @@ export class Laravel extends Utils {
     this.bootstrapLaravelInTempDir(lang, sourcePath)
 
     this.copyVueProjectFiles(lang, sourcePath)
+
+    if (!isJS) {
+      const filesToRemove = globbySync(
+        '*.js',
+        {
+          cwd: path.join(this.resourcesPath, lang, '@iconify'),
+          absolute: true,
+        },
+      )
+
+      console.log('filesToRemove :>> ', filesToRemove)
+
+      filesToRemove.forEach(filePath => fs.removeSync(filePath))
+    }
 
     // if iconify icon sources have src/assets/images path replace with resources/images
     updateFile(
@@ -341,15 +359,6 @@ export class Laravel extends Utils {
     replaceDir(this.projectPath, replaceDest)
   }
 
-  // TODO: This is duplicated from base/genDemo.ts
-  private updateBuildCommand() {
-    // Remove vue-tsc from build command in package.json file
-    updateFile(
-      path.join(this.templateConfig.laravel.paths.TSFull, 'package.json'),
-      data => data.mustReplace(/&& vue-tsc --noEmit /g, ''),
-    )
-  }
-
   /**
    * TODO: This is duplicated from base/genDemo.ts
    * Modifies the files to attach the demo-$number pattern to make all demos unique
@@ -413,14 +422,80 @@ export class Laravel extends Utils {
     )
   }
 
+  genPkg() {
+    // TODO: rename the package name in package.json
+
+    // Generate Laravel TS Full
+    this.genLaravel()
+
+    // Generate Laravel TS Starter
+    this.genLaravel({ isSK: true })
+
+    // Generate Laravel JS Full
+    this.genLaravel({ isJS: true })
+
+    // Generate Laravel JS Starter
+    this.genLaravel({
+      isJS: true,
+      isSK: true,
+    })
+
+    // Create new temp dir for storing pkg
+    const tempPkgDir = new TempLocation().tempDir
+    const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
+    const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
+
+    const tempPkgTSFull = path.join(tempPkgTS, 'full-version')
+    const tempPkgTSStarter = path.join(tempPkgTS, 'starter-kit')
+
+    // Create dirs
+    fs.ensureDirSync(tempPkgTSFull)
+    fs.ensureDirSync(tempPkgTSStarter)
+
+    const tempPkgJSFull = path.join(tempPkgJS, 'full-version')
+    const tempPkgJSStarter = path.join(tempPkgJS, 'starter-kit')
+
+    // Create dirs
+    fs.ensureDirSync(tempPkgJSFull)
+    fs.ensureDirSync(tempPkgJSStarter)
+
+    this.copyProject(this.templateConfig.laravel.paths.TSFull, tempPkgTSFull, this.templateConfig.packageCopyIgnorePatterns)
+    this.copyProject(this.templateConfig.laravel.paths.TSStarter, tempPkgTSStarter, this.templateConfig.packageCopyIgnorePatterns)
+
+    this.copyProject(this.templateConfig.laravel.paths.JSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
+    this.copyProject(this.templateConfig.laravel.paths.JSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
+
+    // Remove BuyNow from both full versions
+    // TODO: removeBuyNow method is not generic
+    ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath, index) => {
+      updateFile(
+        path.join(projectPath, 'resources', index === 0 ? 'ts' : 'js', 'App.vue'),
+        app => app.split('\n')
+          .filter(line => !line.includes('BuyNow'))
+          .join('\n'),
+      )
+    })
+    // this.removeBuyNow(tempPkgTSFull)
+    // this.removeBuyNow(tempPkgJSFull)
+
+    // Create documentation.html file
+    fs.writeFileSync(
+      path.join(tempPkgDir, 'documentation.html'),
+      generateDocContent(this.templateConfig.laravel.documentation.pageTitle, this.templateConfig.laravel.documentation.docUrl),
+    )
+
+    const zipPath = path.join(
+      this.templateConfig.laravel.projectPath,
+      `${this.templateConfig.laravel.pkgName}.zip`,
+    )
+    execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
+    success(`✅ Package generated at: ${zipPath}`)
+  }
+
   genDemos(isStaging: boolean) {
     info('isStaging: ', isStaging.toString())
 
     const { TSFull } = this.templateConfig.laravel.paths
-
-    info('Updating build command to remove vue-tsc...')
-    // Update build command to ignore vue-tsc errors
-    this.updateBuildCommand()
 
     // inject GTM code in index.html file
     injectGTM(
@@ -449,7 +524,8 @@ export class Laravel extends Utils {
         .mustReplace(/(?<=__DIR__.')([\.\/]+)(?=\w)/g, laravelCoreRelativePath)
 
         // Add app bind
-        .mustReplace(/(?<=^\$app.*\n)/gm, '\n$app->bind(\'path.public\', function() { return base_path(\'demo-1\'); });\n')
+        // TODO: Handle unwanted slash by mistake
+        .mustReplace(/(?<=^\$app.*\n)/gm, `\n$app->bind('path.public', function() { return base_path('../../html${this.templateConfig.laravel.demoPathOnServer(1, isStaging)}'); });\n`)
     })
 
     const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
@@ -485,14 +561,24 @@ export class Laravel extends Utils {
       // Create base path based on demoNumber and env (staging|production)
       const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging)
 
+      console.log('demoDeploymentBase :>> ', demoDeploymentBase)
+
       // Update .env file
       updateFile(
         path.join(this.templateConfig.laravel.paths.TSFull, '.env'),
-        data => data.mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/, `$1\nASSET_URL=${demoDeploymentBase}`),
+        data => data
+          .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/, `$1\nASSET_URL=${demoDeploymentBase}`),
+      )
+
+      // TODO: .env file isn't restored \. It keeps updated. Because when we git checkout, .env file doesn't get affected because it isn't under version control.
+
+      updateFile(
+        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'router', 'index.ts'),
+        data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/, `'${demoDeploymentBase}'`),
       )
 
       // Run build
-      execCmd(`yarn build --base=${demoDeploymentBase}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+      execCmd('yarn build', { cwd: this.templateConfig.laravel.paths.TSFull })
 
       // At the moment of this script execution, we will have "public" in root the TSFull
       // Duplicate public to demo-$demoNumber
@@ -508,13 +594,20 @@ export class Laravel extends Utils {
     })
 
     // Remove node_modules & public dir
-    ;['node_modules', 'public'].forEach((dirName) => {
-      fs.removeSync(path.join(this.templateConfig.laravel.paths.TSFull, dirName))
-    })
+    // ;['node_modules', 'public'].forEach((dirName) => {
+    //   fs.removeSync(path.join(this.templateConfig.laravel.paths.TSFull, dirName))
+    // })
+
+    // Remove ASSET_URL as we don't want it in laravel core
+    updateFile(
+      path.join(this.templateConfig.laravel.paths.TSFull, '.env'),
+      data => data.mustReplace(/ASSET_URL=.*/, ''),
+    )
 
     info('Creating zip...')
+    // TODO: wrap zip content in some dir to unzip without worry. If possible keep demos and core separate
     // Generate zip of ts full including demo & laravel
-    execCmd(`zip -r ${this.templateConfig.laravel.pkgName}.zip ${this.templateConfig.laravel.paths.TSFull}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}.zip . -x '*node_modules*' -x '*public*'`, { cwd: this.templateConfig.laravel.paths.TSFull })
 
     // Reset changes we done via git checkout
     // Thanks: https://stackoverflow.com/a/21213235/10796681

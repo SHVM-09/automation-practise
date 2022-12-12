@@ -31,6 +31,9 @@ export const config: VuexyConfig = {
     'license.md',
     '*.log',
     '*.zip',
+
+    // Laravel only
+    'vendor',
   ],
   sKImagesRemovePatterns: [
     '**/*',
@@ -111,7 +114,8 @@ export const config: VuexyConfig = {
   },
   gtm: pixinventGTMConfig,
   laravel: {
-    pkgName: 'vuexy-vuetify-vuejs-laravel-admin-template',
+    pkgName: 'vuexy-vuejs-laravel-admin-template',
+    projectPath: vuexyVueLaravelPath,
     paths: {
       TSFull: path.join(vuexyVueLaravelPath, 'typescript-version', 'full-version'),
       TSStarter: path.join(vuexyVueLaravelPath, 'typescript-version', 'starter-kit'),
@@ -119,5 +123,10 @@ export const config: VuexyConfig = {
       JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    documentation: {
+      pageTitle: 'Vuexy - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-dashboard-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    demoPathOnServer: (demoNumber, isStaging) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
