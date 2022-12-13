@@ -8,10 +8,10 @@ import { Utils, injectGTM } from './helper'
 import { addImport, addVitePlugin } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { info, success } from '@/utils/logging'
-import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
+import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
-import { generateDocContent } from '@/utils/template'
+import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 
 // TODO: Make sure to update the version in package.json file
 
@@ -290,8 +290,6 @@ export class Laravel extends Utils {
         },
       )
 
-      console.log('filesToRemove :>> ', filesToRemove)
-
       filesToRemove.forEach(filePath => fs.removeSync(filePath))
     }
 
@@ -313,7 +311,7 @@ export class Laravel extends Utils {
     )
 
     // Thanks: https://stackoverflow.com/questions/74609771/how-to-use-foreach-on-inline-array-when-using-typescript
-    ;['components.d.ts', '.eslintrc.js', '.gitignore', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
+    ;[...(lang === 'ts' ? ['components.d.ts'] : []), '.eslintrc.js', '.gitignore', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
         data => this.replaceSrcWithResourcesLang(data, lang),
@@ -422,7 +420,7 @@ export class Laravel extends Utils {
     )
   }
 
-  genPkg() {
+  async genPkg(isInteractive = true) {
     // TODO: rename the package name in package.json
 
     // Generate Laravel TS Full
@@ -483,6 +481,17 @@ export class Laravel extends Utils {
       path.join(tempPkgDir, 'documentation.html'),
       generateDocContent(this.templateConfig.laravel.documentation.pageTitle, this.templateConfig.laravel.documentation.docUrl),
     )
+
+    // package.json files paths in all four versions
+    const pkgJsonPaths = [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json'))
+
+    // update package name in package.json
+    pkgJsonPaths.forEach((pkgJSONPath) => {
+      updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.laravel.pkgName)
+    })
+
+    if (isInteractive)
+      await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'))
 
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,
@@ -560,8 +569,6 @@ export class Laravel extends Utils {
 
       // Create base path based on demoNumber and env (staging|production)
       const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging)
-
-      console.log('demoDeploymentBase :>> ', demoDeploymentBase)
 
       // Update .env file
       updateFile(

@@ -5,10 +5,10 @@ import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { Utils } from '@/templates/base/helper'
-import { error, success } from '@/utils/logging'
-import { ask, execCmd } from '@/utils/node'
+import { success } from '@/utils/logging'
+import { execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
-import { generateDocContent } from '@/utils/template'
+import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
@@ -68,28 +68,10 @@ export class GenPkg extends Utils {
     if (isInteractive) {
       const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const pkgJson: Record<string, any> = fs.readJsonSync(tempPkgTSFullPackageJsonPath)
-
-      const packageVersionToUpdate = await ask(`Optional, Update package version in package.json. (Current version: ${pkgJson.version as string}) Don't prefix 'v': `)
-
-      console.log('packageVersionToUpdate :>> ', packageVersionToUpdate)
-
-      if (packageVersionToUpdate) {
-        // Check if input is valid version
-        if (!/(\d\.){2}\d/.test(packageVersionToUpdate))
-          error(`Entered version: ${packageVersionToUpdate} doesn't match the pattern. e.g. 0.0.0`)
-
-        // Loop over all package.json files and update version
-        ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((tempPkgPath) => {
-          const pkgJsonPath = path.join(tempPkgPath, 'package.json')
-
-          const pkgJson = fs.readJSONSync(pkgJsonPath)
-          pkgJson.version = packageVersionToUpdate
-
-          fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
-        })
-      }
+      await updatePkgJsonVersion(
+        [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json')),
+        tempPkgTSFullPackageJsonPath,
+      )
     }
 
     const zipPath = path.join(

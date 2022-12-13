@@ -29,6 +29,9 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
 
 export type UpdateFileModifier = (data: string) => string
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UpdateJSONFileModifier = (data: Record<string, any>) => Record<string, any>
+
 export const readFileSyncUTF8 = (path: string) => fs.readFileSync(path, { encoding: 'utf-8' })
 export const writeFileSyncUTF8 = (path: string, data: string) => fs.writeFileSync(path, data, { encoding: 'utf-8' })
 
@@ -44,6 +47,24 @@ export const updateFile = (path: string, modifier: UpdateFileModifier) => {
     modifier(fs.readFileSync(path, { encoding: 'utf-8' })),
     { encoding: 'utf-8' },
   )
+}
+
+// TODO: use this utility function
+export const updateJSONFile = (path: string, modifier: UpdateJSONFileModifier, spaces = 2) => {
+  fs.writeJSONSync(
+    path,
+    modifier(fs.readJSONSync(path)),
+    { spaces },
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updateJSONFileField = (path: string, key: string, value: any, spaces = 2) => {
+  updateJSONFile(path, (data) => {
+    data[key] = value
+
+    return data
+  }, spaces)
 }
 
 export const replaceDir = (src: string, dest: string) => {
