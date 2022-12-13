@@ -10,10 +10,12 @@ type MaterioConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
+const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
 const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
 
 export const config: MaterioConfig = {
   templateName: 'Materio',
+  templateDomain: 'ts',
   projectPath: materioVuePath,
   packageCopyIgnorePatterns: [
     // Directories
@@ -29,6 +31,9 @@ export const config: MaterioConfig = {
     'license.md',
     '*.log',
     '*.zip',
+
+    // Laravel only
+    'vendor',
   ],
   sKImagesRemovePatterns: [
     '**/*',
@@ -104,9 +109,23 @@ export const config: MaterioConfig = {
   gh: {
     ownerName: 'themeselection',
     repoName: 'materio-vuetify-vuejs-admin-template',
+    branch: 'dev',
   },
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'materio-vuetify-vuejs-laravel-admin-template',
+    projectPath: materioVueLaravelPath,
+    paths: {
+      TSFull: path.join(materioVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(materioVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(materioVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(materioVueLaravelPath, 'javascript-version', 'starter-kit'),
+    },
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    documentation: {
+      pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    demoPathOnServer: (demoNumber, isStaging) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
