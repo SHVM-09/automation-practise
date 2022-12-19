@@ -13,8 +13,6 @@ import { replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 
-// TODO: Make sure to update the version in package.json file
-
 type Lang = 'ts' | 'js'
 type LangConfigFile = 'tsconfig.json' | 'jsconfig.json'
 
@@ -305,9 +303,17 @@ export class Laravel extends Utils {
     // handle gitignore file merge
     updateFile(
       path.join(this.projectPath, '.gitignore'),
-      data => data += `\n${readFileSyncUTF8(
-        path.join(sourcePath, '.gitignore'),
-      )}`,
+      (data) => {
+        data += `\n${readFileSyncUTF8(
+          path.join(sourcePath, '.gitignore'),
+        )}`
+
+        data = data.split('\n')
+          .filter(line => !line.includes('/.vscode'))
+          .join('\n')
+
+        return data
+      },
     )
 
     // Thanks: https://stackoverflow.com/questions/74609771/how-to-use-foreach-on-inline-array-when-using-typescript
@@ -421,8 +427,6 @@ export class Laravel extends Utils {
   }
 
   async genPkg(isInteractive = true) {
-    // TODO: rename the package name in package.json
-
     // Generate Laravel TS Full
     this.genLaravel()
 
@@ -505,6 +509,8 @@ export class Laravel extends Utils {
     info('isStaging: ', isStaging.toString())
 
     const { TSFull } = this.templateConfig.laravel.paths
+    const envPath = path.join(this.templateConfig.laravel.paths.TSFull, '.env')
+    const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
     injectGTM(
@@ -572,12 +578,10 @@ export class Laravel extends Utils {
 
       // Update .env file
       updateFile(
-        path.join(this.templateConfig.laravel.paths.TSFull, '.env'),
+        envPath,
         data => data
           .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/, `$1\nASSET_URL=${demoDeploymentBase}`),
       )
-
-      // TODO: .env file isn't restored \. It keeps updated. Because when we git checkout, .env file doesn't get affected because it isn't under version control.
 
       updateFile(
         path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'router', 'index.ts'),
@@ -606,15 +610,28 @@ export class Laravel extends Utils {
     // })
 
     // Remove ASSET_URL as we don't want it in laravel core
-    updateFile(
-      path.join(this.templateConfig.laravel.paths.TSFull, '.env'),
-      data => data.mustReplace(/ASSET_URL=.*/, ''),
-    )
+    updateFile(envPath, data => data.mustReplace(/ASSET_URL=.*/, ''))
 
     info('Creating zip...')
-    // TODO: wrap zip content in some dir to unzip without worry. If possible keep demos and core separate
+
+    // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
+    const zipWrapperDirParent = new TempLocation().tempDir
+    const zipWrapperDir = path.join(zipWrapperDirParent, this.templateConfig.laravel.pkgName)
+
+    // Make sure this dir exist so we copy the content
+    fs.ensureDirSync(zipWrapperDir)
+
+    // Copy everything from TS Full except node_modules & public dir
+    fs.copySync(this.templateConfig.laravel.paths.TSFull, zipWrapperDir, {
+      // ℹ️ Exclude node_modules & public dir from being copied
+      filter: src => /\b(node_modules|public)\b/.test(src),
+    })
+
     // Generate zip of ts full including demo & laravel
-    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}.zip . -x '*node_modules*' -x '*public*'`, { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}.zip ${zipWrapperDir}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+
+    // Reset changes in .env file
+    writeFileSyncUTF8(envPath, envContent)
 
     // Reset changes we done via git checkout
     // Thanks: https://stackoverflow.com/a/21213235/10796681

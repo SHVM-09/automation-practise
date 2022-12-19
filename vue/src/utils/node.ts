@@ -90,3 +90,5 @@ export const askBoolean = async (que: string) => {
 
   return ['y', 'yes', 'true'].includes(response.toLowerCase())
 }
+
+// TODO: Create util filterLine

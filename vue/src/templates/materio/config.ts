@@ -121,11 +121,11 @@ export const config: MaterioConfig = {
       JSFull: path.join(materioVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(materioVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
       pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/materio-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/demos/materio/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

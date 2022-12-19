@@ -52,6 +52,12 @@ export interface TemplateBaseConfig {
       pageTitle: string
       docUrl: string
     }
+    /**
+     * Returns server path for providing relative path of demo relative to laravel core container for updating it in `index.php`.
+     * @param demoNumber Demo number you are generating demo for
+     * @param isStaging Is demo staging
+     * @returns returns path after <themeselection.com|pixinvent.com>/html/<returnValue>
+     */
     demoPathOnServer: (demoNumber: number, isStaging: boolean) => string
   }
 }

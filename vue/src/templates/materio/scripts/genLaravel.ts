@@ -7,4 +7,4 @@ const laravel = new Laravel(materio.config)
 
 const argv = parseArgs(process.argv.slice(2))
 
-laravel.genPkg(!argv.n)
+await laravel.genPkg(!argv.n)
