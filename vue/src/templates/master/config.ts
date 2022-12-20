@@ -12,6 +12,7 @@ const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
 
 export const config: MasterConfig = {
   templateName: 'Master',
+  templateDomain: 'ts',
   projectPath: masterVuePath,
   packageCopyIgnorePatterns: [
     // Directories
@@ -106,11 +107,18 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'master-vuetify-vuejs-laravel-admin-template',
+    projectPath: masterVueLaravelPath,
     paths: {
       TSFull: path.join(masterVueLaravelPath, 'typescript-version', 'full-version'),
       TSStarter: path.join(masterVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(masterVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(masterVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/master-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    documentation: {
+      pageTitle: 'Master - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    demoPathOnServer: (demoNumber, isStaging) => `/demos/master/master-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
