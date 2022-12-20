@@ -626,11 +626,16 @@ export class Laravel extends Utils {
     // Copy everything from TS Full except node_modules & public dir
     fs.copySync(this.templateConfig.laravel.paths.TSFull, zipWrapperDir, {
       // ℹ️ Exclude node_modules & public dir from being copied
-      filter: src => /\b(node_modules|public)\b/.test(src),
+      filter: src => !/\b(node_modules|public)\b/.test(src),
     })
 
+    const zipPath = path.join(
+      this.templateConfig.laravel.paths.TSFull,
+      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip `,
+    )
+
     // Generate zip of ts full including demo & laravel
-    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip ${zipWrapperDir}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd(`zip -rq ${zipPath} .`, { cwd: zipWrapperDirParent })
 
     // Reset changes in .env file
     writeFileSyncUTF8(envPath, envContent)
