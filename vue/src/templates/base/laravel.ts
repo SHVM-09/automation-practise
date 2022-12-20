@@ -521,6 +521,8 @@ export class Laravel extends Utils {
     // update index.php file
     const indexPhpPath = path.join(this.templateConfig.laravel.paths.TSFull, 'public', 'index.php')
 
+    // TODO: Do something on repetition of `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`
+
     // We need to update the path of some laravel core file as we have laravel core outside of html dir in our server
     const laravelCoreRelativePath = (() => {
       /*
@@ -531,7 +533,7 @@ export class Laravel extends Utils {
       const numOfDirsToTraverseUpwards = (this.templateConfig.templateDomain === 'pi' ? 4 : 5) + (isStaging ? 1 : 0)
 
       // '/' + '../'.repeat(4) => '/../../../../'
-      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}/`
+      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}/`
     })()
 
     updateFile(indexPhpPath, (data) => {
@@ -616,7 +618,7 @@ export class Laravel extends Utils {
 
     // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
     const zipWrapperDirParent = new TempLocation().tempDir
-    const zipWrapperDir = path.join(zipWrapperDirParent, this.templateConfig.laravel.pkgName)
+    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`)
 
     // Make sure this dir exist so we copy the content
     fs.ensureDirSync(zipWrapperDir)
@@ -628,7 +630,7 @@ export class Laravel extends Utils {
     })
 
     // Generate zip of ts full including demo & laravel
-    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}.zip ${zipWrapperDir}`, { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd(`zip -rq ${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip ${zipWrapperDir}`, { cwd: this.templateConfig.laravel.paths.TSFull })
 
     // Reset changes in .env file
     writeFileSyncUTF8(envPath, envContent)
