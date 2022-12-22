@@ -15,7 +15,7 @@ export class GenPkg extends Utils {
     super()
   }
 
-  async genPkg(isInteractive = true) {
+  async genPkg(isInteractive = true, newPkgVersion?: string) {
     const { tSFull, jSFull } = this.templateConfig.paths
 
     // Generate TS SK
@@ -65,12 +65,13 @@ export class GenPkg extends Utils {
       generateDocContent(this.templateConfig.documentation.pageTitle, this.templateConfig.documentation.docUrl),
     )
 
-    if (isInteractive) {
+    if (isInteractive || newPkgVersion) {
       const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
 
       await updatePkgJsonVersion(
         [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json')),
         tempPkgTSFullPackageJsonPath,
+        newPkgVersion,
       )
     }
 

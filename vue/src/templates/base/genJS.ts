@@ -355,7 +355,8 @@ export class GenJS extends Utils {
       https://stackoverflow.com/a/39382621/10796681
       https://unix.stackexchange.com/a/15309/528729
     */
-    execCmd('find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i \'\' -e \'/@typescript-eslint/d;/@ts-expect/d\'', { cwd: this.tempDir })
+    // ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
+    execCmd(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i ${process.platform === 'darwin' ? '""' : ''} -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
 
     // Auto format all files using eslint
     execCmd('yarn lint', { cwd: this.tempDir })

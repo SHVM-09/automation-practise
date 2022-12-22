@@ -15,21 +15,28 @@ export const generateDocContent = (pageTitle: string, docUrl: string) => {
 </html>`
 }
 
-export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPath: string) => {
+export const validateSemanticVersion = (version: string) => {
+  if (!/(\d\.){2}\d/.test(version))
+    error(`version: ${version} doesn't match the pattern. e.g. 0.0.0`)
+}
+
+export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPath: string, packageVersionToUpdate?: string) => {
+  let newVersion = packageVersionToUpdate
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pkgJson: Record<string, any> = fs.readJsonSync(pkgJsonSrcPath)
 
-  const packageVersionToUpdate = await ask(`Optional, Update package version in package.json. (Current version: ${pkgJson.version as string}) Don't prefix 'v': `)
+  if (!newVersion)
+    newVersion = await ask(`Optional, Update package version in package.json. (Current version: ${pkgJson.version as string}) Don't prefix 'v': `)
 
-  if (packageVersionToUpdate) {
+  // ℹ️ Check if newVersion exist either via function param or CLI prompt
+  if (newVersion) {
     // Check if input is valid version
-    if (!/(\d\.){2}\d/.test(packageVersionToUpdate))
-      error(`Entered version: ${packageVersionToUpdate} doesn't match the pattern. e.g. 0.0.0`)
+    validateSemanticVersion(newVersion)
 
     // Loop over all package.json files and update version
     pkgJsonPaths.forEach((pkgJsonPath) => {
       const pkgJson = fs.readJSONSync(pkgJsonPath)
-      pkgJson.version = packageVersionToUpdate
+      pkgJson.version = newVersion
 
       fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
     })
