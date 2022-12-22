@@ -1,4 +1,5 @@
 import path from 'path'
+import * as url from 'url'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
@@ -426,6 +427,31 @@ export class Laravel extends Utils {
     )
   }
 
+  private insertDeployLaravelDemoGhAction(repoRootDir: string) {
+    // Update/Add GitHub action
+    const ghWorkflowsDir = path.join(repoRootDir, '.github', 'workflows')
+
+    // Make sure workflow dir exist
+    fs.ensureDirSync(ghWorkflowsDir)
+
+    // get path of workflow file from base's data dir
+    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+    const baseDataDirPath = path.join(__dirname, 'data')
+    const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demos.yml')
+
+    // dest path for copying workflow file
+    const workflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
+
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      deployLaravelDemosWorkflowSourceFilePath,
+      workflowFilePath,
+    )
+
+    // Update template name in workflow file
+    updateFile(workflowFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
+  }
+
   async genPkg(isInteractive = true) {
     // Generate Laravel TS Full
     this.genLaravel()
@@ -501,6 +527,9 @@ export class Laravel extends Utils {
       this.templateConfig.laravel.projectPath,
       `${this.templateConfig.laravel.pkgName}.zip`,
     )
+
+    this.insertDeployLaravelDemoGhAction(tempPkgDir)
+
     execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
     success(`✅ Package generated at: ${zipPath}`)
   }
