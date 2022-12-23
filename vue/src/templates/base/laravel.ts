@@ -10,7 +10,7 @@ import { addImport, addVitePlugin } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
-import { replacePath } from '@/utils/paths'
+import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 
@@ -255,6 +255,137 @@ export class Laravel extends Utils {
     })
   }
 
+  /**
+   * TODO: This is duplicated from base/genDemo.ts
+   * Modifies the files to attach the demo-$number pattern to make all demos unique
+   * This is used to isolate the demo config
+   * @param demoNumber localStorage key to update for demo
+   */
+  private updateLocalStorageKeys(demoNumber: number, templateName: string) {
+    // default values for demo 1
+    let sedFind = '(localStorage.(set|get|remove)Item\\(.*\\.title\\}-)'
+    let sedReplace = '\\1vue-laravel-demo-1-'
+
+    // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
+    const sedFindAuthKeys = '(localStorage.(set|get|remove)Item\\(\')([a-zA-Z]+)'
+    const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-laravel-\\3`
+
+    let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
+    let indexHTMLReplace = '$1-vue-laravel-demo-1'
+
+    // If it's not 1st demo update the find replace strings
+    if (demoNumber !== 1) {
+      const findStr = (() => `demo-${demoNumber - 1}`)()
+      const replaceStr = `demo-${demoNumber}`
+
+      sedFind = findStr
+      sedReplace = replaceStr
+
+      indexHTMLFind = new RegExp(findStr, 'g')
+      indexHTMLReplace = replaceStr
+    }
+    else {
+      /*
+        As we want to update the auth keys just once, we will update only when generating first demo
+        ℹ️ Prefix auth keys with <template-name>-vue-
+
+        https://stackoverflow.com/a/39382621/10796681
+        https://unix.stackexchange.com/a/15309/528729
+
+        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
+
+        ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
+      */
+      execCmd(
+        `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFindAuthKeys}/${sedReplaceAuthKeys}/g" '{}' \\;`,
+        { cwd: this.templateConfig.laravel.paths.TSFull },
+      )
+    }
+
+    /*
+      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
+    */
+    execCmd(
+      `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
+      { cwd: this.templateConfig.laravel.paths.TSFull },
+    )
+
+    // update index.html as well
+    updateFile(
+      // Path to `index.html`
+      path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'views', 'application.blade.php'),
+      data => data.mustReplace(indexHTMLFind, indexHTMLReplace),
+    )
+  }
+
+  private insertDeployLaravelDemoGhAction(repoRootDir: string) {
+    // TODO: Update vue repo name in release-laravel.yml
+
+    // Update/Add GitHub action
+    const ghWorkflowsDir = path.join(repoRootDir, '.github', 'workflows')
+
+    // Make sure workflow dir exist
+    fs.ensureDirSync(ghWorkflowsDir)
+
+    // get path of workflow file from base's data dir
+    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+    const baseDataDirPath = path.join(__dirname, 'data')
+
+    const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demos.yml')
+    const releaseWorkflowSourceFilePath = path.join(baseDataDirPath, 'release-laravel.yml')
+
+    // dest path for copying workflow file
+    const workflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
+    const releaseFilePath = path.join(ghWorkflowsDir, path.basename(releaseWorkflowSourceFilePath))
+
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      deployLaravelDemosWorkflowSourceFilePath,
+      workflowFilePath,
+    )
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      releaseWorkflowSourceFilePath,
+      releaseFilePath,
+    )
+
+    // Update template name in workflow file
+    updateFile(workflowFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
+
+    //
+    updateFile(releaseFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
+  }
+
+  private updateRepoRootFiles() {
+    const pkgJsonPath = path.join(this.templateConfig.laravel.projectPath, 'package.json')
+    const gitIgnorePath = path.join(this.templateConfig.laravel.projectPath, '.gitignore')
+    const masterVuePath = getTemplatePath('master', 'vue')
+
+    // ❗ Only update root package.json & .gitignore if master vue dir exist
+    // ℹ️ This will make cloning master vue repo optional when generating pkg in release github action
+    if (!fs.pathExistsSync(masterVuePath)) {
+      info('master vue doesn\'t exist. Omitting updating root package.json & gitignore')
+      return
+    }
+
+    // Update root package.json file
+    fs.copyFileSync(
+      path.join(masterVuePath, 'package.json'),
+      pkgJsonPath,
+    )
+
+    // if repo is for pixinvent
+    if (this.templateConfig.templateDomain === 'pi')
+      // Update release command => Remove prompt for changing CHANGELOG.md
+      updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=yarn bumpp)/, ''))
+
+    // Update root package.json file
+    fs.copyFileSync(
+      path.join(masterVuePath, '.gitignore'),
+      gitIgnorePath,
+    )
+  }
+
   private genLaravel(options?: { isSK?: boolean; isJS?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
@@ -364,95 +495,7 @@ export class Laravel extends Utils {
     replaceDir(this.projectPath, replaceDest)
   }
 
-  /**
-   * TODO: This is duplicated from base/genDemo.ts
-   * Modifies the files to attach the demo-$number pattern to make all demos unique
-   * This is used to isolate the demo config
-   * @param demoNumber localStorage key to update for demo
-   */
-  private updateLocalStorageKeys(demoNumber: number, templateName: string) {
-    // default values for demo 1
-    let sedFind = '(localStorage.(set|get|remove)Item\\(.*\\.title\\}-)'
-    let sedReplace = '\\1vue-laravel-demo-1-'
-
-    // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
-    const sedFindAuthKeys = '(localStorage.(set|get|remove)Item\\(\')([a-zA-Z]+)'
-    const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-laravel-\\3`
-
-    let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
-    let indexHTMLReplace = '$1-vue-laravel-demo-1'
-
-    // If it's not 1st demo update the find replace strings
-    if (demoNumber !== 1) {
-      const findStr = (() => `demo-${demoNumber - 1}`)()
-      const replaceStr = `demo-${demoNumber}`
-
-      sedFind = findStr
-      sedReplace = replaceStr
-
-      indexHTMLFind = new RegExp(findStr, 'g')
-      indexHTMLReplace = replaceStr
-    }
-    else {
-      /*
-        As we want to update the auth keys just once, we will update only when generating first demo
-        ℹ️ Prefix auth keys with <template-name>-vue-
-
-        https://stackoverflow.com/a/39382621/10796681
-        https://unix.stackexchange.com/a/15309/528729
-
-        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
-
-        ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
-      */
-      execCmd(
-        `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFindAuthKeys}/${sedReplaceAuthKeys}/g" '{}' \\;`,
-        { cwd: this.templateConfig.laravel.paths.TSFull },
-      )
-    }
-
-    /*
-      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
-    */
-    execCmd(
-      `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
-      { cwd: this.templateConfig.laravel.paths.TSFull },
-    )
-
-    // update index.html as well
-    updateFile(
-      // Path to `index.html`
-      path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'views', 'application.blade.php'),
-      data => data.mustReplace(indexHTMLFind, indexHTMLReplace),
-    )
-  }
-
-  private insertDeployLaravelDemoGhAction(repoRootDir: string) {
-    // Update/Add GitHub action
-    const ghWorkflowsDir = path.join(repoRootDir, '.github', 'workflows')
-
-    // Make sure workflow dir exist
-    fs.ensureDirSync(ghWorkflowsDir)
-
-    // get path of workflow file from base's data dir
-    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
-    const baseDataDirPath = path.join(__dirname, 'data')
-    const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demos.yml')
-
-    // dest path for copying workflow file
-    const workflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
-
-    // copy file from data to github workflow dir
-    fs.copyFileSync(
-      deployLaravelDemosWorkflowSourceFilePath,
-      workflowFilePath,
-    )
-
-    // Update template name in workflow file
-    updateFile(workflowFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
-  }
-
-  async genPkg(isInteractive = true) {
+  async genPkg(isInteractive = true, newPkgVersion?: string) {
     // Generate Laravel TS Full
     this.genLaravel()
 
@@ -467,6 +510,8 @@ export class Laravel extends Utils {
       isJS: true,
       isSK: true,
     })
+
+    this.updateRepoRootFiles()
 
     // Create new temp dir for storing pkg
     const tempPkgDir = new TempLocation().tempDir
@@ -520,8 +565,8 @@ export class Laravel extends Utils {
       updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.laravel.pkgName)
     })
 
-    if (isInteractive)
-      await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'))
+    if (isInteractive || newPkgVersion)
+      await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
 
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,

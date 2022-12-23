@@ -7,4 +7,4 @@ const laravel = new Laravel(vuexy.config)
 
 const argv = parseArgs(process.argv.slice(2))
 
-await laravel.genPkg(!argv.n)
+await laravel.genPkg(!argv.n, argv.version)
