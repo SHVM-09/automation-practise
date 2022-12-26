@@ -5,13 +5,16 @@ const master = new Master(config)
 const laravel = new Laravel(master.config)
 
 // Laravel TS Full
-laravel.genTSFull()
+laravel.genLaravel()
 
 // Laravel TS Starter
-laravel.genTSStarter()
+laravel.genLaravel({ isSK: true })
 
 // Laravel JS Full
-laravel.genJSFull()
+laravel.genLaravel({ isJS: true })
 
 // Laravel JS Starter
-laravel.genJSStarter()
+laravel.genLaravel({
+  isJS: true,
+  isSK: true,
+})

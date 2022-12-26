@@ -1,7 +1,8 @@
 import type { ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
 import { execSync } from 'child_process'
-import chalk from 'chalk'
+import readline from 'readline'
 import fs from 'fs-extra'
+import chalk from 'chalk'
 
 export function execCmd(command: string): Buffer | undefined
 export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string | undefined
@@ -28,6 +29,9 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
 
 export type UpdateFileModifier = (data: string) => string
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type UpdateJSONFileModifier = (data: Record<string, any>) => Record<string, any>
+
 export const readFileSyncUTF8 = (path: string) => fs.readFileSync(path, { encoding: 'utf-8' })
 export const writeFileSyncUTF8 = (path: string, data: string) => fs.writeFileSync(path, data, { encoding: 'utf-8' })
 
@@ -45,6 +49,24 @@ export const updateFile = (path: string, modifier: UpdateFileModifier) => {
   )
 }
 
+// TODO: use this utility function
+export const updateJSONFile = (path: string, modifier: UpdateJSONFileModifier, spaces = 2) => {
+  fs.writeJSONSync(
+    path,
+    modifier(fs.readJSONSync(path)),
+    { spaces },
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updateJSONFileField = (path: string, key: string, value: any, spaces = 2) => {
+  updateJSONFile(path, (data) => {
+    data[key] = value
+
+    return data
+  }, spaces)
+}
+
 export const replaceDir = (src: string, dest: string) => {
   fs.removeSync(dest)
   fs.copySync(src, dest)
@@ -53,3 +75,20 @@ export const replaceDir = (src: string, dest: string) => {
 export const removeEmptyDirsRecursively = (path: string) => {
   execCmd(`find ${path} -type d -empty -delete`)
 }
+
+export const ask = (que: string) => {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+
+  return new Promise<string>(resolve => rl.question(que, (ans) => {
+    rl.close()
+    resolve(ans)
+  }))
+}
+
+export const askBoolean = async (que: string) => {
+  const response = await ask(`${que} [y/n]: `)
+
+  return ['y', 'yes', 'true'].includes(response.toLowerCase())
+}
+
+// TODO: Create util filterLine

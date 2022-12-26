@@ -2,9 +2,12 @@ import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import JSON5 from 'json5'
+
 import type { TemplateBaseConfig } from './config'
+
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
+import '@/utils/injectMustReplace'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
@@ -18,7 +21,7 @@ export class GenJS extends Utils {
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Replace themeConfig.ts alias to themeConfig.js
-        viteConfig = viteConfig.replace('themeConfig.ts', 'themeConfig.js')
+        viteConfig = viteConfig.mustReplace('themeConfig.ts', 'themeConfig.js')
 
         // enable eslintrc in AutoImport plugin
         const autoImportEslintConfig = `eslintrc: {
@@ -26,7 +29,7 @@ export class GenJS extends Utils {
             filepath: './.eslintrc-auto-import.json',
         },`
 
-        return viteConfig.replace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
+        return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
       },
     )
   }
@@ -51,7 +54,7 @@ export class GenJS extends Utils {
     delete vsCodeConfig['eslint.options'].rulePaths
 
     // Write back to config file
-    fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 4 })
+    fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 2 })
   }
 
   // 👉 updateEslintConfig
@@ -74,20 +77,20 @@ export class GenJS extends Utils {
       .join('\n')
 
     // Remove eslint internal rules
-    eslintConfig = eslintConfig.replace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
+    eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
 
     /*
       Add auto-import json file in extends array
       Regex: https://regex101.com/r/1RYdYv/2
     */
-    eslintConfig = eslintConfig.replace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
+    eslintConfig = eslintConfig.mustReplace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
 
     // Add vite aliases in eslint import config
     const viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
     const importAliases = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
     const importAliasesEslintConfig = `alias: {'extensions': ['.ts', '.js', '.tsx', '.jsx', '.mjs'], 'map': ${JSON.stringify([...importAliases].map(m => m.groups && Object.values(m.groups)))}}`
 
-    eslintConfig = eslintConfig.replace(/(module\.exports = {(\n|.)*\s{6}},)((\n|.)*)/g, `$1${importAliasesEslintConfig}$3`)
+    eslintConfig = eslintConfig.mustReplace(/(module\.exports = {(\n|.)*\s{6}},)((\n|.)*)/g, `$1${importAliasesEslintConfig}$3`)
 
     fs.writeFileSync(eslintConfigPath, eslintConfig, { encoding: 'utf-8' })
   }
@@ -104,7 +107,7 @@ export class GenJS extends Utils {
     tsConfig.compilerOptions.sourceMap = false
 
     // Write back to tsconfig
-    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 4 })
+    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 2 })
   }
 
   private removeAllTSFile() {
@@ -133,7 +136,7 @@ export class GenJS extends Utils {
         else it's undefined => There's no script block => No compilation => Don't touch the file
       */
       if (compiledSFCScript) {
-        const compiledSfc = sFC.replace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
+        const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
         fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
       }
     })
@@ -169,14 +172,14 @@ export class GenJS extends Utils {
     )
 
     // Write updated json to file
-    fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 4 })
+    fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
   }
 
   // 👉 updateIndexHtml
   private updateIndexHtml() {
     updateFile(
       path.join(this.tempDir, 'index.html'),
-      indexHTML => indexHTML.replace('main.ts', 'main.js'),
+      indexHTML => indexHTML.mustReplace('main.ts', 'main.js'),
     )
   }
 
@@ -197,7 +200,7 @@ export class GenJS extends Utils {
     // ❗ This isn't working => ts => js
 
     // Replace `.ts` extensions with `.js` extension
-    tsConfig = tsConfig.replace('.ts', '.js')
+    tsConfig = tsConfig.mustReplace('.ts', '.js')
 
     // Parse modified tsConfig as JSON
     const tsConfigJSON = JSON5.parse(tsConfig)
@@ -217,9 +220,16 @@ export class GenJS extends Utils {
       'types',
     ]
 
+    // ℹ️ Don't include d.ts files
+    const jsConfigInclude = (tsConfigJSON.include as string[]).filter(i => !i.endsWith('d.ts'))
+
+    // Change extension from .ts to .js except files that have double dots or dashes
+    jsConfigInclude.forEach((i, index) => {
+      jsConfigInclude[index] = i.replace(/(?<=^\w+.)ts/gm, 'js')
+    })
+
     const jsConfig = {
-      // TODO: We aren't excluding shims.d.ts file as well
-      include: (tsConfigJSON.include as string[]).filter(i => i !== 'env.d.ts'),
+      include: jsConfigInclude,
       exclude: tsConfigJSON.exclude,
       compilerOptions: Object.fromEntries(
         Object.entries(tsConfigJSON.compilerOptions)
@@ -231,16 +241,19 @@ export class GenJS extends Utils {
     const jsConfigPath = path.join(this.tempDir, 'jsconfig.json')
 
     // Write back to jsConfig as JSON
-    fs.writeJsonSync(jsConfigPath, jsConfig, { spaces: 4 })
+    fs.writeJsonSync(jsConfigPath, jsConfig, { spaces: 2 })
+
+    // remove tsConfig
+    fs.removeSync(tsConfigPath)
   }
 
   // 👉 updateGitIgnore
   private updateGitIgnore() {
     updateFile(
       path.join(this.tempDir, '.gitignore'),
-      gitIgnore => gitIgnore.split('\n')
-        .filter(line => !line.includes('iconify'))
-        .join('\n'),
+
+      // replace: src/@iconify/*.js => src/@iconify/icons-bundle.js
+      gitIgnore => gitIgnore.mustReplace(/(?<=.*@iconify\/)\*\.js/gm, 'icons-bundle.js'),
     )
   }
 
@@ -272,6 +285,11 @@ export class GenJS extends Utils {
     this.copyProject(
       source,
       this.tempDir,
+
+      /*
+        ℹ️ Don't include env & shims file because those are TS only files.
+        We will copy components.d.ts & auto-imports.d.ts for "yarn tsc" to run without errors
+      */
       this.templateConfig.packageCopyIgnorePatterns,
     )
 
@@ -337,10 +355,15 @@ export class GenJS extends Utils {
       https://stackoverflow.com/a/39382621/10796681
       https://unix.stackexchange.com/a/15309/528729
     */
-    execCmd('find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i \'\' -e \'/@typescript-eslint/d;/@ts-expect/d\'', { cwd: this.tempDir })
+    // ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
+    execCmd(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i ${process.platform === 'darwin' ? '""' : ''} -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
 
     // Auto format all files using eslint
     execCmd('yarn lint', { cwd: this.tempDir })
+
+    // ℹ️ Remove d.ts files from JS project
+    const dTsFiles = globbySync(['*.d.ts'], { cwd: this.tempDir, absolute: true })
+    dTsFiles.forEach(f => fs.removeSync(f))
 
     const replaceDest = (() => {
       // If generating JS for free version => Replace with free JS

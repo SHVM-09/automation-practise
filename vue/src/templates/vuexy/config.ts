@@ -1,17 +1,21 @@
 import path from 'path'
 import * as url from 'url'
+
 import type { TemplateBaseConfig } from '@/templates/base'
 import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
+import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
 type VuexyConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
-const vuexyVueFreePath = vuexyVuePath.replace('vue', 'vue-free')
+const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
+const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
 export const config: VuexyConfig = {
   templateName: 'Vuexy',
+  templateDomain: 'pi',
   projectPath: vuexyVuePath,
   packageCopyIgnorePatterns: [
     // Directories
@@ -27,6 +31,9 @@ export const config: VuexyConfig = {
     'license.md',
     '*.log',
     '*.zip',
+
+    // Laravel only
+    'vendor',
   ],
   sKImagesRemovePatterns: [
     '**/*',
@@ -106,4 +113,20 @@ export const config: VuexyConfig = {
     branch: 'dev',
   },
   gtm: pixinventGTMConfig,
+  laravel: {
+    pkgName: 'vuexy-vuejs-laravel-admin-template',
+    projectPath: vuexyVueLaravelPath,
+    paths: {
+      TSFull: path.join(vuexyVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(vuexyVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
+    },
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    documentation: {
+      pageTitle: 'Vuexy - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-dashboard-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    demoPathOnServer: (demoNumber, isStaging) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+  },
 }

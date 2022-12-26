@@ -1,4 +1,5 @@
 {
+  "private": true,
   "type": "module",
   "scripts": {
     "lint": "eslint . --fix --ext .js,.ts,.mjs,.cjs"

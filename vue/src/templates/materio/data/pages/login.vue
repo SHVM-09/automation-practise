@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import tree from '@images/pages/tree.png'
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { useGenerateImageVariant } from '@core/composable/useGenerateImageVariant'
+import tree from '@images/pages/tree.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
@@ -11,6 +11,7 @@ import authV2LoginIllustrationDark from '@images/pages/auth-v2-login-illustratio
 import authV2LoginIllustrationLight from '@images/pages/auth-v2-login-illustration-light.png'
 import authV2MaskDark from '@images/pages/auth-v2-mask-dark.png'
 import authV2MaskLight from '@images/pages/auth-v2-mask-light.png'
+
 const form = ref({
   email: '',
   password: '',
@@ -19,7 +20,12 @@ const form = ref({
 
 const isPasswordVisible = ref(false)
 
-const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
+const authThemeImg = useGenerateImageVariant(
+  authV2LoginIllustrationLight,
+  authV2LoginIllustrationDark,
+  authV2LoginIllustrationBorderedLight,
+  authV2LoginIllustrationBorderedDark,
+  true)
 
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 </script>
@@ -30,7 +36,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
     <div class="auth-logo d-flex align-start gap-x-3">
       <VNodeRenderer :nodes="themeConfig.app.logo" />
 
-      <h1 class="font-weight-semibold leading-normal text-2xl text-uppercase">
+      <h1 class="font-weight-medium leading-normal text-2xl text-uppercase">
         {{ themeConfig.app.title }}
       </h1>
     </div>
@@ -40,14 +46,19 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
       class="auth-wrapper"
     >
       <VCol
-        lg="8"
-        class="d-none d-lg-flex align-center justify-center position-relative"
+        md="8"
+        class="d-none d-md-flex align-center justify-center position-relative"
       >
-        <VImg
-          max-width="768px"
-          :src="authThemeImg"
-          class="auth-illustration"
-        />
+        <div
+          class="d-flex align-center justify-center w-100 pa-10 pe-0"
+        >
+          <VImg
+            max-width="768px"
+            :src="authThemeImg"
+            class="auth-illustration"
+          />
+        </div>
+
         <VImg
           :width="276"
           :src="tree"
@@ -61,8 +72,8 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
       <VCol
         cols="12"
-        lg="4"
-        class="auth-bg d-flex align-center justify-center"
+        md="4"
+        class="auth-card-v2 d-flex align-center justify-center"
       >
         <VCard
           flat
@@ -70,7 +81,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
           class="mt-12 mt-sm-0 pa-4"
         >
           <VCardText>
-            <h5 class="text-h5 font-weight-semibold mb-1">
+            <h5 class="text-h5 font-weight-medium mb-1">
               Welcome to {{ themeConfig.app.title }}! 👋🏻
             </h5>
             <p class="mb-0">
@@ -104,7 +115,10 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                       v-model="form.remember"
                       label="Remember me"
                     />
-                    <a href="#" class="text-primary ms-2 mb-1">
+                    <a
+                      class="text-primary ms-2 mb-1"
+                      href="#"
+                    >
                       Forgot Password?
                     </a>
                   </div>
@@ -120,10 +134,13 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
                 <!-- create account -->
                 <VCol
                   cols="12"
-                  class="text-center"
+                  class="text-center text-base"
                 >
                   <span>New on our platform?</span>
-                  <a href="#" class="text-primary ms-2">
+                  <a
+                    class="text-primary ms-2"
+                    href="#"
+                  >
                     Create an account
                   </a>
                 </VCol>
@@ -154,7 +171,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 </template>
 
 <style lang="scss">
-@use "@core/scss/pages/page-auth.scss";
+@use "@core/scss/template/pages/page-auth.scss";
 </style>
 
 <route lang="yaml">

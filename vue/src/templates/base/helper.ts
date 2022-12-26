@@ -1,3 +1,4 @@
+import '@/utils/injectMustReplace'
 import path from 'path'
 import type { GTMConfig, TemplateBaseConfig } from './config'
 import { execCmd, updateFile } from '@/utils/node'
@@ -45,8 +46,8 @@ export const injectGTM = (filePath: string, gtmConfig: GTMConfig) => {
     // Path to `index.html`
     filePath,
     htmlContent => htmlContent
-      .replace('<head>', `<head>\n${gtmConfig.headScript}`)
-      .replace('<body>', `<body>\n${gtmConfig.bodyNoScript}`),
+      .mustReplace('<head>', `<head>\n${gtmConfig.headScript}`)
+      .mustReplace('<body>', `<body>\n${gtmConfig.bodyNoScript}`),
   )
 }
 

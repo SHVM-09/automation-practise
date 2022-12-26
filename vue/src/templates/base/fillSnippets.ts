@@ -2,7 +2,9 @@ import path from 'path'
 import chalk from 'chalk'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+
 import { toCamelCase } from '@/utils/conversions'
+import '@/utils/injectMustReplace'
 import { execCmd } from '@/utils/node'
 
 export class FillSnippets {
@@ -26,7 +28,7 @@ export class FillSnippets {
     const componentName = snippetFileName.slice(8, -3)
 
     // Get the content of snippet file
-    let snippet = fs.readFileSync(snippetFilePath, { encoding: 'utf-8' })
+    let snippet = ''
 
     const demos = globbySync('*.vue', { cwd: demosContainerPath, absolute: true })
 
@@ -48,28 +50,32 @@ export class FillSnippets {
               3rd => JS snippet
               4th => '>' or _might not exist_
         */
-      const regexToReplaceDemoContent = new RegExp(`export const ${demoVarName} = {(?:\\s|\n)*?ts: [\`'"]{1}((\n|.)*?)[\`'"]{1},(?:\\s|\n)*?js: [\`'"]{1}((\n|.)*?)[\`'"]{1},?(?:\\s|\n)*?}$`, 'gm')
+      // const regexToReplaceDemoContent = new RegExp(`export const ${demoVarName} = {(?:\\s|\n)*?ts: [\`'"]{1}((\n|.)*?)[\`'"]{1},(?:\\s|\n)*?js: [\`'"]{1}((\n|.)*?)[\`'"]{1},?(?:\\s|\n)*?}$`, 'gm')
+      // const regexToReplaceDemoContent = new RegExp(`export const ${demoVarName} = {\\s*ts:\\s*(['"\`].*?['"\`]),\\s*js:\\s*(['"\`].*?['"\`])\\s*,?\\s*}(?=\\s*(?:export|\n$))`, 'gism')
 
       // Get content of TypeScript demo
       const tSDemo = fs.readFileSync(demoPath, { encoding: 'utf-8' })
         .replace(/`/gi, '\\`')
-        .replace(/\$/gi, '\\$')
+        .replace(/\${/gi, '\\${')
 
       // Generate path of JavaScript demo
       const jsDemoPath = demoPath
-        .replace('typescript-version', 'javascript-version')
-        .replace('.ts', '.js')
+        .mustReplace('typescript-version', 'javascript-version')
 
-      // Get content of JavaScript demo
+      // Q: Why we have below replace because we don't have any demo with extension ts and in glob we are only globbing .vue files
+      // .mustReplace('.ts', '.js')
+
+      // // Get content of JavaScript demo
       const jSDemo = fs.readFileSync(jsDemoPath, { encoding: 'utf-8' })
         .replace(/`/gi, '\\`')
-        .replace(/\$/gi, '\\$')
+        .replace(/\${/gi, '\\${')
 
       // Update snippet
-      snippet = snippet.replace(
-        regexToReplaceDemoContent,
-          `export const ${demoVarName} = { ts: \`${tSDemo}\`, js: \`${jSDemo}\` }`,
-      )
+      // snippet = snippet.mustReplace(
+      //   regexToReplaceDemoContent,
+      //     `export const ${demoVarName} = { ts: \`${tSDemo}\`, js: \`${jSDemo}\` }`,
+      // )
+      snippet += `export const ${demoVarName} = { ts: \`${tSDemo}\`, js: \`${jSDemo}\` }\n\n`
     })
 
     return snippet
@@ -96,8 +102,8 @@ export class FillSnippets {
 
       // Write updated snippet to file JS Full
       const jSSnippetFilePath = snippetFilePath
-        .replace('typescript-version', 'javascript-version')
-        .replace('.ts', '.js')
+        .mustReplace('typescript-version', 'javascript-version')
+        .mustReplace('.ts', '.js')
 
       // Write updated snippet to file - JS Full
       fs.writeFileSync(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' })

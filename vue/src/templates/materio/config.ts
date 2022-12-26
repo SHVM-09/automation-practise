@@ -1,17 +1,21 @@
 import path from 'path'
 import * as url from 'url'
+
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
+import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
 type MaterioConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
-const materioVueFreePath = materioVuePath.replace('vue', 'vue-free')
+const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
+const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
 
 export const config: MaterioConfig = {
   templateName: 'Materio',
+  templateDomain: 'ts',
   projectPath: materioVuePath,
   packageCopyIgnorePatterns: [
     // Directories
@@ -27,6 +31,9 @@ export const config: MaterioConfig = {
     'license.md',
     '*.log',
     '*.zip',
+
+    // Laravel only
+    'vendor',
   ],
   sKImagesRemovePatterns: [
     '**/*',
@@ -102,6 +109,23 @@ export const config: MaterioConfig = {
   gh: {
     ownerName: 'themeselection',
     repoName: 'materio-vuetify-vuejs-admin-template',
+    branch: 'dev',
   },
   gtm: themeselectionGTMConfig,
+  laravel: {
+    pkgName: 'materio-vuetify-vuejs-laravel-admin-template',
+    projectPath: materioVueLaravelPath,
+    paths: {
+      TSFull: path.join(materioVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(materioVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(materioVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(materioVueLaravelPath, 'javascript-version', 'starter-kit'),
+    },
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    documentation: {
+      pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    demoPathOnServer: (demoNumber, isStaging) => `/demos/materio/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+  },
 }

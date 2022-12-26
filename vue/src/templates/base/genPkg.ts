@@ -8,14 +8,14 @@ import { Utils } from '@/templates/base/helper'
 import { success } from '@/utils/logging'
 import { execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
-import { generateDocContent } from '@/utils/template'
+import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
     super()
   }
 
-  async genPkg() {
+  async genPkg(isInteractive = true, newPkgVersion?: string) {
     const { tSFull, jSFull } = this.templateConfig.paths
 
     // Generate TS SK
@@ -64,6 +64,16 @@ export class GenPkg extends Utils {
       path.join(tempPkgDir, 'documentation.html'),
       generateDocContent(this.templateConfig.documentation.pageTitle, this.templateConfig.documentation.docUrl),
     )
+
+    if (isInteractive || newPkgVersion) {
+      const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
+
+      await updatePkgJsonVersion(
+        [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json')),
+        tempPkgTSFullPackageJsonPath,
+        newPkgVersion,
+      )
+    }
 
     const zipPath = path.join(
       this.templateConfig.projectPath,

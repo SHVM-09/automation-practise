@@ -1,3 +1,4 @@
+import '@/utils/injectMustReplace'
 import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
@@ -14,7 +15,7 @@ export class GenDemo {
     // Remove vue-tsc from build command in package.json file
     updateFile(
       path.join(this.templateConfig.paths.tSFull, 'package.json'),
-      data => data.replace(/&& vue-tsc --noEmit /g, ''),
+      data => data.mustReplace(/&& vue-tsc --noEmit /g, ''),
     )
   }
 
@@ -96,7 +97,7 @@ export class GenDemo {
     updateFile(
       // Path to `index.html`
       path.join(this.templateConfig.paths.tSFull, 'index.html'),
-      data => data.replace(indexHTMLFind, indexHTMLReplace),
+      data => data.mustReplace(indexHTMLFind, indexHTMLReplace),
     )
   }
 
@@ -111,9 +112,10 @@ export class GenDemo {
     // Remove existing build files & dirs
     this.removeExistingBuildData()
 
-    info('Updating build command to remove vue-tsc...')
+    // ℹ️ We no longer have vue-tsc command in build script
+    // info('Updating build command to remove vue-tsc...')
     // Update build command to ignore vue-tsc errors
-    this.updateBuildCommand()
+    // this.updateBuildCommand()
 
     // inject GTM code in index.html file
     injectGTM(
@@ -144,7 +146,7 @@ export class GenDemo {
 
         // Loop over demo config and make changes in cloned themeConfig
         demoConfig.forEach((changes) => {
-          demoThemeConfig = demoThemeConfig.replace(changes.find, changes.replace)
+          demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
         })
 
         // Update themeConfig file

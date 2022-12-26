@@ -8,8 +8,11 @@ export interface DemoConfigItem {
   replace: string
 }
 
+export type TemplateDomain = 'ts' | 'pi'
+
 export interface TemplateBaseConfig {
   templateName: string
+  templateDomain: TemplateDomain
   projectPath: string
   packageCopyIgnorePatterns: string[]
   sKImagesRemovePatterns: string[]
@@ -37,5 +40,24 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   laravel: {
     pkgName: string
+    projectPath: string
+    paths: {
+      TSFull: string
+      TSStarter: string
+      JSFull: string
+      JSStarter: string
+    }
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
+    documentation: {
+      pageTitle: string
+      docUrl: string
+    }
+    /**
+     * Returns server path for providing relative path of demo relative to laravel core container for updating it in `index.php`.
+     * @param demoNumber Demo number you are generating demo for
+     * @param isStaging Is demo staging
+     * @returns returns path after <themeselection.com|pixinvent.com>/html/<returnValue>
+     */
+    demoPathOnServer: (demoNumber: number, isStaging: boolean) => string
   }
 }
