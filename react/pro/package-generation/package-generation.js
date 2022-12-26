@@ -176,31 +176,9 @@ const generateTSXPackage = () => {
                     resolve()
                   })
 
-                copyStarterPromise().then(() => {
-                  const configsPathStarter = `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs`
-                  if (fs.existsSync(`${configsPathStarter}/firebase.ts`)) {
-                    fs.writeFileSync(
-                      `${configsPathStarter}/firebase.ts`,
-                      fs.readFileSync('./files/firebase.ts').toString()
-                    )
-                  } else {
-                    console.log(
-                      `${pathConfig.packagePath}/typescript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`
-                    )
-                  }
-                })
+                copyStarterPromise()
               }
             })
-          }
-        })
-        .then(() => {
-          const configsPathFullVersion = `${pathConfig.packagePath}/typescript-version/full-version/src/configs`
-          if (fs.existsSync(`${configsPathFullVersion}/firebase.ts`)) {
-            fs.writeFileSync(`${configsPathFullVersion}/firebase.ts`, fs.readFileSync('./files/firebase.ts').toString())
-          } else {
-            console.log(
-              `${pathConfig.packagePath}/typescript-version/full-version/src/configs/firebase.ts File Does Not Exist!`
-            )
           }
         })
         .then(() => {
@@ -248,33 +226,9 @@ const generateJSXPackage = () => {
                     )
                     resolve()
                   })
-                copyStarterPromise().then(() => {
-                  const configsPathStarter = `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs`
-
-                  if (fs.existsSync(`${configsPathStarter}/firebase.js`)) {
-                    fs.writeFileSync(
-                      `${configsPathStarter}/firebase.js`,
-                      fs.readFileSync('./files/firebase.ts').toString()
-                    )
-                  } else {
-                    console.log(
-                      `${pathConfig.packagePath}/javascript-version/starter-kit/src/configs/firebase.ts File Does Not Exist!`
-                    )
-                  }
-                })
+                copyStarterPromise()
               }
             })
-          }
-        })
-        .then(() => {
-          const configsPath = `${pathConfig.packagePath}/javascript-version/full-version/src/configs`
-
-          if (fs.existsSync(`${configsPath}/firebase.js`)) {
-            fs.writeFileSync(`${configsPath}/firebase.js`, fs.readFileSync('./files/firebase.ts').toString())
-          } else {
-            console.log(
-              `${pathConfig.packagePath}/javascript-version/full-version/src/configs/firebase.ts File Does Not Exist!`
-            )
           }
         })
         .then(() => {

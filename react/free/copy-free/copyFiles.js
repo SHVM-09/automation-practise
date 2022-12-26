@@ -52,7 +52,6 @@ const foldersToDelete = [
   `${pathConfig.basePathTSX}/src/configs/auth.ts`,
   `${pathConfig.basePathTSX}/src/configs/i18n.ts`,
   `${pathConfig.basePathTSX}/src/@core/styles/mui`,
-  `${pathConfig.basePathTSX}/src/configs/firebase.ts`,
   `${pathConfig.basePathTSX}/src/@core/components/auth`,
   `${pathConfig.basePathTSX}/src/navigation/horizontal`,
   `${pathConfig.basePathTSX}/src/layouts/components/acl`,
@@ -119,7 +118,7 @@ const dataToReplace = [
         from: "import { Toaster } from 'react-hot-toast'",
         to: ''
       },
-      
+
       {
         from: new RegExp(/\/\/ \*\* Store Imports/),
         to: ''
@@ -254,11 +253,11 @@ const dataToReplace = [
         to: ''
       },
       {
-        from: "hidden, ",
+        from: 'hidden, ',
         to: ''
       },
       {
-        from: "disableCustomizer, ",
+        from: 'disableCustomizer, ',
         to: ''
       },
       {
@@ -581,7 +580,7 @@ const dataToReplace = [
       },
       {
         from: /[\s]*?const handleLogout.*\s+(\S+).*\s+(\S+)/,
-        to: ""
+        to: ''
       }
     ]
   }
@@ -662,26 +661,35 @@ copyTSVersion()
         })
       }, 500)
       resolve()
-    }).then(() => {
-      setTimeout(() => {
-        fs.writeFileSync(
-          `${pathConfig.basePathTSX}/src/pages/index.tsx`,
-          fs.readFileSync('./components/index.tsx').toString()
-        )
-      }, 500)
-    }).then(() => {
-      setTimeout(() => {
-        fs.writeFileSync(
-          `${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`,
-          fs.readFileSync(`${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`).toString().replace(new RegExp('src/views/ui/cards/basic/', 'g'), 'src/views/ui/cards/')
-        )
-      }, 500)
-    }).then(() => {
-      setTimeout(() => {
-        fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/register-multi-steps`, { recursive: true, force: true })
-        fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/FooterIllustrationsV2.tsx`)
-      }, 600)
     })
+      .then(() => {
+        setTimeout(() => {
+          fs.writeFileSync(
+            `${pathConfig.basePathTSX}/src/pages/index.tsx`,
+            fs.readFileSync('./components/index.tsx').toString()
+          )
+        }, 500)
+      })
+      .then(() => {
+        setTimeout(() => {
+          fs.writeFileSync(
+            `${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`,
+            fs
+              .readFileSync(`${pathConfig.basePathTSX}/src/pages/ui/cards/index.tsx`)
+              .toString()
+              .replace(new RegExp('src/views/ui/cards/basic/', 'g'), 'src/views/ui/cards/')
+          )
+        }, 500)
+      })
+      .then(() => {
+        setTimeout(() => {
+          fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/register-multi-steps`, {
+            recursive: true,
+            force: true
+          })
+          fs.rmSync(`${pathConfig.basePathTSX}/src/views/pages/auth/FooterIllustrationsV2.tsx`)
+        }, 600)
+      })
   })
   // ** Copy Dashboard
   .then(() => {
