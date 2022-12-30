@@ -12,9 +12,8 @@ const handleParentPath = path => path.substring(0, path.lastIndexOf('/')).replac
 const getVariableValue = (data, key) => {
   const arr = []
   const splitData = data.split('\n')
-  
+
   splitData.forEach(line => {
-    
     if (line.includes(key)) {
       if (!line.includes('${')) {
         if (line.includes('?')) {
@@ -26,7 +25,6 @@ const getVariableValue = (data, key) => {
         }
 
         if (line.endsWith('=')) {
-          
           const checkSecondLine = splitData[splitData.indexOf(line) + 1]
           const splitSecondLine = checkSecondLine.split("'")
 
@@ -57,38 +55,36 @@ const getVariableValue = (data, key) => {
 }
 
 const checkAndCreate = (imgPath, src, dest) => {
- if(!src.includes('undefined') && !dest.includes('undefined')){
-  if (fs.existsSync(imgPath)) {
-    fs.copyFileSync(src, dest)
-    return
-  } else {
-    fs.mkdir(imgPath, { recursive: true }, err => {
-      if (err) {
-        console.log(err)
-      } else {
-        fs.copyFileSync(src, dest)
-      }
-    })
+  if (!src.includes('undefined') && !dest.includes('undefined')) {
+    if (fs.existsSync(imgPath)) {
+      fs.copyFileSync(src, dest)
+      return
+    } else {
+      fs.mkdir(imgPath, { recursive: true }, err => {
+        if (err) {
+          console.log(err)
+        } else {
+          fs.copyFileSync(src, dest)
+        }
+      })
+    }
   }
- }
 }
 
-const extractImgPath = (line) => {
-  if(line.includes('jpg')){
+const extractImgPath = line => {
+  if (line.includes('jpg')) {
     return {
       path: line.split('/images')[1].split('.jpg')[0],
       extension: 'jpg'
     }
-  
-  }else if(line.includes('jpeg')){
+  } else if (line.includes('jpeg')) {
     return {
       path: line.split('/images')[1].split('.jpeg')[0],
       extension: 'jpeg'
     }
-  }
-  else if(line.includes('ico')){
+  } else if (line.includes('ico')) {
     return line.split('/images')[1].split('.ico')[0]
-  }else{
+  } else {
     return {
       path: line.split('/images')[1].split('.png')[0],
       extension: 'png'
@@ -115,32 +111,34 @@ const moveImgFiles = (dirPath, arrayOfFiles) => {
           splitData.map(line => {
             if (line.includes('/images/')) {
               const pathBetween = extractImgPath(line).path
-
               if (line.includes('${')) {
                 const variableName = line.split('${')[1].split('}')[0]
-                
+
                 if (variableName !== 'theme.palette.mode') {
                   getVariableValue(data, variableName).map(r => {
-                    const replaced = line
-                      .replace('src=', '')
-                      .replace('{`', '')
-                      .replace('`}', '')
-                      .replace('${' + variableName + '}', r)
-                    const replacedLight = replaced.replace('${theme.palette.mode}', 'light').trim()
-                    const replacedDark = replaced.replace('${theme.palette.mode}', 'dark').trim()
-
-                    const parentPathLight = handleParentPath(replacedLight)
-                    const parentPathDark = handleParentPath(replacedDark)
+                    const replaced = extractImgPath(
+                      line
+                        .replace('src=', '')
+                        .replace('{`', '')
+                        .replace('`}', '')
+                        .replace('${' + variableName + '}', r)
+                    )
+                    const replacedLight = `${replaced.path.replace('${theme.palette.mode}', 'light').trim()}.${
+                      replaced.extension
+                    }`
+                    const replacedDark = `${replaced.path.replace('${theme.palette.mode}', 'dark').trim()}.${
+                      replaced.extension
+                    }`
 
                     checkAndCreate(
-                      `${pathConfig.starterKitTSXPath}/public${parentPathLight}`,
-                      `${pathConfig.fullVersionTSXPath}/public${replacedLight}`,
-                      `${pathConfig.starterKitTSXPath}/public${replacedLight}`
+                      `${pathConfig.starterKitTSXPath}/public/images/pages`,
+                      `${pathConfig.fullVersionTSXPath}/public/images/${replacedLight}`,
+                      `${pathConfig.starterKitTSXPath}/public/images/${replacedLight}`
                     )
                     checkAndCreate(
-                      `${pathConfig.starterKitTSXPath}/public${parentPathDark}`,
-                      `${pathConfig.fullVersionTSXPath}/public${replacedDark}`,
-                      `${pathConfig.starterKitTSXPath}/public${replacedDark}`
+                      `${pathConfig.starterKitTSXPath}/public/images/pages`,
+                      `${pathConfig.fullVersionTSXPath}/public/images/${replacedDark}`,
+                      `${pathConfig.starterKitTSXPath}/public/images/${replacedDark}`
                     )
                   })
                 } else {
@@ -190,7 +188,7 @@ const generate = () => {
     setTimeout(() => {
       imgFilesToKeep.map(file => {
         if (fs.existsSync(`${pathConfig.starterKitTSXPath}/public`)) {
-          if(fs.existsSync(`${pathConfig.fullVersionTSXPath}${file}`)){
+          if (fs.existsSync(`${pathConfig.fullVersionTSXPath}${file}`)) {
             fs.copyFileSync(`${pathConfig.fullVersionTSXPath}${file}`, `${pathConfig.starterKitTSXPath}${file}`)
           }
         }
