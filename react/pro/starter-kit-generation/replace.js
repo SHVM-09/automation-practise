@@ -124,9 +124,9 @@ replaceFiles()
               console.log(err)
             } else {
               const splitStarterFile = dataStarter.split('\n')
-              const starterIconLine = splitStarterFile.find(line => line.includes('Icon icon='))
+              const starterIconLine = splitStarterFile.find(line => line.includes('Icon') && line.includes('icon='))
               const splitFullVFile = dataFullV.split('\n')
-              const fullVIconLine = splitFullVFile.find(line => line.includes('Icon icon='))
+              const fullVIconLine = splitFullVFile.find(line => line.includes('Icon') && line.includes('icon='))
 
               const result = dataStarter.replace(starterIconLine, fullVIconLine)
 
@@ -135,7 +135,7 @@ replaceFiles()
                   console.log(err)
 
                   return
-                } 
+                }
               })
             }
           })
