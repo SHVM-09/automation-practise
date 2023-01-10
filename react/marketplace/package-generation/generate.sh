@@ -16,6 +16,7 @@ node package-generation.js $1
 wait
 
 cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
+cp ../../../../master-react-mui-nextjs/hire-us.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
 wait 
 
@@ -43,6 +44,7 @@ mkdir ../../package-standard
 cp -a ../../package/javascript-version  ../../package-standard/javascript-version
 cp ../../package/CHANGELOG.md  ../../package-standard/CHANGELOG.md
 cp ../../package/documentation.html  ../../package-standard/documentation.html
+cp ../../package/hire-us.html  ../../package-standard/hire-us.html
 
 wait 
 

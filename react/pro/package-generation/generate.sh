@@ -16,6 +16,7 @@ node package-generation.js $1
 wait
 
 cp ../../../../master-react-mui-nextjs/documentation.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
+cp ../../../../master-react-mui-nextjs/hire-us.html ../../../../master-react-mui-nextjs/CHANGELOG.md ../../../../master-react-mui-nextjs/package
 
 
 cd ../../../../master-react-mui-nextjs/typescript-version/full-version
