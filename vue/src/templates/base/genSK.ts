@@ -205,8 +205,8 @@ export class GenSK extends Utils {
         // Remove search button
         // data = data.mustReplace(/<VBtn(\n|.)*<\/VBtn>/gm, '')
 
-        // add me-2 class to ThemeSwitcher
-        data = data.mustReplace(/<NavbarThemeSwitcher \/>/g, '<NavbarThemeSwitcher class="me-2" />')
+        // add me-2 class to ThemeSwitcher regardless of existing me-\d+ class
+        data = data.mustReplace(/<NavbarThemeSwitcher (class="me-\d+")? \/>/g, '<NavbarThemeSwitcher class="me-2" />')
 
         // Comment out customizer
         data = data.mustReplace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
@@ -260,14 +260,14 @@ export class GenSK extends Utils {
         )
 
         // Remove i18n plugin
-        viteConfig = viteConfig.mustReplace(/VueI18n\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
+        viteConfig = viteConfig.mustReplace(/VueI18nPlugin\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 
         // Remove i18n auto import preset from AutoImport plugin
         viteConfig = viteConfig.mustReplace(/'vue-i18n', /g, '')
 
         // ℹ️ Remove vueI18n import.
         viteConfig = viteConfig.split('\n')
-          .filter(line => !line.includes('vite-plugin-vue-i18n'))
+          .filter(line => !line.includes('unplugin-vue-i18n'))
           .join('\n')
 
         return viteConfig

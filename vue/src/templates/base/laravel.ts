@@ -467,14 +467,15 @@ export class Laravel extends Utils {
     // Update vite config
     this.updateViteConfig(lang)
 
+    // ❗ We are moving images before doing `yarn` because we have postinstall script that can generate SVG based on iconify-svg dir and this dir is in images
+    this.moveImages(lang, langConfigFile)
+
     // install packages
     execCmd('yarn', { cwd: this.projectPath })
 
     this.useStylesDir(lang, langConfigFile)
 
     // execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
-
-    this.moveImages(lang, langConfigFile)
 
     const replaceDest = (() => {
       const paths = this.templateConfig.laravel.paths

@@ -54,12 +54,22 @@ export const config: MaterializeConfig = {
     freeJS: path.join(materializeVueFreePath, 'javascript-version'),
     docs: path.join(materializeVuePath, 'docs'),
   },
+  // ℹ️ We will explicitly make all demos either light or dark
   demosConfig: [
     // Demo 1
-    null,
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+    ],
 
     // Demo 2
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'skin: Skins.Default',
         replace: 'skin: Skins.Bordered',
@@ -69,6 +79,10 @@ export const config: MaterializeConfig = {
     // Demo 3
     [
       {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
         find: 'isVerticalNavSemiDark: false',
         replace: 'isVerticalNavSemiDark: true',
       },
@@ -77,13 +91,17 @@ export const config: MaterializeConfig = {
     // Demo 4
     [
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
 
     // Demo 5
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
@@ -97,20 +115,20 @@ export const config: MaterializeConfig = {
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
       },
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
   ],
-  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-admin-dashboard-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
     pageTitle: 'Materialize - Vuetify Vuejs Admin Template',
-    docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-dashboard-template/documentation/',
+    docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-template/documentation/',
   },
   gh: {
     ownerName: 'pixinvent',
-    repoName: 'materialize-vuejs-admin-template',
-    branch: 'dev',
+    repoName: 'materialize-vuetify-vuejs-admin-template',
+    branch: 'main',
   },
   gtm: pixinventGTMConfig,
   laravel: {
@@ -125,8 +143,8 @@ export const config: MaterializeConfig = {
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
       pageTitle: 'Materialize - Vuetify Vuejs Laravel Admin Template',
-      docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-dashboard-template/documentation/guide/laravel-integration/folder-structure.html',
+      docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/demo/materialize/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

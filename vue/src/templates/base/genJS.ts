@@ -79,6 +79,12 @@ export class GenJS extends Utils {
     // Remove eslint internal rules
     eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
 
+    // Remove `*.d.ts` from ignorePatterns
+    eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/, '')
+
+    // Replace .ts extension with .js
+    eslintConfig = eslintConfig.replaceAll('.ts', '.js')
+
     /*
       Add auto-import json file in extends array
       Regex: https://regex101.com/r/1RYdYv/2
@@ -166,9 +172,9 @@ export class GenJS extends Utils {
       }),
     )
 
-    // Remove TypeScript related packages => Remove all the devDependencies that contains "type" word
+    // Remove TypeScript related packages => Remove all the devDependencies that contains "type" word and "vue-tsc"
     pkgJson.devDependencies = Object.fromEntries(
-      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => !dep.includes('type')),
+      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => !(dep.includes('type') || dep.includes('vue-tsc'))),
     )
 
     // Write updated json to file
