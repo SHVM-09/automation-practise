@@ -319,6 +319,8 @@ export class Laravel extends Utils {
   }
 
   private insertDeployLaravelDemoGhAction() {
+    // ❗ We have intentionally set template name as "materio" in placeholder workflow files instead of master to update it without worrying about some file may have branch name master and gets replaces with template name
+
     // Update/Add GitHub action
     const ghWorkflowsDir = path.join(this.templateConfig.laravel.projectPath, '.github', 'workflows')
 
@@ -330,29 +332,26 @@ export class Laravel extends Utils {
     const baseDataDirPath = path.join(__dirname, 'data')
 
     const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demos.yml')
-    const releaseWorkflowSourceFilePath = path.join(baseDataDirPath, 'release-laravel.yml')
-
-    // dest path for copying workflow files
     const deployLaravelDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
-    const releaseWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(releaseWorkflowSourceFilePath))
 
     // copy file from data to github workflow dir
     fs.copyFileSync(
       deployLaravelDemosWorkflowSourceFilePath,
       deployLaravelDemosWorkflowFilePath,
     )
+    updateFile(deployLaravelDemosWorkflowFilePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
 
-    // copy file from data to github workflow dir
-    fs.copyFileSync(
-      releaseWorkflowSourceFilePath,
-      releaseWorkflowFilePath,
-    )
-
-    // Update the template name in workflow files
-    ;[deployLaravelDemosWorkflowFilePath, releaseWorkflowFilePath].forEach((filePath) => {
-      // ❗ We have intentionally set template name as materio in those two files instead of master to update it without worrying about some file may have branch name master and gets replaces with template name
-      updateFile(filePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
-    })
+    // ℹ️ Only add release laravel workflow if template is for themeselection
+    if (this.templateConfig.templateDomain === 'ts') {
+      const releaseWorkflowSourceFilePath = path.join(baseDataDirPath, 'release-laravel.yml')
+      const releaseWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(releaseWorkflowSourceFilePath))
+      // copy file from data to github workflow dir
+      fs.copyFileSync(
+        releaseWorkflowSourceFilePath,
+        releaseWorkflowFilePath,
+      )
+      updateFile(releaseWorkflowFilePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
+    }
   }
 
   private updateRepoRootFiles() {

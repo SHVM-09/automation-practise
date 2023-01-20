@@ -128,7 +128,7 @@ export const config: MaterializeConfig = {
   gh: {
     ownerName: 'pixinvent',
     repoName: 'materialize-vuetify-vuejs-admin-template',
-    branch: 'main',
+    branch: 'dev',
   },
   gtm: pixinventGTMConfig,
   laravel: {

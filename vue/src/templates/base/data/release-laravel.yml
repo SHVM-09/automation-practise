@@ -20,7 +20,7 @@ jobs:
       - name: Checkout vue version
         uses: actions/checkout@v3
         with:
-          repository: themeselection/materio-vuetify-vuejs-admin-template
+          repository: themeselection/materio-vuejs-laravel-admin-template
           token: ${{ secrets.GH_PAT }}
           path: ${{ env.TEMPLATE_NAME }}/vue
 
