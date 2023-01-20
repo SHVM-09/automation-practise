@@ -318,11 +318,9 @@ export class Laravel extends Utils {
     )
   }
 
-  private insertDeployLaravelDemoGhAction(repoRootDir: string) {
-    // TODO: Update vue repo name in release-laravel.yml
-
+  private insertDeployLaravelDemoGhAction() {
     // Update/Add GitHub action
-    const ghWorkflowsDir = path.join(repoRootDir, '.github', 'workflows')
+    const ghWorkflowsDir = path.join(this.templateConfig.laravel.projectPath, '.github', 'workflows')
 
     // Make sure workflow dir exist
     fs.ensureDirSync(ghWorkflowsDir)
@@ -334,26 +332,27 @@ export class Laravel extends Utils {
     const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demos.yml')
     const releaseWorkflowSourceFilePath = path.join(baseDataDirPath, 'release-laravel.yml')
 
-    // dest path for copying workflow file
-    const workflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
-    const releaseFilePath = path.join(ghWorkflowsDir, path.basename(releaseWorkflowSourceFilePath))
+    // dest path for copying workflow files
+    const deployLaravelDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
+    const releaseWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(releaseWorkflowSourceFilePath))
 
     // copy file from data to github workflow dir
     fs.copyFileSync(
       deployLaravelDemosWorkflowSourceFilePath,
-      workflowFilePath,
+      deployLaravelDemosWorkflowFilePath,
     )
+
     // copy file from data to github workflow dir
     fs.copyFileSync(
       releaseWorkflowSourceFilePath,
-      releaseFilePath,
+      releaseWorkflowFilePath,
     )
 
-    // Update template name in workflow file
-    updateFile(workflowFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
-
-    //
-    updateFile(releaseFilePath, data => data.mustReplace(/(?<=TEMPLATE_NAME:\s*)(\w+)/, this.templateConfig.templateName.toLowerCase()))
+    // Update the template name in workflow files
+    ;[deployLaravelDemosWorkflowFilePath, releaseWorkflowFilePath].forEach((filePath) => {
+      // ❗ We have intentionally set template name as materio in those two files instead of master to update it without worrying about some file may have branch name master and gets replaces with template name
+      updateFile(filePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
+    })
   }
 
   private updateRepoRootFiles() {
@@ -514,6 +513,8 @@ export class Laravel extends Utils {
 
     this.updateRepoRootFiles()
 
+    this.insertDeployLaravelDemoGhAction()
+
     // Create new temp dir for storing pkg
     const tempPkgDir = new TempLocation().tempDir
     const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
@@ -573,8 +574,6 @@ export class Laravel extends Utils {
       this.templateConfig.laravel.projectPath,
       `${this.templateConfig.laravel.pkgName}.zip`,
     )
-
-    this.insertDeployLaravelDemoGhAction(tempPkgDir)
 
     execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
     success(`✅ Package generated at: ${zipPath}`)

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DEPLOY_DIR: ${{ inputs.is_production && secrets.PROD_DIR || secrets.STAG_DIR }}
-      TEMPLATE_NAME: master
+      TEMPLATE_NAME: materio
     steps:
       - run: echo $(${{ inputs.is_production }} && echo "Deploying production" || echo "Deploying staging")
 
@@ -89,7 +89,7 @@ jobs:
             
             mv ${{ env.TEMPLATE_NAME }}*/demo-* ${{ env.DEPLOY_DIR }}
             
-            # create logs dir & laravel.log file in laravel core if doesn't exist. We are doing "echo ls $" because if we don't, "mkdir -p" will create dir as "master*" instead of full name "master-xxx"
+            # create logs dir & laravel.log file in laravel core if doesn't exist. We are doing "echo ls $" because if we don't, "mkdir -p" will create dir as "materio*" instead of full name "materio-xxx"
             mkdir -p $(echo ${{ env.TEMPLATE_NAME }}-*)/storage/logs/ && touch $(echo ${{ env.TEMPLATE_NAME }}*)/storage/logs/laravel.log
             
             # grant read & write permission to group & other. We have to explicitly tell command to only apply on staging dir if we are on staging
