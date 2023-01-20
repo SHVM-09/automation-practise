@@ -16,19 +16,23 @@ export class SFCCompiler {
 
     if (isCompiled && compiledSfc) {
       /*
-            ℹ️ If it's script setup we need to treat it carefully
-            Else if its just script then we already have compiled ready to replace code 🎉
-        */
+        ℹ️ If it's script setup we need to treat it carefully
+        Else if its just script then we already have compiled ready to replace code 🎉
+      */
+
+      // Remove generated `_useCssVars` when v-bind is used in style block (https://vuejs.org/api/sfc-css-features.html#v-bind-in-css)
+      const _compiledSfc = compiledSfc.replace(/^\s+_useCssVars.*?}\)\);\n/gms, '')
+
       if (isScriptSetup) {
-        const codeComments = extractComments(compiledSfc).filter(cmt => cmt.nextLine.trim())
+        const codeComments = extractComments(_compiledSfc).filter(cmt => cmt.nextLine.trim())
 
         // I think I don't need to format the generated code
-        // const compiledFormattedSfc = await formatCode(compiledSfc, eslintConfigFilePath)
+        // const compiledFormattedSfc = await formatCode(_compiledSfc, eslintConfigFilePath)
 
         const jsSfcScriptSetup: string[] = []
 
         // @ts-expect-error This returns the program AST
-        const { body } = parse(compiledSfc, {
+        const { body } = parse(_compiledSfc, {
           ecmaVersion: 'latest',
           sourceType: 'module',
         }) as n.Program
@@ -61,7 +65,7 @@ export class SFCCompiler {
         return ['<script setup>', ...jsSfc, '</script>'].join('\n')
       }
       else {
-        return ['<script>', compiledSfc.trim(), '</script>'].join('\n')
+        return ['<script>', _compiledSfc.trim(), '</script>'].join('\n')
       }
     }
   }
