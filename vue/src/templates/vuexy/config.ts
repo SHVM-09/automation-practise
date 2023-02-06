@@ -102,10 +102,10 @@ export const config: VuexyConfig = {
       },
     ],
   ],
-  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
-    pageTitle: 'Vuexy - Vuetify Vuejs Admin Template',
-    docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-template/documentation/',
+    pageTitle: 'Vuexy - Vuejs Admin Template',
+    docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/',
   },
   gh: {
     ownerName: 'pixinvent',
@@ -122,11 +122,11 @@ export const config: VuexyConfig = {
       JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
-      pageTitle: 'Vuexy - Vuetify Vuejs Laravel Admin Template',
-      docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+      pageTitle: 'Vuexy - Vuejs Laravel Admin Template',
+      docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/demos/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
