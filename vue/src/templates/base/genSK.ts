@@ -206,7 +206,7 @@ export class GenSK extends Utils {
         // data = data.mustReplace(/<VBtn(\n|.)*<\/VBtn>/gm, '')
 
         // add me-2 class to ThemeSwitcher regardless of existing me-\d+ class
-        data = data.mustReplace(/<NavbarThemeSwitcher (class="me-\d+")? \/>/g, '<NavbarThemeSwitcher class="me-2" />')
+        data = data.mustReplace(/<NavbarThemeSwitcher (class="me-\d+" )?\/>/g, '<NavbarThemeSwitcher class="me-2" />')
 
         // Comment out customizer
         data = data.mustReplace(/<TheCustomizer \/>/g, '<!-- <TheCustomizer /> -->')
