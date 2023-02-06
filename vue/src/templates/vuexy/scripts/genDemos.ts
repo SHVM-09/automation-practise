@@ -1,10 +1,10 @@
 import { GenDemo } from '@templates/base/genDemo'
-import { Materialize, config } from '@templates/materialize'
+import { Vuexy, config } from '@templates/vuexy'
 import parseArgs from 'minimist'
 
-const materialize = new Materialize(config)
+const vuexy = new Vuexy(config)
 
-const demoGenerator = new GenDemo(materialize.config)
+const demoGenerator = new GenDemo(vuexy.config)
 
 const argv = parseArgs(process.argv.slice(2))
 

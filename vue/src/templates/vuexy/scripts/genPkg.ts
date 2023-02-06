@@ -1,9 +1,9 @@
 import { GenPkg } from '@templates/base/genPkg'
-import { Materialize, config } from '@templates/materialize'
+import { Vuexy, config } from '@templates/vuexy'
 
 import parseArgs from 'minimist'
 const argv = parseArgs(process.argv.slice(2))
 
-const materialize = new Materialize(config)
+const vuexy = new Vuexy(config)
 
-await new GenPkg(materialize.config).genPkg(!argv.n, argv.version)
+await new GenPkg(vuexy.config).genPkg(!argv.n, argv.version)

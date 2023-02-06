@@ -6,17 +6,17 @@ import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
-type MaterializeConfig = TemplateBaseConfig
+type VuexyConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
-const materializeVuePath = path.join(getTemplatePath('materialize', 'vue'))
-const materializeVueLaravelPath = path.join(getTemplatePath('materialize', 'vue-laravel'))
-const materializeVueFreePath = materializeVuePath.mustReplace('vue', 'vue-free')
+const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
+const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
+const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
-export const config: MaterializeConfig = {
-  templateName: 'Materialize',
+export const config: VuexyConfig = {
+  templateName: 'Vuexy',
   templateDomain: 'pi',
-  projectPath: materializeVuePath,
+  projectPath: vuexyVuePath,
   packageCopyIgnorePatterns: [
     // Directories
     'dist',
@@ -45,14 +45,14 @@ export const config: MaterializeConfig = {
     '!misc',
   ],
   paths: {
-    tSFull: path.join(materializeVuePath, 'typescript-version', 'full-version'),
-    tSStarter: path.join(materializeVuePath, 'typescript-version', 'starter-kit'),
-    jSFull: path.join(materializeVuePath, 'javascript-version', 'full-version'),
-    jSStarter: path.join(materializeVuePath, 'javascript-version', 'starter-kit'),
+    tSFull: path.join(vuexyVuePath, 'typescript-version', 'full-version'),
+    tSStarter: path.join(vuexyVuePath, 'typescript-version', 'starter-kit'),
+    jSFull: path.join(vuexyVuePath, 'javascript-version', 'full-version'),
+    jSStarter: path.join(vuexyVuePath, 'javascript-version', 'starter-kit'),
     dataDir: path.join(__dirname, 'data'),
-    freeTS: path.join(materializeVueFreePath, 'typescript-version'),
-    freeJS: path.join(materializeVueFreePath, 'javascript-version'),
-    docs: path.join(materializeVuePath, 'docs'),
+    freeTS: path.join(vuexyVueFreePath, 'typescript-version'),
+    freeJS: path.join(vuexyVueFreePath, 'javascript-version'),
+    docs: path.join(vuexyVuePath, 'docs'),
   },
   demosConfig: [
     // Demo 1
@@ -102,31 +102,31 @@ export const config: MaterializeConfig = {
       },
     ],
   ],
-  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-admin-dashboard-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+  demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
-    pageTitle: 'Materialize - Vuetify Vuejs Admin Template',
-    docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-dashboard-template/documentation/',
+    pageTitle: 'Vuexy - Vuetify Vuejs Admin Template',
+    docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-template/documentation/',
   },
   gh: {
     ownerName: 'pixinvent',
-    repoName: 'materialize-vuejs-admin-template',
+    repoName: 'vuexy-vuejs-admin-template',
     branch: 'dev',
   },
   gtm: pixinventGTMConfig,
   laravel: {
-    pkgName: 'materialize-vuejs-laravel-admin-template',
-    projectPath: materializeVueLaravelPath,
+    pkgName: 'vuexy-vuejs-laravel-admin-template',
+    projectPath: vuexyVueLaravelPath,
     paths: {
-      TSFull: path.join(materializeVueLaravelPath, 'typescript-version', 'full-version'),
-      TSStarter: path.join(materializeVueLaravelPath, 'typescript-version', 'starter-kit'),
-      JSFull: path.join(materializeVueLaravelPath, 'javascript-version', 'full-version'),
-      JSStarter: path.join(materializeVueLaravelPath, 'javascript-version', 'starter-kit'),
+      TSFull: path.join(vuexyVueLaravelPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(vuexyVueLaravelPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
-      pageTitle: 'Materialize - Vuetify Vuejs Laravel Admin Template',
-      docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-dashboard-template/documentation/guide/laravel-integration/folder-structure.html',
+      pageTitle: 'Vuexy - Vuetify Vuejs Laravel Admin Template',
+      docUrl: 'https://pixinvent.com/demo/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/demo/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

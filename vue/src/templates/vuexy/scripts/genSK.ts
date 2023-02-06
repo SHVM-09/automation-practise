@@ -1,6 +1,6 @@
 import { GenSK } from '@templates/base/genSK'
-import { Materialize, config } from '@templates/materialize'
+import { Vuexy, config } from '@templates/vuexy'
 
-const materialize = new Materialize(config)
-const sKGenerator = new GenSK(materialize.config)
+const vuexy = new Vuexy(config)
+const sKGenerator = new GenSK(vuexy.config)
 await sKGenerator.genSK()

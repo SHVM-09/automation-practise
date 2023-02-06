@@ -1,4 +1,4 @@
 import { TemplateBase } from '@templates/base'
 
-export class Materialize extends TemplateBase {}
+export class Vuexy extends TemplateBase {}
 

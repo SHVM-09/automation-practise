@@ -1,10 +1,10 @@
 import { GenJS } from '@templates/base/genJS'
-import { Materialize, config } from '@templates/materialize'
+import { Vuexy, config } from '@templates/vuexy'
 
 import parseArgs from 'minimist'
 const argv = parseArgs(process.argv.slice(2))
 
-const materialize = new Materialize(config)
+const vuexy = new Vuexy(config)
 
-const jsGenerator = new GenJS(materialize.config, !!argv.sk)
+const jsGenerator = new GenJS(vuexy.config, !!argv.sk)
 jsGenerator.genJS()

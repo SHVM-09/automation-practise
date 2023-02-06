@@ -1,8 +1,8 @@
 import { FillSnippets } from '@templates/base/fillSnippets'
-import { Materialize, config } from '@templates/materialize'
+import { Vuexy, config } from '@templates/vuexy'
 
-const materialize = new Materialize(config)
+const vuexy = new Vuexy(config)
 
-const { tSFull, jSFull } = materialize.config.paths
+const { tSFull, jSFull } = vuexy.config.paths
 
 new FillSnippets(tSFull, jSFull).fillSnippet()

@@ -7,7 +7,7 @@
       <VCardText>All the best for your new project.</VCardText>
       <VCardText>
         Please make sure to read our <a
-          href="https://pixinvent.com/demo/materialize-vuejs-admin-dashboard-template/documentation/"
+          href="https://pixinvent.com/demo/vuexy-vuejs-admin-template/documentation/"
           target="_blank"
           rel="noopener noreferrer"
           class="text-decoration-none"
