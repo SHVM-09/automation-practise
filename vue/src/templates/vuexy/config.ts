@@ -56,10 +56,19 @@ export const config: VuexyConfig = {
   },
   demosConfig: [
     // Demo 1
-    null,
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+    ],
 
     // Demo 2
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'skin: Skins.Default',
         replace: 'skin: Skins.Bordered',
@@ -69,6 +78,10 @@ export const config: VuexyConfig = {
     // Demo 3
     [
       {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
         find: 'isVerticalNavSemiDark: false',
         replace: 'isVerticalNavSemiDark: true',
       },
@@ -77,13 +90,17 @@ export const config: VuexyConfig = {
     // Demo 4
     [
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
 
     // Demo 5
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
@@ -97,7 +114,7 @@ export const config: VuexyConfig = {
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
       },
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
@@ -127,6 +144,6 @@ export const config: VuexyConfig = {
       pageTitle: 'Vuexy - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/demos/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/vuexy/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
