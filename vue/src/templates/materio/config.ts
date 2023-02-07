@@ -55,10 +55,19 @@ export const config: MaterioConfig = {
   },
   demosConfig: [
     // Demo 1
-    null,
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+    ],
 
     // Demo 2
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'skin: Skins.Default',
         replace: 'skin: Skins.Bordered',
@@ -68,6 +77,10 @@ export const config: MaterioConfig = {
     // Demo 3
     [
       {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
         find: 'isVerticalNavSemiDark: false',
         replace: 'isVerticalNavSemiDark: true',
       },
@@ -76,13 +89,17 @@ export const config: MaterioConfig = {
     // Demo 4
     [
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
 
     // Demo 5
     [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
       {
         find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
@@ -96,7 +113,7 @@ export const config: MaterioConfig = {
         replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
       },
       {
-        find: 'theme: \'light\'',
+        find: 'theme: \'system\'',
         replace: 'theme: \'dark\'',
       },
     ],
