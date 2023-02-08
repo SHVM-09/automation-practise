@@ -122,12 +122,12 @@ export const config: MaterializeConfig = {
   ],
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
-    pageTitle: 'Materialize - Vuetify Vuejs Admin Template',
-    docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-template/documentation/',
+    pageTitle: 'Materialize - Vuejs Admin Template',
+    docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/',
   },
   gh: {
     ownerName: 'pixinvent',
-    repoName: 'materialize-vuetify-vuejs-admin-template',
+    repoName: 'materialize-vuejs-admin-template',
     branch: 'dev',
   },
   gtm: pixinventGTMConfig,
@@ -142,8 +142,8 @@ export const config: MaterializeConfig = {
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
-      pageTitle: 'Materialize - Vuetify Vuejs Laravel Admin Template',
-      docUrl: 'https://pixinvent.com/demo/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+      pageTitle: 'Materialize - Vuejs Laravel Admin Template',
+      docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
     demoPathOnServer: (demoNumber, isStaging) => `/demo/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
