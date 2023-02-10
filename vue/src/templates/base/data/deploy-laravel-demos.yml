@@ -63,6 +63,9 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           script: |
+            # create deployment dir if doesn't exist
+            mkdir -p ${{ env.DEPLOY_DIR }}
+
             # navigate to laravel core container dir
             cd ${{ secrets.LARAVEL_CORE_CONTAINER_DIR }}
 
