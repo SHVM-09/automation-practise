@@ -145,6 +145,6 @@ export const config: MaterializeConfig = {
       pageTitle: 'Materialize - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
+    demoPathOnServer: (demoNumber, isStaging) => `/materialize/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

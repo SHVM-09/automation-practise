@@ -600,12 +600,13 @@ export class Laravel extends Utils {
     const laravelCoreRelativePath = (() => {
       /*
           ℹ️ Calculating the relative laravel-core-container path
-          pixinvent => 4 dir up (+1 if staging)
+
+          pixinvent => 5 dir up (+1 if staging)
           ThemeSelection => 5 dir up (+1 if staging)
         */
-      const numOfDirsToTraverseUpwards = (this.templateConfig.templateDomain === 'pi' ? 4 : 5) + (isStaging ? 1 : 0)
+      const numOfDirsToTraverseUpwards = 5 + (isStaging ? 1 : 0)
 
-      // '/' + '../'.repeat(4) => '/../../../../'
+      // '/' + '../'.repeat(3) => '/../../../'
       return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}/`
     })()
 
