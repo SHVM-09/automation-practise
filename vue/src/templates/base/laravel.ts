@@ -601,10 +601,10 @@ export class Laravel extends Utils {
       /*
           ℹ️ Calculating the relative laravel-core-container path
 
-          pixinvent => 5 dir up (+1 if staging)
-          ThemeSelection => 5 dir up (+1 if staging)
+          pixinvent => 4 dir up (+1 if staging)
+          ThemeSelection => 4 dir up (+1 if staging)
         */
-      const numOfDirsToTraverseUpwards = 5 + (isStaging ? 1 : 0)
+      const numOfDirsToTraverseUpwards = 4 + (isStaging ? 1 : 0)
 
       // '/' + '../'.repeat(3) => '/../../../'
       return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}/`
