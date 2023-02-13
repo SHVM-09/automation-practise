@@ -9,15 +9,15 @@ if (docsArgs[0] !== undefined && docsArgs.includes('staging')) {
   if(!docsArgs.includes('pixinvent')){
     URL = pathConfig.stagingDocsURL
   }else{
-    URL = `/demo${pathConfig.stagingDocsURL}`
+    URL = pathConfig.stagingDocsURL
   }
 }
 
 if (docsArgs[0] !== undefined && docsArgs.includes('pixinvent')) {
   if(!docsArgs.includes('staging')){
-    URL = `/demo${pathConfig.docsURL}`
+    URL = pathConfig.docsURL
   }else{
-    URL = `/demo${pathConfig.stagingDocsURL}`
+    URL = pathConfig.stagingDocsURL
   }
 }
 

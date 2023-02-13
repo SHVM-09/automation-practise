@@ -31,7 +31,7 @@ if (demoArgs.length > 1 && demoArgs.includes('staging')) {
   if (!demoArgs.includes('pixinvent')) {
     URL = pathConfig.stagingDemoURL
   } else {
-    URL = `/demo${pathConfig.stagingDemoURL}`
+    URL = pathConfig.stagingDemoURL
   }
 }
 
@@ -40,9 +40,9 @@ if (demoArgs.length > 1 && demoArgs.includes('pixinvent')) {
   GTMBody = PXGTMBody
 
   if (!demoArgs.includes('staging')) {
-    URL = `/demo${pathConfig.demoURL}`
+    URL = pathConfig.demoURL
   } else {
-    URL = `/demo${pathConfig.stagingDemoURL}`
+    URL = pathConfig.stagingDemoURL
   }
 }
 
