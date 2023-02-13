@@ -8,7 +8,7 @@ if (fs.existsSync(pathConfig.docsPath)) {
     .toString()
     .split('\n')
   const index = fileData.findIndex(l => l.includes('base:'))
-  fileData[index] = `  base: '/',`
+  fileData[index] = `  base: process.env.BASE || '/',`
   fs.writeFile(
     `${pathConfig.docsPath}/.vuepress/config.js`,
     fileData.join('\n').replace('./favicon.ico', '/favicon.ico'),

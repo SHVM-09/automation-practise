@@ -12,7 +12,7 @@ if (fs.existsSync(`${pathConfig.docsPath}`)) {
   const purchaseIndex = configFileData.findIndex(l =>
     l.includes("text: 'Purchase'")
   )
-  configFileData[baseIndex] = `  base: '/',`
+  configFileData[baseIndex] = `  base: process.env.BASE || '/',`
   configFileData[
     demoIndex
   ] = `      { text: 'Demo', link: 'https://demos.themeselection.com${pathConfig.demoURL}/landing/' },`
