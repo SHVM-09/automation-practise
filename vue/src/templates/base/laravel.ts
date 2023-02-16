@@ -461,6 +461,22 @@ export class Laravel extends Utils {
     return view('application');
 })->where('any', '.*');`),
     )
+    // update documentation link
+    ;[
+      path.join(this.resourcesPath, lang, 'layouts', 'components', 'Footer.vue'),
+      path.join(this.resourcesPath, lang, 'navigation', 'horizontal', `others.${lang}`),
+      path.join(this.resourcesPath, lang, 'navigation', 'vertical', `others.${lang}`),
+    ].forEach((filePath) => {
+      if (fs.pathExistsSync(filePath)) {
+        updateFile(
+          filePath,
+          data => data.mustReplace(
+            this.templateConfig.documentation.docUrl,
+            this.templateConfig.laravel.documentation.docUrl,
+          ),
+        )
+      }
+    })
 
     // Update vite config
     this.updateViteConfig(lang)
