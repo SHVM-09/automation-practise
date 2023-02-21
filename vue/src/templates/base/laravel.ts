@@ -582,7 +582,19 @@ export class Laravel extends Utils {
     info('isStaging: ', isStaging.toString())
 
     const { TSFull } = this.templateConfig.laravel.paths
+
     const envPath = path.join(this.templateConfig.laravel.paths.TSFull, '.env')
+
+    if (!fs.existsSync(envPath)) {
+      fs.copyFileSync(
+        path.join(this.templateConfig.laravel.paths.TSFull, '.env.example'),
+        envPath,
+      )
+    }
+
+    // Generate application key
+    execCmd('php artisan key:generate', { cwd: this.templateConfig.laravel.paths.TSFull })
+
     const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
