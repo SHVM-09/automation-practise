@@ -82,7 +82,7 @@ export class Laravel extends Utils {
         .mustReplace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`)
 
         // use laravel's asset helper
-        .mustReplace(/\/(favicon\.ico|loader.css|logo.png)/g, '{{ asset(\'$1\') }}'),
+        .mustReplace(/\/(favicon\.ico|loader.css)/g, '{{ asset(\'$1\') }}'),
     )
   }
 
