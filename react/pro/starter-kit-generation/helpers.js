@@ -24,6 +24,8 @@ const BuyNowComponentPathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/comp
 const BuyNowComponentPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/components/BuyNowButton.tsx`
 const navigationHorizontalPathTSX = `${pathConfig.starterKitTSXPath}/src/navigation/horizontal/index.ts`
 const navigationHorizontalPathJSX = `${pathConfig.starterKitJSXPath}/src/navigation/horizontal/index.js`
+const getHomeRoutePathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/components/acl/getHomeRoute.tsx`
+const getHomeRoutePathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/components/acl/getHomeRoute.js`
 const appbarVerticalPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/components/vertical/AppBarContent.tsx`
 const appbarVerticalPathJSX = `${pathConfig.starterKitJSXPath}/src/layouts/components/vertical/AppBarContent.js`
 const appbarHorizontalPathTSX = `${pathConfig.starterKitTSXPath}/src/layouts/components/horizontal/AppBarContent.tsx`
@@ -142,14 +144,6 @@ const filesToReplace = [
   {
     src: './components/jsx/navigationHorizontal.js',
     dest: navigationHorizontalPathJSX
-  },
-  {
-    src: './components/tsx/index.tsx',
-    dest: HomePathTSX
-  },
-  {
-    src: './components/jsx/index.js',
-    dest: HomePathJSX
   }
 ]
 
@@ -337,6 +331,18 @@ const dataToReplace = [
         from: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'",
         to: "import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'"
       }
+    ]
+  },
+  {
+    file: getHomeRoutePathTSX,
+    replacements: [
+      { from: "'/dashboards/analytics'", to: "'/home'" }
+    ]
+  },
+  {
+    file: getHomeRoutePathJSX,
+    replacements: [
+      { from: "'/dashboards/analytics'", to: "'/home'" }
     ]
   }
 ]
