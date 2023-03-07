@@ -350,7 +350,6 @@ export class Laravel extends Utils {
         releaseWorkflowSourceFilePath,
         releaseWorkflowFilePath,
       )
-      updateFile(releaseWorkflowFilePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
     }
   }
 

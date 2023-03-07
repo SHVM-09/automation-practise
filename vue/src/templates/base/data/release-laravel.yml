@@ -1,4 +1,5 @@
-name: Release Laravel
+name: Release
+run-name: ✨ Release ${{ github.ref_name }}
 
 on:
   push:
@@ -9,37 +10,39 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      TEMPLATE_NAME: materio
       GitHubPersonalToken: ${{ secrets.GH_PAT }}
     steps:
-      - name: Checkout template
+      - name: ⚙️ Set TEMPLATE_NAME environment variable from repo name
+        run: echo TEMPLATE_NAME=${{ github.event.repository.name }} | cut -d '-' -f1 >> $GITHUB_ENV
+
+      - name: ⬇️ Checkout template
         uses: actions/checkout@v3
         with:
           path: ${{ env.TEMPLATE_NAME }}/vue-laravel
 
-      - name: Checkout vue version
+      - name: ⬇️ Checkout vue version
         uses: actions/checkout@v3
         with:
-          repository: themeselection/materio-vuejs-laravel-admin-template
+          repository: themeselection/${{ env.TEMPLATE_NAME }}-vuetify-vuejs-admin-template
           token: ${{ secrets.GH_PAT }}
           path: ${{ env.TEMPLATE_NAME }}/vue
 
-      - name: Checkout scripts
+      - name: ⬇️ Checkout scripts
         uses: actions/checkout@v3
         with:
           repository: themeselection/automation-scripts
           token: ${{ secrets.GH_PAT }}
           path: automation-scripts
       
-      - name: Install packages in automation-scripts dir
+      - name: ⬇️ Install packages in automation-scripts dir
         working-directory: automation-scripts/vue
         run: yarn
         
-      - name: Generate package
+      - name: 📦 Generate package
         working-directory: automation-scripts/vue
         run: yarn tsx src/templates/${{ env.TEMPLATE_NAME }}/scripts/genLaravel.ts --version ${{ github.ref_name }}
 
-      - name: Release
+      - name: 🚀 Release
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.TEMPLATE_NAME }}/vue-laravel/*.zip
