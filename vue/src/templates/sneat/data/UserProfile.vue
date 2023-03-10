@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import avatar1 from '@images/avatars/avatar-1.png'
+import avatar1 from '@images/avatars/avatar-1.png';
 </script>
 
 <template>
   <VBadge
     dot
+    bordered
     location="bottom right"
     offset-x="3"
     offset-y="3"
@@ -46,11 +47,12 @@ import avatar1 from '@images/avatars/avatar-1.png'
               </VListItemAction>
             </template>
 
-            <VListItemTitle class="font-weight-medium">
+            <VListItemTitle class="font-weight-semibold">
               John Doe
             </VListItemTitle>
             <VListItemSubtitle>Admin</VListItemSubtitle>
           </VListItem>
+
           <VDivider class="my-2" />
 
           <!-- 👉 Profile -->
@@ -58,7 +60,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="mdi-account-outline"
+                icon="bx-user"
                 size="22"
               />
             </template>
@@ -71,7 +73,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="mdi-cog-outline"
+                icon="bx-cog"
                 size="22"
               />
             </template>
@@ -84,7 +86,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="mdi-currency-usd"
+                icon="bx-dollar"
                 size="22"
               />
             </template>
@@ -97,7 +99,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="mdi-help-circle-outline"
+                icon="bx-help-circle"
                 size="22"
               />
             </template>
@@ -113,7 +115,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="mdi-logout"
+                icon="bx-log-out"
                 size="22"
               />
             </template>
