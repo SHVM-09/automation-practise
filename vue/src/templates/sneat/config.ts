@@ -42,6 +42,8 @@ export const config: SneatConfig = {
     '!pages',
     '!avatars',
     '!misc',
+    '!illustrations',
+    '!iconify-svg',
   ],
   paths: {
     tSFull: path.join(sneatVuePath, 'typescript-version', 'full-version'),
@@ -131,6 +133,7 @@ export const config: SneatConfig = {
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'sneat-vuetify-vuejs-laravel-admin-template',
+    buyNowLink: 'https://themeselection.com/item/sneat-vuetify-vuejs-laravel-admin-template',
     projectPath: sneatVueLaravelPath,
     paths: {
       TSFull: path.join(sneatVueLaravelPath, 'typescript-version', 'full-version'),

@@ -40,6 +40,7 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   laravel: {
     pkgName: string
+    buyNowLink: string
     projectPath: string
     paths: {
       TSFull: string

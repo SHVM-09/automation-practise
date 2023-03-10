@@ -426,6 +426,12 @@ export class Laravel extends Utils {
       data => replacePath(data, 'src/assets/images', 'resources/images'),
     )
 
+    // Update BuyNow link
+    updateFile(
+      path.join(this.resourcesPath, lang, '@core', 'components', 'BuyNow.vue'),
+      data => data.mustReplace(/(?<=const buyNowUrl =.*?')(http.*?)(?='\))/g, this.templateConfig.laravel.buyNowLink),
+    )
+
     // update package.json
     this.updatePkgJson(sourcePath, lang)
 

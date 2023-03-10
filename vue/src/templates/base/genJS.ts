@@ -364,12 +364,13 @@ export class GenJS extends Utils {
     // ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
     execCmd(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i ${process.platform === 'darwin' ? '""' : ''} -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
 
-    // Auto format all files using eslint
-    execCmd('yarn lint', { cwd: this.tempDir })
-
     // ℹ️ Remove d.ts files from JS project
+    // ℹ️ We need to remove all d.ts files before we run `yarn lint` because we are removing d.ts from ignore in `updateEslintConfig` method
     const dTsFiles = globbySync(['*.d.ts'], { cwd: this.tempDir, absolute: true })
     dTsFiles.forEach(f => fs.removeSync(f))
+
+    // Auto format all files using eslint
+    execCmd('yarn lint', { cwd: this.tempDir })
 
     const replaceDest = (() => {
       // If generating JS for free version => Replace with free JS
