@@ -14,7 +14,7 @@ const sneatVueLaravelPath = path.join(getTemplatePath('sneat', 'vue-laravel'))
 const sneatVueFreePath = sneatVuePath.mustReplace('vue', 'vue-free')
 
 export const config: SneatConfig = {
-  templateName: 'Sneat',
+  templateName: 'sneat',
   templateDomain: 'ts',
   projectPath: sneatVuePath,
   packageCopyIgnorePatterns: [

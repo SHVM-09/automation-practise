@@ -77,7 +77,7 @@ export class GenPkg extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.projectPath,
-      `${this.templateConfig.templateName.toLowerCase()}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template.zip`,
+      `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template.zip`,
     )
     execCmd(`zip -r ${zipPath} .`, { cwd: tempPkgDir })
     success(`✅ Package generated at: ${this.templateConfig.projectPath}`)

@@ -11,7 +11,7 @@ export interface DemoConfigItem {
 export type TemplateDomain = 'ts' | 'pi'
 
 export interface TemplateBaseConfig {
-  templateName: string
+  templateName: Lowercase<string>
   templateDomain: TemplateDomain
   projectPath: string
   packageCopyIgnorePatterns: string[]

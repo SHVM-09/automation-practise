@@ -339,7 +339,6 @@ export class Laravel extends Utils {
       deployLaravelDemosWorkflowSourceFilePath,
       deployLaravelDemosWorkflowFilePath,
     )
-    updateFile(deployLaravelDemosWorkflowFilePath, data => data.mustReplace(/materio/g, this.templateConfig.templateName.toLowerCase()))
 
     // ℹ️ Only add release laravel workflow if template is for themeselection
     if (this.templateConfig.templateDomain === 'ts') {
