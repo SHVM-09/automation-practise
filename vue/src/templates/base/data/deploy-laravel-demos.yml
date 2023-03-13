@@ -76,7 +76,7 @@ jobs:
 
             # if prod => remove staging data & zip existing laravel core
             DEMO_ZIP_NAME="bak-${{ env.TEMPLATE_NAME }}-laravel-$(date +"%Y-%m-%d-%H-%M-%S").zip"
-            [[ "${{ inputs.is_production }}" == "true" ]] && rm -rf ${{ secrets.STAG_DIR }}/demo-* && rm -rf ${{ env.TEMPLATE_NAME }}-*staging* && zip -r $DEMO_ZIP_NAME ${{ env.TEMPLATE_NAME }}-* -x "*.zip"
+            [[ "${{ inputs.is_production }}" == "true" ]] && rm -rf ${{ env.STAG_DIR }}/demo-* && rm -rf ${{ env.TEMPLATE_NAME }}-*staging* && zip -r $DEMO_ZIP_NAME ${{ env.TEMPLATE_NAME }}-* -x "*.zip"
             
             # if prod => remove existing laravel core & NOT UPLOADED ZIP (via `-type d`)
             [[ "${{ inputs.is_production }}" == "true" ]] && rm -rf $(find ${{ env.TEMPLATE_NAME }}* -type d -maxdepth 0)
