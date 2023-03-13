@@ -71,21 +71,6 @@ const rememberMe = ref(false)
         </VCardText>
 
         <VCardText>
-          <VAlert
-            color="primary"
-            variant="tonal"
-          >
-            <p class="text-caption mb-2">
-              Admin Email: <strong>admin@demo.com</strong> / Pass: <strong>admin</strong>
-            </p>
-
-            <p class="text-caption mb-0">
-              Client Email: <strong>client@demo.com</strong> / Pass: <strong>client</strong>
-            </p>
-          </VAlert>
-        </VCardText>
-
-        <VCardText>
           <VForm
             ref="refVForm"
             @submit.prevent="() => {}"
