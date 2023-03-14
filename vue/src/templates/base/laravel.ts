@@ -660,10 +660,6 @@ export class Laravel extends Utils {
 
       info(`Generating demo ${demoNumber}`)
 
-      // ℹ️ If demo isn't first demo => Update thw demo-<demoNumber> in index.php file
-      if (demoIndex)
-        updateFile(indexPhpPath, data => data.mustReplace(/demo-\d+/g, `demo-${demoNumber}`))
-
       info('Updating localStorage keys...')
       this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
 
