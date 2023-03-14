@@ -10,4 +10,4 @@ mv ./.vuepress/dist ../documentation
 
 # Reset replaced content
 cd ../../automation-scripts/react/pro/docs-generation
-node reset
+node reset.js $1 $2

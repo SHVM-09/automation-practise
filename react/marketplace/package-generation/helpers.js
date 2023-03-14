@@ -1,22 +1,24 @@
 const pathConfig = require('../../configs/paths.json')
 
-const userLayoutPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/UserLayout.tsx`
 const PackageJSONPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/package.json`
 const PackageJSONPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/package.json`
-const BuyNowComponentPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/components/BuyNowButton.tsx`
+const userLayoutPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/UserLayout.tsx`
 const userLayoutPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/UserLayout.js`
+const BuyNowComponentPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/components/BuyNowButton.tsx`
 const BuyNowComponentPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/components/BuyNowButton.js`
 
 const filesToCopyTSX = [
-  `${pathConfig.demoConfigsPathTSX}`,
+  pathConfig.demoConfigsPathTSX,
+  `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/public`,
   `${pathConfig.fullVersionTSXPath}/src`,
   `${pathConfig.fullVersionTSXPath}/styles`,
   `${pathConfig.fullVersionTSXPath}/.editorconfig`,
   `${pathConfig.fullVersionTSXPath}/.env`,
-  `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/.eslintrc.json`,
   `${pathConfig.fullVersionTSXPath}/.gitignore`,
+  `${pathConfig.fullVersionTSXPath}/.npmrc`,
+  `${pathConfig.fullVersionTSXPath}/.nvmrc`,
   `${pathConfig.fullVersionTSXPath}/.prettierrc.js`,
   `${pathConfig.fullVersionTSXPath}/declaration.d.ts`,
   `${pathConfig.fullVersionTSXPath}/next-env.d.ts`,
@@ -29,15 +31,17 @@ const filesToCopyTSX = [
 ]
 
 const filesToCopyJSX = [
-  `${pathConfig.demoConfigsPathJSX}`,
+  pathConfig.demoConfigsPathJSX,
+  `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/public`,
   `${pathConfig.fullVersionJSXPath}/src`,
   `${pathConfig.fullVersionJSXPath}/styles`,
   `${pathConfig.fullVersionJSXPath}/.editorconfig`,
   `${pathConfig.fullVersionJSXPath}/.env`,
-  `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/.eslintrc.js`,
   `${pathConfig.fullVersionJSXPath}/.gitignore`,
+  `${pathConfig.fullVersionJSXPath}/.npmrc`,
+  `${pathConfig.fullVersionJSXPath}/.nvmrc`,
   `${pathConfig.fullVersionJSXPath}/.prettierrc.js`,
   `${pathConfig.fullVersionJSXPath}/next.config.js`,
   `${pathConfig.fullVersionJSXPath}/package.json`,

@@ -2,12 +2,9 @@ const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
 const { resetTestDirs } = require('../../remove-test/remove-test')
+const { themeSelectionGTMConfig, pixinventGTMConfig } = require('../../configs/gtmConfigs')
 const {
   i18nPath,
-  TSGTMHead,
-  TSGTMBody,
-  PXGTMHead,
-  PXGTMBody,
   demoConfigPath,
   nextConfigPath,
   themeConfigPath,
@@ -15,12 +12,11 @@ const {
 } = require('./helpers')
 
 let demo = 'demo-1'
-
 const demoArgs = process.argv.slice(2)
 let URL = pathConfig.demoURL
 
-let GTMHead = TSGTMHead
-let GTMBody = TSGTMBody
+let GTMHead = themeSelectionGTMConfig.template.head
+let GTMBody = themeSelectionGTMConfig.template.body
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
@@ -36,8 +32,8 @@ if (demoArgs.length > 1 && demoArgs.includes('staging')) {
 }
 
 if (demoArgs.length > 1 && demoArgs.includes('pixinvent')) {
-  GTMHead = PXGTMHead
-  GTMBody = PXGTMBody
+  GTMHead = pixinventGTMConfig.template.head
+  GTMBody = pixinventGTMConfig.template.body
 
   if (!demoArgs.includes('staging')) {
     URL = pathConfig.demoURL

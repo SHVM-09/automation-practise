@@ -83,6 +83,7 @@ const generateDemoConfigs = (version, demoConfigsFolder, defaultConfigPath) => {
         }
       })
     }
+
     resolve()
   })
 }

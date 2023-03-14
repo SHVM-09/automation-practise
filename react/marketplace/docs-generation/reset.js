@@ -1,8 +1,12 @@
 const fs = require('fs')
 const pathConfig = require('../../configs/paths.json')
+const { themeSelectionGTMConfig } = require('../../configs/gtmConfigs')
+
+let GTMHead = themeSelectionGTMConfig.docs.head
+let GTMBody = themeSelectionGTMConfig.docs.body
 
 // ** Reset replaced basePath if docs directory exists
-if (fs.existsSync(`${pathConfig.docsPath}`)) {
+if (fs.existsSync(pathConfig.docsPath)) {
   const configFileData = fs
     .readFileSync(`${pathConfig.docsPath}/.vuepress/config.js`)
     .toString()
@@ -82,4 +86,31 @@ if (fs.existsSync(`${pathConfig.docsPath}`)) {
       }
     )
   }
+}
+  
+// ** Reset ssr.html file if it exists
+if (fs.existsSync(`${pathConfig.docsPath}/.vuepress/theme/templates/ssr.html`)) {
+  fs.readFile(`${pathConfig.docsPath}/.vuepress/theme/templates/ssr.html`, 'utf-8', (err, data) => {
+    if (err) {
+      console.log(err)
+    } else {
+      const replaced = data
+        .replace(GTMHead, '')
+        .replace(GTMBody, '')
+        .replace('<head>\n', '<head>')
+        .replace('<body>\n', '<body>')
+
+      fs.writeFile(`${pathConfig.docsPath}/.vuepress/theme/templates/ssr.html`, '', err => {
+        if (err) {
+          console.log(err)
+        } else {
+          fs.writeFile(`${pathConfig.docsPath}/.vuepress/theme/templates/ssr.html`, replaced, err => {
+            if (err) {
+              console.log(err)
+            }
+          })
+        }
+      })
+    }
+  })
 }

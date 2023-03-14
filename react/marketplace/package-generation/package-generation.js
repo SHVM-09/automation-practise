@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
-const { removeTest } = require('../../remove-test/remove-test')
 const pathConfig = require('../../configs/paths.json')
+const { removeTest } = require('../../remove-test/remove-test')
 const {
   filesToCopyTSX,
   filesToCopyJSX,
@@ -43,11 +43,6 @@ const copyRecursiveSync = (src, dest) => {
   }
 }
 
-// ** Copy ./vscode
-const copyVSCode = () => {
-  copyRecursiveSync(`${pathConfig.packagePath.replace('/package', '')}/.vscode`, `${pathConfig.packagePath}/.vscode`)
-}
-
 // ** Remove BuyNow & Replace "^" & "~" in package.json file
 const updateContent = (userLayoutPath, BuyNowComponentPath, PackageJSONPath) => {
   const userLayoutPromise = () => {
@@ -73,6 +68,7 @@ const updateContent = (userLayoutPath, BuyNowComponentPath, PackageJSONPath) => 
       resolve()
     })
   }
+
   userLayoutPromise()
     .then(() => {
       if (fs.existsSync(BuyNowComponentPath)) {
@@ -108,6 +104,44 @@ const updateContent = (userLayoutPath, BuyNowComponentPath, PackageJSONPath) => 
     })
 }
 
+const readAndWriteIconsBundle = file => {
+  if (fs.existsSync(file)) {
+    fs.readFile(file, 'utf-8', (err, data) => {
+      if (err) {
+        console.log(err)
+      } else {
+        const splitData = data.split('\n')
+        const lineMDIndex = splitData.findIndex(line => line.includes('line-md.json'))
+        const jsonGGIndex = splitData.findIndex(line => line.includes('json/gg.json')) + 2
+        const twemojiIndex = splitData.findIndex(line => line.includes('twemoji:')) + 1
+        splitData[lineMDIndex - 1] = `\n/* \n ${splitData[lineMDIndex - 1]}`
+        splitData[lineMDIndex + 2] = `${splitData[lineMDIndex + 2]}\n */`
+        splitData[jsonGGIndex] = `\n/* \n ${splitData[jsonGGIndex]}`
+        splitData[twemojiIndex] = splitData[twemojiIndex].includes('svg: [')
+          ? `*/\n${splitData[twemojiIndex]}\n`
+          : `${splitData[twemojiIndex]}\n */`
+
+        fs.writeFileSync(file, splitData.join('\n'))
+      }
+    })
+  }
+}
+
+const updateIconsBundle = arr => {
+  new Promise(resolve => {
+    arr.forEach(file => {
+      readAndWriteIconsBundle(file)
+    })
+    resolve()
+  }).then(() => {
+    setTimeout(() => {
+      arr.forEach(file => {
+        readAndWriteIconsBundle(file.replace('full-version', 'starter-kit'))
+      })
+    }, 500)
+  })
+}
+
 // ** Generates TSX package
 const generateTSXPackage = () => {
   fs.mkdir(`${pathConfig.packagePath}/typescript-version/full-version`, { recursive: true }, err => {
@@ -118,7 +152,7 @@ const generateTSXPackage = () => {
     } else {
       const copyPromise = filesToCopyTSX.map(file => {
         return new Promise(resolve => {
-          const dest = file.replace(`${pathConfig.basePathTSX}`, `${pathConfig.packagePath}/typescript-version`)
+          const dest = file.replace(pathConfig.basePathTSX, `${pathConfig.packagePath}/typescript-version`)
           copyRecursiveSync(file, dest)
           resolve()
         })
@@ -126,23 +160,35 @@ const generateTSXPackage = () => {
       Promise.all(copyPromise)
         .then(() => updateContent(userLayoutPathTSX, BuyNowComponentPathTSX, PackageJSONPathTSX))
         .then(() => {
-          if (fs.existsSync(`${pathConfig.starterKitTSXPath}`)) {
+          if (fs.existsSync(pathConfig.starterKitTSXPath)) {
             fs.mkdir(`${pathConfig.packagePath}/typescript-version/starter-kit`, err => {
               if (err) {
                 console.log(err)
               } else {
-                const copyStarterPromise = () =>
+                const copyStarterPromise = () => {
                   new Promise(resolve => {
                     copyRecursiveSync(
-                      `${pathConfig.starterKitTSXPath}`,
+                      pathConfig.starterKitTSXPath,
                       `${pathConfig.packagePath}/typescript-version/starter-kit`
                     )
                     resolve()
                   })
+                }
                 copyStarterPromise()
               }
             })
           }
+        })
+        .then(() => {
+          const arr = [
+            `${pathConfig.packageTSXPath}/src/iconify-bundle/bundle-icons-react.ts`,
+            `${pathConfig.packageTSXPath}/src/iconify-bundle/bundle-icons-react.js`
+          ]
+          updateIconsBundle(arr)
+
+          // ** Copy .gitattributes file
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/typescript-version/full-version/.gitattributes`)
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/typescript-version/starter-kit/.gitattributes`)
         })
     }
   })
@@ -158,15 +204,16 @@ const generateJSXPackage = () => {
     } else {
       const copyPromise = filesToCopyJSX.map(file => {
         return new Promise(resolve => {
-          const dest = file.replace(`${pathConfig.basePathJSX}`, `${pathConfig.packagePath}/javascript-version`)
+          const dest = file.replace(pathConfig.basePathJSX, `${pathConfig.packagePath}/javascript-version`)
           copyRecursiveSync(file, dest)
           resolve()
         })
       })
+
       Promise.all(copyPromise)
         .then(() => updateContent(userLayoutPathJSX, BuyNowComponentPathJSX, PackageJSONPathJSX))
         .then(() => {
-          if (fs.existsSync(`${pathConfig.starterKitJSXPath}`)) {
+          if (fs.existsSync(pathConfig.starterKitJSXPath)) {
             fs.mkdir(`${pathConfig.packagePath}/javascript-version/starter-kit`, err => {
               if (err) {
                 console.log(err)
@@ -174,7 +221,7 @@ const generateJSXPackage = () => {
                 const copyStarterPromise = () =>
                   new Promise(resolve => {
                     copyRecursiveSync(
-                      `${pathConfig.starterKitJSXPath}`,
+                      pathConfig.starterKitJSXPath,
                       `${pathConfig.packagePath}/javascript-version/starter-kit`
                     )
                     resolve()
@@ -183,6 +230,17 @@ const generateJSXPackage = () => {
               }
             })
           }
+        })
+        .then(() => {
+          const arr = [
+            `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`,
+            `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`
+          ]
+          updateIconsBundle(arr)
+
+          // ** Copy .gitattributes file
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/javascript-version/full-version/.gitattributes`)
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/javascript-version/starter-kit/.gitattributes`)
         })
     }
   })
@@ -208,6 +266,7 @@ const generate = () => {
   }
 }
 
+// ** If packagePath exists the remove folder generate else create folder & generate
 if (!fs.existsSync(pathConfig.packagePath)) {
   fs.mkdir(pathConfig.packagePath, err => {
     if (err) {
@@ -216,7 +275,6 @@ if (!fs.existsSync(pathConfig.packagePath)) {
       const generatePromise = () =>
         new Promise(resolve => {
           generate()
-          copyVSCode()
           resolve()
         })
 
@@ -235,7 +293,6 @@ if (!fs.existsSync(pathConfig.packagePath)) {
           const generatePromise = () =>
             new Promise(resolve => {
               generate()
-              copyVSCode()
               resolve()
             })
 

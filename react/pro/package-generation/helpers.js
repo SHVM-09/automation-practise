@@ -2,13 +2,13 @@ const pathConfig = require('../../configs/paths.json')
 
 const PackageJSONPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/package.json`
 const PackageJSONPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/package.json`
-const userLayoutPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/UserLayout.js`
 const userLayoutPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/UserLayout.tsx`
+const userLayoutPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/UserLayout.js`
 const BuyNowComponentPathTSX = `${pathConfig.packagePath}/typescript-version/full-version/src/layouts/components/BuyNowButton.tsx`
 const BuyNowComponentPathJSX = `${pathConfig.packagePath}/javascript-version/full-version/src/layouts/components/BuyNowButton.js`
 
 const filesToCopyTSX = [
-  `${pathConfig.demoConfigsPathTSX}`,
+  pathConfig.demoConfigsPathTSX,
   `${pathConfig.fullVersionTSXPath}/.vscode`,
   `${pathConfig.fullVersionTSXPath}/public`,
   `${pathConfig.fullVersionTSXPath}/src`,
@@ -31,7 +31,7 @@ const filesToCopyTSX = [
 ]
 
 const filesToCopyJSX = [
-  `${pathConfig.demoConfigsPathJSX}`,
+  pathConfig.demoConfigsPathJSX,
   `${pathConfig.fullVersionJSXPath}/.vscode`,
   `${pathConfig.fullVersionJSXPath}/public`,
   `${pathConfig.fullVersionJSXPath}/src`,

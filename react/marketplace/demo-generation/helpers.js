@@ -282,7 +282,11 @@ const dataToReset = [
 
 
 
-const templateName = pathConfig.fullVersionTSXPath.split('../').filter(i => i.length)[0].split('/')[0].split('-')[0]
+const templateName = pathConfig.fullVersionTSXPath
+  .split('../')
+  .filter(i => i.length)[0]
+  .split('/')[0]
+  .split('-')[0]
 
 module.exports = {
   i18nPath,
@@ -292,5 +296,5 @@ module.exports = {
   demoConfigPath,
   nextConfigPath,
   themeConfigPath,
-  settingsContextFile,
+  settingsContextFile
 }

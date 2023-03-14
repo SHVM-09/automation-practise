@@ -158,16 +158,14 @@ const generateTSXPackage = () => {
         })
       })
       Promise.all(copyPromise)
-        .then(() => {
-          updateContent(userLayoutPathTSX, BuyNowComponentPathTSX, PackageJSONPathTSX)
-        })
+        .then(() => updateContent(userLayoutPathTSX, BuyNowComponentPathTSX, PackageJSONPathTSX))
         .then(() => {
           if (fs.existsSync(pathConfig.starterKitTSXPath)) {
             fs.mkdir(`${pathConfig.packagePath}/typescript-version/starter-kit`, err => {
               if (err) {
                 console.log(err)
               } else {
-                const copyStarterPromise = () =>
+                const copyStarterPromise = () => {
                   new Promise(resolve => {
                     copyRecursiveSync(
                       pathConfig.starterKitTSXPath,
@@ -175,7 +173,7 @@ const generateTSXPackage = () => {
                     )
                     resolve()
                   })
-
+                }
                 copyStarterPromise()
               }
             })
@@ -187,6 +185,10 @@ const generateTSXPackage = () => {
             `${pathConfig.packageTSXPath}/src/iconify-bundle/bundle-icons-react.js`
           ]
           updateIconsBundle(arr)
+
+          // ** Copy .gitattributes file
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/typescript-version/full-version/.gitattributes`)
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/typescript-version/starter-kit/.gitattributes`)
         })
     }
   })
@@ -209,9 +211,7 @@ const generateJSXPackage = () => {
       })
 
       Promise.all(copyPromise)
-        .then(() => {
-          updateContent(userLayoutPathJSX, BuyNowComponentPathJSX, PackageJSONPathJSX)
-        })
+        .then(() => updateContent(userLayoutPathJSX, BuyNowComponentPathJSX, PackageJSONPathJSX))
         .then(() => {
           if (fs.existsSync(pathConfig.starterKitJSXPath)) {
             fs.mkdir(`${pathConfig.packagePath}/javascript-version/starter-kit`, err => {
@@ -237,6 +237,10 @@ const generateJSXPackage = () => {
             `${pathConfig.packageJSXPath}/src/iconify-bundle/bundle-icons-react.js`
           ]
           updateIconsBundle(arr)
+
+          // ** Copy .gitattributes file
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/javascript-version/full-version/.gitattributes`)
+          fs.copyFileSync(`${pathConfig.repoPath}/.gitattributes`, `${pathConfig.packagePath}/javascript-version/starter-kit/.gitattributes`)
         })
     }
   })

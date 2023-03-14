@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const pathConfig = require('../../configs/paths.json')
+const { themeSelectionGTMConfig } = require('../../configs/gtmConfigs')
 const { removeTest, copyTestDirs } = require('../../remove-test/remove-test')
 const {
   i18nPath,
@@ -14,6 +15,9 @@ const {
 let demo = 'demo-1'
 const demoArgs = process.argv.slice(2)
 let URL = pathConfig.demoURL
+
+let GTMHead = themeSelectionGTMConfig.template.head
+let GTMBody = themeSelectionGTMConfig.template.body
 
 // ** Update demo number
 if (demoArgs[0] !== undefined) {
@@ -114,6 +118,39 @@ replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
 
 replaceWithMarketPlace()
+
+// ** Add GTM in _document.tsx file if it exists
+if (fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`)) {
+  fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
+    if (err) {
+      console.log(err)
+    } else {
+      fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
+        if (err) {
+          console.log(err)
+
+          return
+        } else {
+          fs.writeFile(
+            `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
+            data
+              .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
+              .replace('<body>', `<body>\n${GTMBody}`),
+            err => {
+              if (err) {
+                console.log(err)
+
+                return
+              }
+            }
+          )
+        }
+      })
+    }
+  })
+} else {
+  console.log("_document.tsx File Doesn't exists")
+}
 
 // ** Replace settings in localStorage if settingsContextFile exist
 if (fs.existsSync(settingsContextFile)) {
