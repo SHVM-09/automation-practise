@@ -11,7 +11,7 @@ const masterVuePath = path.join(getTemplatePath('master', 'vue'))
 const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
 
 export const config: MasterConfig = {
-  templateName: 'Master',
+  templateName: 'master',
   templateDomain: 'ts',
   projectPath: masterVuePath,
   packageCopyIgnorePatterns: [
