@@ -146,6 +146,5 @@ export const config: SneatConfig = {
       pageTitle: 'Sneat - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/sneat-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/sneat/sneat-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

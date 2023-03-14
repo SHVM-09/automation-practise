@@ -648,7 +648,7 @@ export class Laravel extends Utils {
 
         // Add app bind
         // TODO: Handle unwanted slash by mistake
-        .mustReplace(/(?<=^\$app.*\n)/gm, `\n$app->bind('path.public', function() { return base_path('../../html${this.templateConfig.laravel.demoPathOnServer(1, isStaging)}'); });\n`)
+        .mustReplace(/(?<=^\$app.*\n)/gm, '\napp()->usePublicPath(__DIR__);\n')
     })
 
     const themeConfigPath = path.join(TSFull, 'themeConfig.ts')

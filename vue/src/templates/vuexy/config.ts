@@ -14,7 +14,7 @@ const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
 const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 
 export const config: VuexyConfig = {
-  templateName: 'Vuexy',
+  templateName: 'vuexy',
   templateDomain: 'pi',
   projectPath: vuexyVuePath,
   packageCopyIgnorePatterns: [
@@ -132,6 +132,7 @@ export const config: VuexyConfig = {
   gtm: pixinventGTMConfig,
   laravel: {
     pkgName: 'vuexy-vuejs-laravel-admin-template',
+    buyNowLink: 'https://1.envato.market/vuexy_admin',
     projectPath: vuexyVueLaravelPath,
     paths: {
       TSFull: path.join(vuexyVueLaravelPath, 'typescript-version', 'full-version'),
@@ -144,6 +145,5 @@ export const config: VuexyConfig = {
       pageTitle: 'Vuexy - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/vuexy/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

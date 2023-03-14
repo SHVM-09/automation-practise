@@ -14,7 +14,7 @@ const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'
 const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
 
 export const config: MaterioConfig = {
-  templateName: 'Materio',
+  templateName: 'materio',
   templateDomain: 'ts',
   projectPath: materioVuePath,
   packageCopyIgnorePatterns: [
@@ -131,6 +131,7 @@ export const config: MaterioConfig = {
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'materio-vuetify-vuejs-laravel-admin-template',
+    buyNowLink: 'https://themeselection.com/item/materio-vuetify-vuejs-laravel-admin-template/',
     projectPath: materioVueLaravelPath,
     paths: {
       TSFull: path.join(materioVueLaravelPath, 'typescript-version', 'full-version'),
@@ -143,6 +144,5 @@ export const config: MaterioConfig = {
       pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/materio/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

@@ -107,6 +107,7 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   laravel: {
     pkgName: 'master-vuetify-vuejs-laravel-admin-template',
+    buyNowLink: 'https://themeselection.com/item/master-vuetify-vuejs-admin-template/',
     projectPath: masterVueLaravelPath,
     paths: {
       TSFull: path.join(masterVueLaravelPath, 'typescript-version', 'full-version'),
@@ -119,6 +120,5 @@ export const config: MasterConfig = {
       pageTitle: 'Master - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/master/master-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }

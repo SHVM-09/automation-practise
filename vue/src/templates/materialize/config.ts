@@ -14,7 +14,7 @@ const materializeVueLaravelPath = path.join(getTemplatePath('materialize', 'vue-
 const materializeVueFreePath = materializeVuePath.mustReplace('vue', 'vue-free')
 
 export const config: MaterializeConfig = {
-  templateName: 'Materialize',
+  templateName: 'materialize',
   templateDomain: 'pi',
   projectPath: materializeVuePath,
   packageCopyIgnorePatterns: [
@@ -133,6 +133,7 @@ export const config: MaterializeConfig = {
   gtm: pixinventGTMConfig,
   laravel: {
     pkgName: 'materialize-vuejs-laravel-admin-template',
+    buyNowLink: 'https://1.envato.market/materialize_admin',
     projectPath: materializeVueLaravelPath,
     paths: {
       TSFull: path.join(materializeVueLaravelPath, 'typescript-version', 'full-version'),
@@ -145,6 +146,5 @@ export const config: MaterializeConfig = {
       pageTitle: 'Materialize - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
     },
-    demoPathOnServer: (demoNumber, isStaging) => `/materialize/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}`,
   },
 }
