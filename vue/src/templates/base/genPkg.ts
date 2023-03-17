@@ -59,6 +59,10 @@ export class GenPkg extends Utils {
     this.removeBuyNow(tempPkgTSFull)
     this.removeBuyNow(tempPkgJSFull)
 
+    // package version for package name
+    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
+    let pkgVersionForZip: string | null = null
+
     // Create documentation.html file
     fs.writeFileSync(
       path.join(tempPkgDir, 'documentation.html'),
@@ -68,7 +72,7 @@ export class GenPkg extends Utils {
     if (isInteractive || newPkgVersion) {
       const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
 
-      await updatePkgJsonVersion(
+      pkgVersionForZip = await updatePkgJsonVersion(
         [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json')),
         tempPkgTSFullPackageJsonPath,
         newPkgVersion,
@@ -77,7 +81,7 @@ export class GenPkg extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.projectPath,
-      `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template.zip`,
+      `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
     execCmd(`zip -r ${zipPath} .`, { cwd: tempPkgDir })
     success(`✅ Package generated at: ${this.templateConfig.projectPath}`)

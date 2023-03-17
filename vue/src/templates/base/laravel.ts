@@ -585,13 +585,16 @@ export class Laravel extends Utils {
     pkgJsonPaths.forEach((pkgJSONPath) => {
       updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.laravel.pkgName)
     })
+    // package version for package name
+    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
+    let pkgVersionForZip: string | null = null
 
     if (isInteractive || newPkgVersion)
-      await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
+      pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
 
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,
-      `${this.templateConfig.laravel.pkgName}.zip`,
+      `${this.templateConfig.laravel.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
 
     execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
@@ -733,7 +736,7 @@ export class Laravel extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.laravel.paths.TSFull,
-      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip `,
+      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip`,
     )
 
     // Generate zip of ts full including demo & laravel
