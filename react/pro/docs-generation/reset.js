@@ -23,7 +23,6 @@ if (fs.existsSync(pathConfig.docsPath)) {
   fs.writeFile(
     `${pathConfig.docsPath}/.vuepress/config.js`,
     fileData.join('\n').replace('./favicon.ico', '/favicon.ico'),
-    fileData.join('\n').replace('./favicon.png', '/favicon.png'),
     err => {
       if (err) {
         console.log(err)
