@@ -40,8 +40,12 @@ export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPat
 
       fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })
     })
+
+    return newVersion
   }
   else {
     info('Ignoring version update!')
+
+    return (pkgJson.version as string)
   }
 }
