@@ -594,7 +594,7 @@ export class Laravel extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,
-      `${this.templateConfig.laravel.pkgName}-${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+      `${this.templateConfig.laravel.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
 
     execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
