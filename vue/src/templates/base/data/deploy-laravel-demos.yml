@@ -35,6 +35,7 @@ jobs:
         run: yarn
 
       - name: ⚙️ Set LARAVEL_CORE_DIR_NAME environment variable from generated env file
+        working-directory: automation-scripts/vue
         run: yarn tsx src/templates/${{ env.TEMPLATE_NAME }}/scripts/genLaravelCoreDirNameEnvFile.ts $([[ "${{ inputs.is_production }}" != "true" ]] && echo --staging) && cat .env.laravel-core-dir-name >> $GITHUB_ENV
 
       - name: ⬇️ Install packages in typescript full version
