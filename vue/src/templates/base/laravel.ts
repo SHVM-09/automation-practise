@@ -736,7 +736,7 @@ export class Laravel extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.laravel.paths.TSFull,
-      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip `,
+      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip`,
     )
 
     // Generate zip of ts full including demo & laravel
