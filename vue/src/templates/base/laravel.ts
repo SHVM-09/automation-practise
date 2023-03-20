@@ -474,7 +474,7 @@ export class Laravel extends Utils {
       if (fs.pathExistsSync(filePath)) {
         updateFile(
           filePath,
-          data => data.mustReplace(
+          data => data.replaceAll(
             this.templateConfig.documentation.docUrl,
             this.templateConfig.laravel.documentation.docUrl,
           ),
