@@ -582,6 +582,10 @@ export class Laravel extends Utils {
     // this.removeBuyNow(tempPkgTSFull)
     // this.removeBuyNow(tempPkgJSFull)
 
+    // Remove test pages from both full versions
+    execCmd(`rm -rf ${path.join(tempPkgTSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
+    execCmd(`rm -rf ${path.join(tempPkgJSFull, 'resources', 'js', 'pages', 'pages', 'test')}`)
+
     // Create documentation.html file
     fs.writeFileSync(
       path.join(tempPkgDir, 'documentation.html'),
@@ -595,6 +599,7 @@ export class Laravel extends Utils {
     pkgJsonPaths.forEach((pkgJSONPath) => {
       updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.laravel.pkgName)
     })
+
     // package version for package name
     // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
     let pkgVersionForZip: string | null = null
@@ -624,6 +629,8 @@ export class Laravel extends Utils {
         envPath,
       )
     }
+
+    execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
 
     // Generate application key
     execCmd('php artisan key:generate', { cwd: this.templateConfig.laravel.paths.TSFull })

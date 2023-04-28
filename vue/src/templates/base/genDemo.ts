@@ -106,6 +106,10 @@ export class GenDemo {
 
     const { tSFull, jSFull } = this.templateConfig.paths
 
+    // remove test pages
+    execCmd(`rm -rf ${path.join(tSFull, 'src', 'pages', 'pages', 'test')}`)
+    execCmd(`rm -rf ${path.join(jSFull, 'src', 'pages', 'pages', 'test')}`)
+
     // Fill snippets
     new FillSnippets(tSFull, jSFull).fillSnippet()
 

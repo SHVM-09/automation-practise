@@ -67,6 +67,9 @@ export class GenPkg extends Utils {
     this.removeBuyNow(tempPkgTSFull)
     this.removeBuyNow(tempPkgJSFull)
 
+    execCmd(`rm -rf ${path.join(tempPkgTSFull, 'src', 'pages', 'pages', 'test')}`)
+    execCmd(`rm -rf ${path.join(tempPkgJSFull, 'src', 'pages', 'pages', 'test')}`)
+
     // package version for package name
     // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
     let pkgVersionForZip: string | null = null
