@@ -37,18 +37,17 @@ export class Utils {
   }
 }
 
-export const injectGTM = (filePath: string, gtmConfig: GTMConfig) => {
+export const injectGTM = (vitePressConfigPath: string, gtmConfig: GTMConfig) => {
   /*
-      ℹ️ headScript should be as high as possible inside head tag
-      ℹ️ bodyNoScript should be placed immediately after opening body tag
-    */
+    ℹ️ headScript should be as high as possible inside head tag
+    ℹ️ bodyNoScript should be placed immediately after opening body tag
+  */
   updateFile(
-    // Path to `index.html`
-    filePath,
-    htmlContent => htmlContent
-      .mustReplace('<head>', `<head>\n${gtmConfig.headScript}`)
-      .mustReplace('<body>', `<body>\n${gtmConfig.bodyNoScript}`),
+    vitePressConfigPath,
+    content => content
+      .mustReplace('headScript: ``', `headScript: \`${gtmConfig.headScript}\``)
+      .mustReplace('bodyNoScript: ``', `bodyNoScript: \`${gtmConfig.bodyNoScript}\``),
   )
 }
 
-export const getDocsSsrHtmlPath = (templateConfig: TemplateBaseConfig) => path.join(templateConfig.paths.docs, '.vuepress', 'theme', 'templates', 'ssr.html')
+export const getDocsConfigPath = (templateConfig: TemplateBaseConfig) => path.join(templateConfig.paths.docs, '.vitepress', 'config.ts')
