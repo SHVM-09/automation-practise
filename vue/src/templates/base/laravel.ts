@@ -6,9 +6,9 @@ import { globbySync } from 'globby'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
-import { addImport, addVitePlugin } from '@/utils/file'
+import { addImport, addVitePlugin, getOverSizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
-import { info, success } from '@/utils/logging'
+import { error, info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -474,6 +474,7 @@ export class Laravel extends Utils {
       if (fs.pathExistsSync(filePath)) {
         updateFile(
           filePath,
+          // we have used replaceAll instead of mustReplace because when match is not found mustReplace throws error
           data => data.replaceAll(
             this.templateConfig.documentation.docUrl,
             this.templateConfig.laravel.documentation.docUrl,
@@ -515,6 +516,15 @@ export class Laravel extends Utils {
   }
 
   async genPkg(isInteractive = true, newPkgVersion?: string) {
+    // Check if any file is over 100KB
+    const overSizedFiles = getOverSizedFiles(`${this.templateConfig.laravel.paths.TSFull}/resources/images`)
+
+    if (overSizedFiles.length) {
+      overSizedFiles.forEach((file) => {
+        error(`Please optimize the following images: ${file.filePath} : ${file.size}KB`)
+      })
+    }
+
     // Generate Laravel TS Full
     this.genLaravel()
 

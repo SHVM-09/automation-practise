@@ -5,11 +5,11 @@ import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { Utils } from '@/templates/base/helper'
-import { success } from '@/utils/logging'
+import { error, success } from '@/utils/logging'
 import { execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
-
+import { getOverSizedFiles } from '@/utils/file'
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
     super()
@@ -17,6 +17,14 @@ export class GenPkg extends Utils {
 
   async genPkg(isInteractive = true, newPkgVersion?: string) {
     const { tSFull, jSFull } = this.templateConfig.paths
+
+    const overSizedFiles = getOverSizedFiles(`${tSFull}/src/assets/images`)
+
+    if (overSizedFiles.length) {
+      overSizedFiles.forEach((file) => {
+        error(`Please optimize the following images: ${file.filePath} : ${file.size}KB`)
+      })
+    }
 
     // Generate TS SK
     await new GenSK(this.templateConfig).genSK()
