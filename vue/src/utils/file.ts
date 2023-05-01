@@ -5,8 +5,9 @@ import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import tinify from 'tinify'
+import type { PackageJson } from 'type-fest'
+import { execCmd } from '@/utils/node'
 import { error, info, success } from '@/utils/logging'
-
 /**
    * Adds received import string as last import statement
    *
@@ -84,4 +85,46 @@ export const compressOverSizedFiles = async (globPattern: string, options: { rep
 
   // ℹ️ We are returning the overSizedFiles but they are already optimized so you can use them for other purposes like commiting them to git
   return overSizedFiles
+}
+
+export const getPackagesVersions = (tsFullPath: string): PackageJson.Dependency => {
+  // Run the yarn list command and capture its output
+  const output = execCmd('yarn list --depth=0', {
+    cwd: tsFullPath,
+  })?.toString()
+
+  // Define a regular expression to match package names and versions
+  const pattern = /├─ (.*)@(.*)/
+
+  // Split the output into lines and filter out empty lines
+  const lines = output?.trim().split('\n').filter(line => line)
+
+  const packages: PackageJson.Dependency = {}
+
+  // Map the lines to objects containing the package name and version
+  lines?.forEach((line) => {
+    const matches = line.match(pattern)
+
+    if (matches)
+      packages[matches[1]] = matches[2]
+  })
+
+  return packages
+}
+
+export const pinPackagesVersions = (packageVersions: PackageJson.Dependency, tempDirPath: string) => {
+  const packageObj: PackageJson = fs.readJsonSync(`${tempDirPath}/package.json`)
+
+  const pkgDeps = packageObj.dependencies as PackageJson.Dependency
+  const pkgDevDeps = packageObj.devDependencies as PackageJson.Dependency
+
+  Object.entries(packageVersions).forEach(([packageName, packageVersion]) => {
+    if (pkgDeps[packageName])
+      pkgDeps[packageName] = packageVersion
+
+    if (pkgDevDeps[packageName])
+      pkgDevDeps[packageName] = packageVersion
+  })
+
+  fs.writeJsonSync(`${tempDirPath}/package.json`, packageObj, { spaces: 2 })
 }

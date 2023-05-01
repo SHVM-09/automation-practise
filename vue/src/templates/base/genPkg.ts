@@ -9,6 +9,7 @@ import { compressOverSizedFiles } from '@/utils/file'
 import { success, warning } from '@/utils/logging'
 import { askBoolean, execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
+import { getPackagesVersions, pinPackagesVersions } from '@/utils/file'
 import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig) {
@@ -70,6 +71,13 @@ export class GenPkg extends Utils {
 
     this.copyProject(this.templateConfig.paths.jSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.paths.jSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
+
+    // update node package version in both full versions and starter kits package.json file (ts/js)
+    const packageVersions = getPackagesVersions(tSFull)
+    pinPackagesVersions(packageVersions, tempPkgTSFull)
+    pinPackagesVersions(packageVersions, tempPkgTSStarter)
+    pinPackagesVersions(packageVersions, tempPkgJSFull)
+    pinPackagesVersions(packageVersions, tempPkgJSStarter)
 
     // Remove BuyNow from both full versions
     this.removeBuyNow(tempPkgTSFull)

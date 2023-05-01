@@ -7,7 +7,7 @@ import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
-import { addImport, addVitePlugin, reportOversizedFiles } from '@/utils/file'
+import { addImport, addVitePlugin, getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { error, info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
@@ -580,6 +580,13 @@ export class Laravel extends Utils {
 
     this.copyProject(this.templateConfig.laravel.paths.JSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.laravel.paths.JSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
+
+    // update node package version in both full versions and starter kits package.json file (ts/js)
+    const packageVersions = getPackagesVersions(this.templateConfig.laravel.paths.TSFull)
+    pinPackagesVersions(packageVersions, tempPkgTSFull)
+    pinPackagesVersions(packageVersions, tempPkgTSStarter)
+    pinPackagesVersions(packageVersions, tempPkgJSFull)
+    pinPackagesVersions(packageVersions, tempPkgJSStarter)
 
     // Remove BuyNow from both full versions
     // TODO: removeBuyNow method is not generic
