@@ -1,6 +1,11 @@
 import '@/utils/injectMustReplace'
+import path from 'path'
+import type { OversizedFileStats } from '@types'
+import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+import tinify from 'tinify'
+import { error, info, success } from '@/utils/logging'
 
 /**
    * Adds received import string as last import statement
@@ -20,7 +25,7 @@ export const addVitePlugin = (data: string, pluginConfig: string, insertTrailing
 export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100) => {
   const assets = globbySync(globPattern, { expandDirectories: true })
 
-  const overSizedFiles: { filePath: string; size: number }[] = []
+  const overSizedFiles: OversizedFileStats[] = []
 
   assets.forEach((file) => {
     const stats = fs.statSync(file)
@@ -30,5 +35,53 @@ export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100) => {
       overSizedFiles.push({ filePath: file, size: fileSizeInMegabytes })
   })
 
+  return overSizedFiles
+}
+
+const getFilesStrList = (files: { filePath: string; size: number }[], reportPathRelativeTo?: string) => {
+  return files.map((f) => {
+    const filePath = reportPathRelativeTo
+      ? path.relative(reportPathRelativeTo, f.filePath)
+      : f.filePath
+
+    return `${filePath} (${f.size}KB)\n`
+  }).join('')
+}
+
+export const reportOversizedFiles = (globPattern: string, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}) => {
+  const { reportPathRelativeTo, maxSizeInKb = 100 } = options
+  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb)
+
+  if (overSizedFiles.length) {
+    const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
+
+    error(`Please optimize (<${maxSizeInKb}kb) the following images: \n${filesStr}\n`)
+  }
+}
+
+export const compressOverSizedFiles = async (globPattern: string, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}): Promise<OversizedFileStats[]> => {
+  dotenv.config()
+
+  const { reportPathRelativeTo, maxSizeInKb = 100 } = options
+  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb)
+
+  if (!overSizedFiles.length)
+    return []
+
+  const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
+
+  info(`🐼 Compressing following files with TinyPNG:\n${filesStr}`)
+  tinify.key = process.env.TINY_PNG_API_KEY || ''
+  for (const f of overSizedFiles)
+    await tinify.fromFile(f.filePath).toFile(f.filePath)
+
+  success('File compression done, Thanks 🐼')
+
+  info('Checking for oversized files again...')
+  reportOversizedFiles(globPattern, options)
+
+  success('All files are optimized 🎉')
+
+  // ℹ️ We are returning the overSizedFiles but they are already optimized so you can use them for other purposes like commiting them to git
   return overSizedFiles
 }

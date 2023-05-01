@@ -4,9 +4,9 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import { Octokit } from 'octokit'
 
+import type { Tracker } from '@types'
 import type { TemplateBaseConfig } from './config'
 
-import type { Tracker } from '@/../types'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
 import { error } from '@/utils/logging'

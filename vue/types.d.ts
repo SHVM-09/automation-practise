@@ -4,3 +4,9 @@ export interface TrackableFile {
   lastUpdatedAt: string
 }
 export type Tracker = TrackableFile[]
+
+export interface OversizedFileStats {
+  filePath: string;
+  size: number
+}
+

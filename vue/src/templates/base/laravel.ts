@@ -7,7 +7,7 @@ import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
-import { addImport, addVitePlugin, getOverSizedFiles } from '@/utils/file'
+import { addImport, addVitePlugin, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { error, info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
@@ -526,14 +526,16 @@ export class Laravel extends Utils {
   }
 
   async genPkg(isInteractive = true, newPkgVersion?: string) {
-    // Check if any file is over 100KB
-    const overSizedFiles = getOverSizedFiles(`${this.templateConfig.laravel.paths.TSFull}/resources/images`)
+    const { TSFull } = this.templateConfig.laravel.paths
 
-    if (overSizedFiles.length) {
-      overSizedFiles.forEach((file) => {
-        error(`Please optimize the following images: ${file.filePath} : ${file.size}KB`)
-      })
-    }
+    // Report if any file is over 100KB
+    /*
+      ℹ️ We aren't compressing files like vue package because laravel is generated from vue package
+      Hence, if there's any asset over 100KB, just report it.
+    */
+    reportOversizedFiles(`${TSFull}/resources/images`, {
+      reportPathRelativeTo: TSFull,
+    })
 
     // Generate Laravel TS Full
     this.genLaravel()
