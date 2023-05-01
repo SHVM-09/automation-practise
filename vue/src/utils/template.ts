@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
+import type { PackageJson } from 'type-fest'
 import { error, info } from '@/utils/logging'
 import { ask } from '@/utils/node'
-
 export const generateDocContent = (pageTitle: string, docUrl: string) => {
   return `<!DOCTYPE html>
 <html>
@@ -22,8 +22,8 @@ export const validateSemanticVersion = (version: string) => {
 
 export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPath: string, packageVersionToUpdate?: string) => {
   let newVersion = packageVersionToUpdate
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const pkgJson: Record<string, any> = fs.readJsonSync(pkgJsonSrcPath)
+
+  const pkgJson: PackageJson = fs.readJsonSync(pkgJsonSrcPath)
 
   if (!newVersion)
     newVersion = await ask(`Optional, Update package version in package.json. (Current version: ${pkgJson.version as string}) Don't prefix 'v': `)
@@ -35,7 +35,7 @@ export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPat
 
     // Loop over all package.json files and update version
     pkgJsonPaths.forEach((pkgJsonPath) => {
-      const pkgJson = fs.readJSONSync(pkgJsonPath)
+      const pkgJson: PackageJson = fs.readJSONSync(pkgJsonPath)
       pkgJson.version = newVersion
 
       fs.writeJsonSync(pkgJsonPath, pkgJson, { spaces: 2 })

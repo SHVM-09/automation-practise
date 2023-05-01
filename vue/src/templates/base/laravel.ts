@@ -3,6 +3,7 @@ import * as url from 'url'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
+import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
@@ -91,12 +92,21 @@ export class Laravel extends Utils {
     const pkgJSONPath = path.join(this.projectPath, pkgJSONFileName)
 
     const laravelVitePluginVersion = fs.readJSONSync(pkgJSONPath).devDependencies['laravel-vite-plugin']
-    const vuePkgJSON = fs.readJSONSync(
+    const vuePkgJSON: PackageJson = fs.readJSONSync(
       path.join(sourcePath, pkgJSONFileName),
     )
 
     // Add laravel-vite-plugin in devDependencies
+    if (!vuePkgJSON.devDependencies) {
+      error('devDependencies field not found in package.json')
+      return
+    }
     vuePkgJSON.devDependencies['laravel-vite-plugin'] = laravelVitePluginVersion
+
+    if (!vuePkgJSON.scripts) {
+      error('scripts field not found in package.json')
+      return
+    }
 
     // remove preview from scripts as preview command is not relevant for laravel
     delete vuePkgJSON.scripts.preview

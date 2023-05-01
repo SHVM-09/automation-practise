@@ -2,13 +2,13 @@ import path from 'path'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import JSON5 from 'json5'
-
+import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
-
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
+import { error } from '@/utils/logging'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -154,11 +154,15 @@ export class GenJS extends Utils {
     const pkgJsonPath = path.join(this.tempDir, 'package.json')
 
     // Read package.json
-    const pkgJson = fs.readJsonSync(pkgJsonPath)
+    const pkgJson: PackageJson = fs.readJsonSync(pkgJsonPath)
 
     // Remove "typecheck" script
-    delete pkgJson.scripts.typecheck
+    if (!pkgJson.scripts) {
+      error('No scripts found in package.json')
+      return
+    }
 
+    delete pkgJson.scripts.typecheck
     // Update build:icons script
     pkgJson.scripts['build:icons'] = 'node src/@iconify/build-icons.js'
 
@@ -171,6 +175,11 @@ export class GenJS extends Utils {
         ]
       }),
     )
+
+    if (!pkgJson.devDependencies) {
+      error('No devDependencies found in package.json')
+      return
+    }
 
     // Remove TypeScript related packages => Remove all the devDependencies that contains "type" word and "vue-tsc"
     pkgJson.devDependencies = Object.fromEntries(
