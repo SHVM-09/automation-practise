@@ -42,6 +42,7 @@ export const config: VuexyConfig = {
     '!iconify-svg',
     '!pages',
     '!avatars',
+    '!illustrations',
     '!misc',
   ],
   paths: {
