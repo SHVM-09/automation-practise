@@ -37,7 +37,21 @@ export class Utils {
   }
 }
 
-export const injectGTM = (vitePressConfigPath: string, gtmConfig: GTMConfig) => {
+export const injectGTM = (filePath: string, gtmConfig: GTMConfig) => {
+  /*
+      ℹ️ headScript should be as high as possible inside head tag
+      ℹ️ bodyNoScript should be placed immediately after opening body tag
+    */
+  updateFile(
+    // Path to `index.html`
+    filePath,
+    htmlContent => htmlContent
+      .mustReplace('<head>', `<head>\n${gtmConfig.headScript}`)
+      .mustReplace('<body>', `<body>\n${gtmConfig.bodyNoScript}`),
+  )
+}
+
+export const injectGTMInVitePress = (vitePressConfigPath: string, gtmConfig: GTMConfig) => {
   /*
     ℹ️ headScript should be as high as possible inside head tag
     ℹ️ bodyNoScript should be placed immediately after opening body tag

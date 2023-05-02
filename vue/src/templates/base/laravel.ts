@@ -13,7 +13,7 @@ import { error, info, success } from '@/utils/logging'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
-import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
+import { updatePkgJsonVersion } from '@/utils/template'
 
 type Lang = 'ts' | 'js'
 type LangConfigFile = 'tsconfig.json' | 'jsconfig.json'
@@ -605,10 +605,10 @@ export class Laravel extends Utils {
     execCmd(`rm -rf ${path.join(tempPkgTSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
     execCmd(`rm -rf ${path.join(tempPkgJSFull, 'resources', 'js', 'pages', 'pages', 'test')}`)
 
-    // Create documentation.html file
-    fs.writeFileSync(
+    // Copy documentation.html file from root of the repo
+    fs.copyFileSync(
+      path.join(this.templateConfig.projectPath, 'documentation.html'),
       path.join(tempPkgDir, 'documentation.html'),
-      generateDocContent(this.templateConfig.laravel.documentation.pageTitle, this.templateConfig.laravel.documentation.docUrl),
     )
 
     // package.json files paths in all four versions
