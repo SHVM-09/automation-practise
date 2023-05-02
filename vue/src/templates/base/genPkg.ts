@@ -1,18 +1,19 @@
 import path from 'path'
+import type { GenPkgHooks } from '@types'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { Utils } from '@/templates/base/helper'
-import { compressOverSizedFiles } from '@/utils/file'
+import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
 import { success, warning } from '@/utils/logging'
 import { askBoolean, execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
-import { getPackagesVersions, pinPackagesVersions } from '@/utils/file'
-import { generateDocContent, updatePkgJsonVersion } from '@/utils/template'
+import { updatePkgJsonVersion } from '@/utils/template'
+
 export class GenPkg extends Utils {
-  constructor(private templateConfig: TemplateBaseConfig) {
+  constructor(private templateConfig: TemplateBaseConfig, private hooks: GenPkgHooks) {
     super()
   }
 
@@ -90,10 +91,10 @@ export class GenPkg extends Utils {
     // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
     let pkgVersionForZip: string | null = null
 
-    // Create documentation.html file
-    fs.writeFileSync(
+    // Copy documentation.html file from root of the repo
+    fs.copyFileSync(
+      path.join(this.templateConfig.projectPath, 'documentation.html'),
       path.join(tempPkgDir, 'documentation.html'),
-      generateDocContent(this.templateConfig.documentation.pageTitle, this.templateConfig.documentation.docUrl),
     )
 
     if (isInteractive || newPkgVersion) {
@@ -106,6 +107,16 @@ export class GenPkg extends Utils {
       )
     }
 
+    // Ask for running `postProcessGeneratedPkg` if pixinvent
+    if (this.templateConfig.templateDomain === 'pi') {
+      if (await askBoolean('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
+        await this.hooks.postProcessGeneratedPkg(tempPkgDir)
+    }
+    else {
+      await this.hooks.postProcessGeneratedPkg(tempPkgDir)
+    }
+
+    // Prepare zip
     const zipPath = path.join(
       this.templateConfig.projectPath,
       `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,

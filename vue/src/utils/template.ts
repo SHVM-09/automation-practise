@@ -2,18 +2,6 @@ import fs from 'fs-extra'
 import type { PackageJson } from 'type-fest'
 import { error, info } from '@/utils/logging'
 import { ask } from '@/utils/node'
-export const generateDocContent = (pageTitle: string, docUrl: string) => {
-  return `<!DOCTYPE html>
-<html>
-<head>
-   <title>${pageTitle}</title>
-   <meta http-equiv="refresh" content="0; URL='${docUrl}'" />
-</head>
-<body>
-   <p>If you do not redirect please visit: ${docUrl}</p>
-</body>
-</html>`
-}
 
 export const validateSemanticVersion = (version: string) => {
   if (!/(\d\.){2}\d/.test(version))

@@ -91,4 +91,11 @@ export const askBoolean = async (que: string) => {
   return ['y', 'yes', 'true'].includes(response.toLowerCase())
 }
 
+export async function downloadFile(url: string, token: string) {
+  // Fake sleep via promise and setTimeout
+  await new Promise(resolve => setTimeout(resolve, 2000))
+
+  throw new Error('Not implemented yet')
+}
+
 // TODO: Create util filterLine

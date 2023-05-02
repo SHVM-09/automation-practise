@@ -10,3 +10,6 @@ export interface OversizedFileStats {
   size: number
 }
 
+export interface GenPkgHooks {
+  postProcessGeneratedPkg: (tempPkgDir: string, isLaravel?: boolean) => Promise<void>
+}

@@ -1,4 +1,4 @@
-import { TemplateBase } from '@templates/base'
+import { PixInventTemplate } from '@templates/pi'
 
-export class Vuexy extends TemplateBase {}
+export class Vuexy extends PixInventTemplate {}
 
