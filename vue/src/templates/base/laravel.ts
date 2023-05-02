@@ -528,6 +528,9 @@ export class Laravel extends Utils {
   async genPkg(isInteractive = true, newPkgVersion?: string) {
     const { TSFull } = this.templateConfig.laravel.paths
 
+    // Generate Laravel TS Full
+    this.genLaravel()
+
     // Report if any file is over 100KB
     /*
       ℹ️ We aren't compressing files like vue package because laravel is generated from vue package
@@ -536,9 +539,6 @@ export class Laravel extends Utils {
     reportOversizedFiles(`${TSFull}/resources/images`, {
       reportPathRelativeTo: TSFull,
     })
-
-    // Generate Laravel TS Full
-    this.genLaravel()
 
     // Generate Laravel TS Starter
     this.genLaravel({ isSK: true })
