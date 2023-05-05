@@ -5,15 +5,15 @@ import boyWithRocketDark from '@images/illustrations/boy-with-rocket-dark.png'
 import boyWithRocketLight from '@images/illustrations/boy-with-rocket-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
-import { VForm } from 'vuetify/components/VForm'
+
+const form = ref({
+  email: '',
+  password: '',
+  remember: false,
+})
 
 const boyWithRocket = useGenerateImageVariant(boyWithRocketLight, boyWithRocketDark)
 const isPasswordVisible = ref(false)
-
-const refVForm = ref<VForm>()
-const email = ref('')
-const password = ref('')
-const rememberMe = ref(false)
 </script>
 
 <template>
@@ -22,8 +22,8 @@ const rememberMe = ref(false)
     class="auth-wrapper"
   >
     <VCol
-      lg="8"
-      class="d-none d-lg-flex"
+      md="8"
+      class="d-none d-md-flex"
     >
       <!-- illustration -->
       <div class="position-relative w-100 pa-8">
@@ -39,8 +39,8 @@ const rememberMe = ref(false)
 
     <VCol
       cols="12"
-      lg="4"
-      class="d-flex align-center justify-center"
+      md="4"
+      class="auth-card-v2 d-flex align-center justify-center"
       style="background-color: rgb(var(--v-theme-surface));"
     >
       <VCard
@@ -64,22 +64,19 @@ const rememberMe = ref(false)
           <h6 class="text-h6 mb-1">
             Welcome to {{ themeConfig.app.title }}! 👋🏻
           </h6>
-
           <p class="mb-0">
             Please sign-in to your account and start the adventure
           </p>
         </VCardText>
 
         <VCardText>
-          <VForm
-            ref="refVForm"
-            @submit.prevent="() => {}"
-          >
+          <VForm @submit.prevent="() => {}">
             <VRow>
               <!-- email -->
               <VCol cols="12">
                 <VTextField
-                  v-model="email"
+                  v-model="form.email"
+                  autofocus
                   label="Email"
                   type="email"
                 />
@@ -88,16 +85,16 @@ const rememberMe = ref(false)
               <!-- password -->
               <VCol cols="12">
                 <VTextField
-                  v-model="password"
+                  v-model="form.password"
                   label="Password"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
 
-                <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-6">
+                <div class="d-flex align-center flex-wrap justify-space-between mt-2 mb-4">
                   <VCheckbox
-                    v-model="rememberMe"
+                    v-model="form.remember"
                     label="Remember me"
                   />
                   <a
@@ -120,7 +117,7 @@ const rememberMe = ref(false)
               <!-- create account -->
               <VCol
                 cols="12"
-                class="text-center"
+                class="text-center text-base d-flex justify-center flex-wrap"
               >
                 <span>New on our platform?</span>
                 <a
@@ -130,6 +127,7 @@ const rememberMe = ref(false)
                   Create an account
                 </a>
               </VCol>
+
               <VCol
                 cols="12"
                 class="d-flex align-center"
