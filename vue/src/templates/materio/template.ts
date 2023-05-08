@@ -1,4 +1,4 @@
-import { TemplateBase } from '@templates/base'
+import { ThemeSelectionTemplate } from '@templates/ts'
 
-export class Materio extends TemplateBase {}
+export class Materio extends ThemeSelectionTemplate {}
 

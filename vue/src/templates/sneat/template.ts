@@ -1,4 +1,4 @@
-import { TemplateBase } from '@templates/base'
+import { ThemeSelectionTemplate } from '@/templates/ts'
 
-export class Sneat extends TemplateBase {}
+export class Sneat extends ThemeSelectionTemplate { }
 
