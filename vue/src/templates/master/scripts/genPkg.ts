@@ -6,4 +6,6 @@ const argv = parseArgs(process.argv.slice(2))
 
 const master = new Master(config)
 
-await new GenPkg(master.config).genPkg(!argv.n, argv.version)
+await new GenPkg(master.config, {
+  postProcessGeneratedPkg: (...args) => master.postProcessGeneratedPkg(...args),
+}).genPkg(!argv.n, argv.version)

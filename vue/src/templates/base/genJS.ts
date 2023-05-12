@@ -1,14 +1,14 @@
-import path from 'path'
-import fs from 'fs-extra'
-import { globbySync } from 'globby'
-import JSON5 from 'json5'
-import type { PackageJson } from 'type-fest'
-import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { execCmd, replaceDir, updateFile } from '@/utils/node'
 import { error } from '@/utils/logging'
+import { execCmd, replaceDir, updateFile } from '@/utils/node'
+import fs from 'fs-extra'
+import { globbySync } from 'globby'
+import JSON5 from 'json5'
+import path from 'path'
+import type { PackageJson } from 'type-fest'
+import type { TemplateBaseConfig } from './config'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -305,7 +305,10 @@ export class GenJS extends Utils {
         ℹ️ Don't include env & shims file because those are TS only files.
         We will copy components.d.ts & auto-imports.d.ts for "yarn tsc" to run without errors
       */
-      this.templateConfig.packageCopyIgnorePatterns,
+      [
+        ...this.templateConfig.packageCopyIgnorePatterns,
+        '**/test**',
+      ],
     )
 
     // Update vite config

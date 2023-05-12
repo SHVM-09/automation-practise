@@ -6,4 +6,6 @@ const argv = parseArgs(process.argv.slice(2))
 
 const sneat = new Sneat(config)
 
-await new GenPkg(sneat.config).genPkg(!argv.n, argv.version)
+await new GenPkg(sneat.config, {
+  postProcessGeneratedPkg: (...args) => sneat.postProcessGeneratedPkg(...args),
+}).genPkg(!argv.n, argv.version)

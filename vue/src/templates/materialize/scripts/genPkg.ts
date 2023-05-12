@@ -6,4 +6,6 @@ const argv = parseArgs(process.argv.slice(2))
 
 const materialize = new Materialize(config)
 
-await new GenPkg(materialize.config).genPkg(!argv.n, argv.version)
+await new GenPkg(materialize.config, {
+  postProcessGeneratedPkg: (...args) => materialize.postProcessGeneratedPkg(...args),
+}).genPkg(!argv.n, argv.version)

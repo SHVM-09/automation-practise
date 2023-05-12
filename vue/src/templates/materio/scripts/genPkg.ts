@@ -6,4 +6,6 @@ const argv = parseArgs(process.argv.slice(2))
 
 const materio = new Materio(config)
 
-await new GenPkg(materio.config).genPkg(!argv.n, argv.version)
+await new GenPkg(materio.config, {
+  postProcessGeneratedPkg: (...args) => materio.postProcessGeneratedPkg(...args),
+}).genPkg(!argv.n, argv.version)

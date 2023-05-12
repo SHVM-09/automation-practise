@@ -42,6 +42,7 @@ export const config: MaterioConfig = {
     '!pages',
     '!avatars',
     '!misc',
+    '!iconify-svg',
   ],
   paths: {
     tSFull: path.join(materioVuePath, 'typescript-version', 'full-version'),

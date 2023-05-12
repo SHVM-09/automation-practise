@@ -1,12 +1,12 @@
 import '@/utils/injectMustReplace'
 import path from 'path'
+import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { injectGTM } from './helper'
 import { execCmd, updateFile } from '@/utils/node'
-import { info, success } from '@/utils/logging'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) {}
@@ -102,7 +102,7 @@ export class GenDemo {
   }
 
   generate(isStaging: boolean) {
-    info('isStaging: ', isStaging.toString())
+    consola.info('isStaging: ', isStaging.toString())
 
     const { tSFull, jSFull } = this.templateConfig.paths
 
@@ -117,7 +117,7 @@ export class GenDemo {
     this.removeExistingBuildData()
 
     // ℹ️ We no longer have vue-tsc command in build script
-    // info('Updating build command to remove vue-tsc...')
+    // consola.info('Updating build command to remove vue-tsc...')
     // Update build command to ignore vue-tsc errors
     // this.updateBuildCommand()
 
@@ -138,10 +138,11 @@ export class GenDemo {
       // Generate demo number
       const demoNumber = demoIndex + 1
 
-      info(`Generating demo ${demoNumber}`)
+      consola.start(`Generating demo ${demoNumber}\n`)
 
-      info('Updating localStorage keys...')
+      consola.start('Updating localStorage keys')
       this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
+      consola.success('localStorage keys updated successfully\n')
 
       // ℹ️ Demo config can be null if there's no changes in themeConfig
       if (demoConfig) {
@@ -176,12 +177,13 @@ export class GenDemo {
       // Reset the themeConfig
       fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
 
-      success(`✅ Demo ${demoNumber} generation completed`)
+      consola.success(`Demo ${demoNumber} generation completed\n`)
     })
 
-    info('Creating zip...')
+    consola.start('Creating zip')
     // Generate demos zip
     execCmd(zipCommand, { cwd: this.templateConfig.paths.tSFull })
+    consola.success('Zip created successfully\n')
 
     // Reset changes we done via git checkout
     // Thanks: https://stackoverflow.com/a/21213235/10796681
