@@ -45,8 +45,14 @@ const replaceBasePathInImages = (dirPath, arrayOfFiles) => {
 
           return
         } else {
-          const result = data.replace(new RegExp('/images/', 'g'), `/marketplace${URL}/${demo}/images/`)
+          let result = data.replace(new RegExp('/images/', 'g'), `/marketplace${URL}/${demo}/images/`)
 
+          // ** Replace GTM
+          if (file === '_document.tsx') {
+            result = result
+              .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
+              .replace('<body>', `<body>\n${GTMBody}`)
+          }
           fs.writeFile(fileName, result, err => {
             if (err) {
               console.log(err)
@@ -118,39 +124,6 @@ replaceBasePathInImages(`${pathConfig.fullVersionTSXPath}/src`)
 replaceBasePathInI18n()
 
 replaceWithMarketPlace()
-
-// ** Add GTM in _document.tsx file if it exists
-if (fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`)) {
-  fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-    } else {
-      fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
-        if (err) {
-          console.log(err)
-
-          return
-        } else {
-          fs.writeFile(
-            `${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`,
-            data
-              .replace('<Head>', '<Head>\n<script dangerouslySetInnerHTML={{ __html: `' + GTMHead + '` }} />')
-              .replace('<body>', `<body>\n${GTMBody}`),
-            err => {
-              if (err) {
-                console.log(err)
-
-                return
-              }
-            }
-          )
-        }
-      })
-    }
-  })
-} else {
-  console.log("_document.tsx File Doesn't exists")
-}
 
 // ** Replace settings in localStorage if settingsContextFile exist
 if (fs.existsSync(settingsContextFile)) {

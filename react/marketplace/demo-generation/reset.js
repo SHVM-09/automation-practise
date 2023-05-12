@@ -48,10 +48,20 @@ const removeBasePathInImages = (dirPath, arrayOfFiles) => {
 
             return
           } else {
-            const updatedData = data.replace(
+            let updatedData = data.replace(
               new RegExp(`/marketplace${URL}/${demo}/images/`, 'g'),
               '/images/'
             )
+
+            // ** Reset GTM
+            if (file === '_document.tsx') {
+              updatedData = updatedData
+                .replace(GTMHead, '')
+                .replace(GTMBody, '')
+                .replace('<script dangerouslySetInnerHTML={{ __html: `` }} />', '')
+                .replace('<Head>\n', '<Head>')
+                .replace('<body>\n', '<body>')
+            }
             fs.writeFile(
               fileName,
               updatedData,
@@ -142,31 +152,31 @@ removeBasePathInI18n()
 replaceWithMarketPlace()
   
 // ** Reset _document.tsx file if it exists
-if (fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`)) {
-  fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
-    if (err) {
-      console.log(err)
-    } else {
-      const replaced = data
-        .replace(GTMHead, '')
-        .replace(GTMBody, '')
-        .replace('<script dangerouslySetInnerHTML={{ __html: `` }} />', '')
-        .replace('<Head>\n', '<Head>')
-        .replace('<body>\n', '<body>')
-      fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
-        if (err) {
-          console.log(err)
-        } else {
-          fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, replaced, err => {
-            if (err) {
-              console.log(err)
-            }
-          })
-        }
-      })
-    }
-  })
-}
+// if (fs.existsSync(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`)) {
+//   fs.readFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, 'utf-8', (err, data) => {
+//     if (err) {
+//       console.log(err)
+//     } else {
+//       const replaced = data
+//         .replace(GTMHead, '')
+//         .replace(GTMBody, '')
+//         .replace('<script dangerouslySetInnerHTML={{ __html: `` }} />', '')
+//         .replace('<Head>\n', '<Head>')
+//         .replace('<body>\n', '<body>')
+//       fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, '', err => {
+//         if (err) {
+//           console.log(err)
+//         } else {
+//           fs.writeFile(`${pathConfig.fullVersionTSXPath}/src/pages/_document.tsx`, replaced, err => {
+//             if (err) {
+//               console.log(err)
+//             }
+//           })
+//         }
+//       })
+//     }
+//   })
+// }
 
  // ** Reset replaced settings in localStorage if settingsContextFile exist
  if (fs.existsSync(settingsContextFile)) {
