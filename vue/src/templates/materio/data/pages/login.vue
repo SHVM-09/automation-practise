@@ -4,6 +4,7 @@ import { useGenerateImageVariant } from '@core/composable/useGenerateImageVarian
 import tree from '@images/pages/tree.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+const router = useRouter()
 
 import authV2LoginIllustrationBorderedDark from '@images/pages/auth-v2-login-illustration-bordered-dark.png'
 import authV2LoginIllustrationBorderedLight from '@images/pages/auth-v2-login-illustration-bordered-light.png'
@@ -89,7 +90,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
             </p>
           </VCardText>
           <VCardText>
-            <VForm @submit.prevent="() => {}">
+            <VForm @submit.prevent="router.push('/')">
               <VRow>
                 <!-- email -->
                 <VCol cols="12">
