@@ -138,11 +138,11 @@ export class GenDemo {
       // Generate demo number
       const demoNumber = demoIndex + 1
 
-      consola.start(`Generating demo ${demoNumber}\n`)
+      consola.start(`Generating demo ${demoNumber}`)
 
       consola.start('Updating localStorage keys')
       this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
-      consola.success('localStorage keys updated successfully\n')
+      consola.success('localStorage keys updated successfully')
 
       // ℹ️ Demo config can be null if there's no changes in themeConfig
       if (demoConfig) {
