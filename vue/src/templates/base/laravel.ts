@@ -126,6 +126,7 @@ export class Laravel extends Utils {
 
     updateFile(viteConfigPath, (viteConfig) => {
       // Add laravel vite plugin import
+      // TODO: Only run this on first generation
       viteConfig = addImport(viteConfig, 'import laravel from \'laravel-vite-plugin\'')
 
       // add laravel vite plugin in plugins array
