@@ -16,5 +16,5 @@ String.prototype.mustReplace = function (searchValue: string | RegExp, replaceVa
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     throw new Error(`Can't find match for "${String(searchValue)}" in "${this}". You wanted to replace the result with "${replaceValue}"`)
 
-  return this.replace(searchValue, replaceValue)
+  return this.replaceAll(searchValue, replaceValue)
 }

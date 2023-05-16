@@ -3,6 +3,8 @@ import * as url from 'url'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
+import type { GenPkgHooks } from '@types'
+import { consola } from 'consola'
 import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
@@ -10,7 +12,7 @@ import { Utils, injectGTM } from './helper'
 import { addImport, addVitePlugin, getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { error, info, success } from '@/utils/logging'
-import { execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
+import { askBoolean, execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { updatePkgJsonVersion } from '@/utils/template'
@@ -77,10 +79,10 @@ export class Laravel extends Utils {
 
       indexHtmlContent
         // Remove main.ts import because we will use @vite directive
-        .mustReplace(/<script type="module".*/, '')
+        .mustReplace(/<script type="module".*/g, '')
 
         // Add vite directive just before closing head to include main.{ts|js} file
-        .mustReplace(/<\/head>/, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`)
+        .mustReplace(/<\/head>/g, `  @vite(['resources/${lang}/main.${lang}'])\n</head>`)
 
         // use laravel's asset helper
         .mustReplace(/\/(favicon\.ico|loader.css)/g, '{{ asset(\'$1\') }}'),
@@ -383,7 +385,7 @@ export class Laravel extends Utils {
     // if repo is for pixinvent
     if (this.templateConfig.templateDomain === 'pi')
       // Update release command => Remove prompt for changing CHANGELOG.md
-      updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=yarn bumpp)/, ''))
+      updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=yarn bumpp)/g, ''))
 
     // Update root package.json file
     fs.copyFileSync(
@@ -525,7 +527,7 @@ export class Laravel extends Utils {
     replaceDir(this.projectPath, replaceDest)
   }
 
-  async genPkg(isInteractive = true, newPkgVersion?: string) {
+  async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
     const { TSFull } = this.templateConfig.laravel.paths
 
     // Generate Laravel TS Full
@@ -626,6 +628,16 @@ export class Laravel extends Utils {
     if (isInteractive || newPkgVersion)
       pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
 
+    // Ask for running `postProcessGeneratedPkg` if pixinvent
+    if (this.templateConfig.templateDomain === 'pi') {
+      if (await askBoolean('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
+        await hooks.postProcessGeneratedPkg(tempPkgDir)
+    }
+    else {
+      await hooks.postProcessGeneratedPkg(tempPkgDir, true)
+    }
+    consola.success('Package `postProcessGeneratedPkg` hook ran successfully\n')
+
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,
       `${this.templateConfig.laravel.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
@@ -723,12 +735,12 @@ export class Laravel extends Utils {
       updateFile(
         envPath,
         data => data
-          .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/, `$1\nASSET_URL=${demoDeploymentBase}`),
+          .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/g, `$1\nASSET_URL=${demoDeploymentBase}`),
       )
 
       updateFile(
         path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'router', 'index.ts'),
-        data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/, `'${demoDeploymentBase}'`),
+        data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
       )
 
       // Run build
@@ -753,7 +765,7 @@ export class Laravel extends Utils {
     // })
 
     // Remove ASSET_URL as we don't want it in laravel core
-    updateFile(envPath, data => data.mustReplace(/ASSET_URL=.*/, ''))
+    updateFile(envPath, data => data.mustReplace(/ASSET_URL=.*/g, ''))
 
     info('Creating zip...')
 

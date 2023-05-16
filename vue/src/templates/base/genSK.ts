@@ -245,7 +245,7 @@ export class GenSK extends Utils {
     // Set enableI18n to false in themeConfig.ts
     updateFile(
       path.join(this.tempDir, 'themeConfig.ts'),
-      themeConfig => themeConfig.mustReplace(/enableI18n: \w+/, 'enableI18n: false'),
+      themeConfig => themeConfig.mustReplace(/enableI18n: \w+/g, 'enableI18n: false'),
     )
   }
 

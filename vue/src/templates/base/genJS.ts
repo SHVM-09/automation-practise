@@ -29,7 +29,7 @@ export class GenJS extends Utils {
             filepath: './.eslintrc-auto-import.json',
         },`
 
-        return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/, `$1${autoImportEslintConfig}\n$2`)
+        return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/g, `$1${autoImportEslintConfig}\n$2`)
       },
     )
   }
@@ -80,7 +80,7 @@ export class GenJS extends Utils {
     eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
 
     // Remove `*.d.ts` from ignorePatterns
-    eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/, '')
+    eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/g, '')
 
     // Replace .ts extension with .js
     eslintConfig = eslintConfig.replaceAll('.ts', '.js')
@@ -142,7 +142,7 @@ export class GenJS extends Utils {
         else it's undefined => There's no script block => No compilation => Don't touch the file
       */
       if (compiledSFCScript) {
-        const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/, compiledSFCScript.trim())
+        const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/g, compiledSFCScript.trim())
         fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
       }
     })

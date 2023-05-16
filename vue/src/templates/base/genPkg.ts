@@ -109,6 +109,7 @@ export class GenPkg extends Utils {
     // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
     let pkgVersionForZip: string | null = null
 
+    // ℹ️ We might not need this in future if we correctly handle `postProcessGeneratedPkg` hook
     // Copy documentation.html file from root of the repo
     fs.copyFileSync(
       path.join(this.templateConfig.projectPath, 'documentation.html'),

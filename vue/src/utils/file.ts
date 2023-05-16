@@ -128,3 +128,23 @@ export const pinPackagesVersions = (packageVersions: PackageJson.Dependency, tem
 
   fs.writeJsonSync(`${tempDirPath}/package.json`, packageObj, { spaces: 2 })
 }
+
+export const genRedirectionHtmlFileContent = (placeholders: { templateFullName: string; url: string }) => {
+  return `<!DOCTYPE html>
+<html>
+
+<head>
+  <title>${placeholders.templateFullName}</title>
+  <meta http-equiv="refresh" content="0; URL='${placeholders.url}'" />
+</head>
+
+<body>
+  <p>If you do not redirect please visit : <a href="${placeholders.url}">${placeholders.url}</a></p>
+</body>
+
+</html>`
+}
+
+export const genRedirectionHtmlFile = (filePath: string, placeholders: Parameters<typeof genRedirectionHtmlFileContent>[0]) => {
+  fs.writeFileSync(filePath, genRedirectionHtmlFileContent(placeholders))
+}

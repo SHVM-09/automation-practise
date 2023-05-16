@@ -32,6 +32,10 @@ export interface TemplateBaseConfig {
     pageTitle: string
     docUrl: string
   }
+  changelog: {
+    pageTitle: string
+    url: string
+  }
   gh: {
     repoName: string
     ownerName: string
@@ -52,6 +56,10 @@ export interface TemplateBaseConfig {
     documentation: {
       pageTitle: string
       docUrl: string
+    }
+    changelog: {
+      pageTitle: string
+      url: string
     }
   }
 }

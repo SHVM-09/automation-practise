@@ -124,6 +124,10 @@ export const config: MaterioConfig = {
     pageTitle: 'Materio - Vuetify Vuejs Admin Template',
     docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/',
   },
+  changelog: {
+    pageTitle: 'Materio - Vuetify Vuejs Admin Template Changelog',
+    url: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/changelog.html',
+  },
   gh: {
     ownerName: 'themeselection',
     repoName: 'materio-vuetify-vuejs-admin-template',
@@ -144,6 +148,10 @@ export const config: MaterioConfig = {
     documentation: {
       pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    changelog: {
+      pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template Changelog',
+      url: 'https://demos.themeselection.com/materio-vuetify-vuejs-laravel-admin-template/changelog.html',
     },
   },
 }
