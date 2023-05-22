@@ -67,9 +67,9 @@ const authV2LoginIllustration = useGenerateImageVariant(authV2LoginIllustrationL
 
                 <div class="d-flex align-center flex-wrap justify-space-between mt-1 mb-4">
                   <VCheckbox v-model="form.remember" label="Remember me" />
-                  <RouterLink class="text-primary ms-2 mb-1" :to="{ name: 'pages-authentication-forgot-password-v2' }">
+                  <a class="text-primary ms-2 mb-1" href="#">
                     Forgot Password?
-                  </RouterLink>
+                  </a>
                 </div>
 
                 <VBtn block type="submit">
@@ -80,9 +80,9 @@ const authV2LoginIllustration = useGenerateImageVariant(authV2LoginIllustrationL
               <!-- create account -->
               <VCol cols="12" class="text-center text-base">
                 <span>New on our platform?</span>
-                <RouterLink class="text-primary ms-2" :to="{ name: 'pages-authentication-register-v2' }">
+                <a class="text-primary ms-2" href="#">
                   Create an account
-                </RouterLink>
+                </a>
               </VCol>
 
               <VCol cols="12" class="d-flex align-center">
