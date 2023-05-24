@@ -1,3 +1,4 @@
+import '@/utils/injectMustReplace'
 import path from 'path'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
@@ -10,8 +11,8 @@ import { error, info, success } from '@/utils/logging'
 import { downloadFile, execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 
-export class PixInventTemplate extends TemplateBase {
-  constructor(public override config: TemplateBaseConfig) {
+export class PixInventTemplate<TemplateConfig extends TemplateBaseConfig> extends TemplateBase<TemplateConfig> {
+  constructor(public override config: TemplateConfig) {
     super(config)
   }
 

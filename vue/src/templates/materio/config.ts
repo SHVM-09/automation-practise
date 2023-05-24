@@ -6,7 +6,7 @@ import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmC
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
-type MaterioConfig = TemplateBaseConfig
+export type MaterioConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))

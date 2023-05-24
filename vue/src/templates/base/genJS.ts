@@ -21,7 +21,7 @@ export class GenJS extends Utils {
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
         // Replace themeConfig.ts alias to themeConfig.js
-        viteConfig = viteConfig.mustReplace('themeConfig.ts', 'themeConfig.js')
+        viteConfig = viteConfig[this.isFree ? 'replace' : 'mustReplace']('themeConfig.ts', 'themeConfig.js')
 
         // enable eslintrc in AutoImport plugin
         const autoImportEslintConfig = `eslintrc: {

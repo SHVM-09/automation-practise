@@ -1,14 +1,17 @@
-import path from 'path'
-import * as url from 'url'
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
+import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
+import path from 'path'
+import * as url from 'url'
 
-type MasterConfig = TemplateBaseConfig
+export type MasterConfig = TemplateBaseConfig & { paths: { freeInternalTs: string } }
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const masterVuePath = path.join(getTemplatePath('master', 'vue'))
 const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
+const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
+const masterVueFreeInternalPath = masterVuePath.mustReplace('vue', 'vue-free-internal')
 
 export const config: MasterConfig = {
   templateName: 'master',
@@ -44,8 +47,9 @@ export const config: MasterConfig = {
     jSFull: path.join(masterVuePath, 'javascript-version', 'full-version'),
     jSStarter: path.join(masterVuePath, 'javascript-version', 'starter-kit'),
     dataDir: path.join(__dirname, 'data'),
-    freeTS: '/tmp',
-    freeJS: '/tmp',
+    freeInternalTs: path.join(masterVueFreeInternalPath, 'typescript-version'),
+    freeTS: path.join(masterVueFreePath, 'typescript-version'),
+    freeJS: path.join(masterVueFreePath, 'javascript-version'),
     docs: path.join(masterVuePath, 'docs'),
   },
   demosConfig: [
@@ -101,6 +105,10 @@ export const config: MasterConfig = {
     pageTitle: 'Master - Vuetify Vuejs Admin Template',
     docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/',
   },
+  changelog: {
+    pageTitle: 'Master - Vuetify Vuejs Admin Template',
+    url: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/changelog.html',
+  },
   gh: {
     ownerName: 'themeselection',
     repoName: 'master-vue--material',
@@ -120,6 +128,10 @@ export const config: MasterConfig = {
     documentation: {
       pageTitle: 'Master - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    changelog: {
+      pageTitle: 'Master - Vuetify Vuejs Laravel Admin Template',
+      url: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/changelog.html',
     },
   },
 }

@@ -6,8 +6,10 @@ import fs from 'fs-extra'
 import { updateFile } from '@/utils/node'
 import { genRedirectionHtmlFile } from '@/utils/file'
 
-export class ThemeSelectionTemplate extends TemplateBase {
-  constructor(public override config: TemplateBaseConfig) {
+import '@/utils/injectMustReplace'
+
+export class ThemeSelectionTemplate<TemplateConfig extends TemplateBaseConfig> extends TemplateBase<TemplateConfig> {
+  constructor(public override config: TemplateConfig) {
     super(config)
   }
 

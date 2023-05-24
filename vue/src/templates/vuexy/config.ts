@@ -6,7 +6,7 @@ import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
-type VuexyConfig = TemplateBaseConfig
+export type VuexyConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))

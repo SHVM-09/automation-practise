@@ -6,7 +6,7 @@ import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
-type MaterializeConfig = TemplateBaseConfig
+export type MaterializeConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materializeVuePath = path.join(getTemplatePath('materialize', 'vue'))

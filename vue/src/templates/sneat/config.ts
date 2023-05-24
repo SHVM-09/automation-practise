@@ -6,7 +6,7 @@ import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmC
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
 
-type SneatConfig = TemplateBaseConfig
+export type SneatConfig = TemplateBaseConfig
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const sneatVuePath = path.join(getTemplatePath('sneat', 'vue'))
