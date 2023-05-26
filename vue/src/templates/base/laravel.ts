@@ -693,12 +693,33 @@ export class Laravel extends Utils {
     success(`✅ Package generated at: ${zipPath}`)
   }
 
-  genFreeLaravel() {
+  async genFreeLaravel() {
     // Generate TS Version
     this.genLaravel({ isFree: true })
 
-    // Generate JS Version
+    // // Generate JS Version
     this.genLaravel({ isFree: true, isJS: true })
+
+    // Copy release related files
+    const vueRepoRoot = path.join(this.templateConfig.paths.freeTS, '..')
+    const vueLaravelRepoRoot = path.join(this.templateConfig.laravel.paths.freeTS, '..')
+
+    console.log(execCmd(`ls -la ${vueRepoRoot}`, { encoding: 'utf-8' }));
+    console.log(execCmd(`pwd`, { encoding: 'utf-8', cwd: vueRepoRoot }));
+
+    const filesToCopy = [
+      'package.json',
+      'pnpm-lock.yaml',
+      '.gitignore',
+    ]
+
+    // Copy files asynchronously
+    await Promise.all(
+      filesToCopy.map(file => fs.copy(
+        path.join(vueRepoRoot, file),
+        path.join(vueLaravelRepoRoot, file))
+      )
+    )
   }
 
   genDemos(isStaging: boolean) {
