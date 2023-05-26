@@ -12,6 +12,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
 const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
 const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
+const materioVueLaravelFreePath = materioVuePath.mustReplace('vue', 'vue-laravel-free')
 
 export const config: MaterioConfig = {
   templateName: 'materio',
@@ -143,6 +144,8 @@ export const config: MaterioConfig = {
       TSStarter: path.join(materioVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(materioVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(materioVueLaravelPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(materioVueLaravelFreePath, 'javascript-version'),
+      freeTS: path.join(materioVueLaravelFreePath, 'typescript-version'),
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {

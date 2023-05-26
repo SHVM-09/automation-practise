@@ -51,6 +51,8 @@ export interface TemplateBaseConfig {
       TSStarter: string
       JSFull: string
       JSStarter: string
+      freeJS: string
+      freeTS: string
     }
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
     documentation: {

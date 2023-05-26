@@ -1,7 +1,7 @@
-import path from 'path'
-import * as url from 'url'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+import path from 'path'
+import * as url from 'url'
 
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
@@ -395,22 +395,41 @@ export class Laravel extends Utils {
     )
   }
 
-  private genLaravel(options?: { isSK?: boolean; isJS?: boolean }) {
+  private genLaravel(options?: { isSK?: boolean; isJS?: boolean, isFree?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
       because `genLaravel` method is called multiple times after initializing the class once
     */
     this.initializePaths()
 
-    const { isSK = false, isJS = false } = options || {}
+    const { isSK = false, isJS = false, isFree = false } = options || {}
 
-    const sourcePath = isJS
-      ? isSK
-        ? this.templateConfig.paths.jSStarter
-        : this.templateConfig.paths.jSFull
-      : isSK
-        ? this.templateConfig.paths.tSStarter
-        : this.templateConfig.paths.tSFull
+    // const sourcePath = isJS
+    //   ? isSK
+    //     ? this.templateConfig.paths.jSStarter
+    //     : this.templateConfig.paths.jSFull
+    //   : isSK
+    //     ? this.templateConfig.paths.tSStarter
+    //     : this.templateConfig.paths.tSFull
+
+    const sourcePath =
+      // If Free version
+      isFree
+        ? isJS
+          ? this.templateConfig.paths.freeJS
+          : this.templateConfig.paths.freeTS
+      
+      // (Else) Premium
+      : isJS
+        // If JS Version 
+        ? isSK
+          ? this.templateConfig.paths.jSStarter
+          : this.templateConfig.paths.jSFull
+
+        // (Else) TS Version
+        : isSK
+          ? this.templateConfig.paths.tSStarter
+          : this.templateConfig.paths.tSFull
 
     const lang: Lang = isJS ? 'js' : 'ts'
     const langConfigFile: LangConfigFile = lang === 'ts' ? 'tsconfig.json' : 'jsconfig.json'
@@ -420,6 +439,7 @@ export class Laravel extends Utils {
 
     this.copyVueProjectFiles(lang, sourcePath)
 
+    // Remove generated js files from iconify dir 
     if (!isJS) {
       const filesToRemove = globbySync(
         '*.js',
@@ -438,11 +458,20 @@ export class Laravel extends Utils {
       data => replacePath(data, 'src/assets/images', 'resources/images'),
     )
 
-    // Update BuyNow link
-    updateFile(
-      path.join(this.resourcesPath, lang, '@core', 'components', 'BuyNow.vue'),
-      data => data.mustReplace(/(?<=const buyNowUrl =.*?')(http.*?)(?='\))/g, this.templateConfig.laravel.buyNowLink),
-    )
+    // Update BuyNow or Upgrade to pro link
+    if (isFree)
+      updateFile(
+        path.join(this.resourcesPath, lang, 'components', 'UpgradeToPro.vue'),
+        data => data
+          .mustReplace("vuejs-admin-template", "vuejs-laravel-admin-template")
+          .mustReplace("Vuetify Admin Template", "Vuetify Laravel Admin Template")
+      )
+    else 
+      updateFile(
+        path.join(this.resourcesPath, lang, '@core', 'components', 'BuyNow.vue'),
+        data => data.mustReplace(/(?<=const buyNowUrl =.*?')(http.*?)(?='\))/g, this.templateConfig.laravel.buyNowLink),
+      )
+    
 
     // update package.json
     this.updatePkgJson(sourcePath, lang)
@@ -478,6 +507,7 @@ export class Laravel extends Utils {
     return view('application');
 })->where('any', '.*');`),
     )
+    
     // update documentation link
     ;[
       path.join(this.resourcesPath, lang, 'layouts', 'components', 'Footer.vue'),
@@ -511,15 +541,30 @@ export class Laravel extends Utils {
 
     const replaceDest = (() => {
       const paths = this.templateConfig.laravel.paths
-      // If generating JS for free version => Replace with free JS
-      // if (this.isFree)
-      //   return freeJSPath
 
-      if (isJS)
+      if (isFree)
+          return isJS ? paths.freeJS : paths.freeTS
+      else if (isJS)
         return isSK ? paths.JSStarter : paths.JSFull
       else
         return isSK ? paths.TSStarter : paths.TSFull
     })()
+
+    // Update links in laravel free
+    if (isFree) {
+      const filesToUpdateLinksIn = [
+        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
+        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DrawerContent.vue'),
+        path.join(this.projectPath, 'package.json'),
+      ]
+
+      filesToUpdateLinksIn.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace('materio-vuetify-vuejs-admin-template', 'materio-vuetify-laravel-admin-template'),
+        )
+      })
+    }
 
     // Make sure dest dir exist. This is useful if we are generating laravel for first time.
     fs.ensureDirSync(replaceDest)
@@ -648,16 +693,24 @@ export class Laravel extends Utils {
     success(`✅ Package generated at: ${zipPath}`)
   }
 
+  genFreeLaravel() {
+    // Generate TS Version
+    this.genLaravel({ isFree: true })
+
+    // Generate JS Version
+    this.genLaravel({ isFree: true, isJS: true })
+  }
+
   genDemos(isStaging: boolean) {
     info('isStaging: ', isStaging.toString())
 
     const { TSFull } = this.templateConfig.laravel.paths
 
-    const envPath = path.join(this.templateConfig.laravel.paths.TSFull, '.env')
+    const envPath = path.join(TSFull, '.env')
 
     if (!fs.existsSync(envPath)) {
       fs.copyFileSync(
-        path.join(this.templateConfig.laravel.paths.TSFull, '.env.example'),
+        path.join(TSFull, '.env.example'),
         envPath,
       )
     }
@@ -665,7 +718,7 @@ export class Laravel extends Utils {
     execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
 
     // Generate application key
-    execCmd('php artisan key:generate', { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd('php artisan key:generate', { cwd: TSFull })
 
     const envContent = readFileSyncUTF8(envPath)
 
