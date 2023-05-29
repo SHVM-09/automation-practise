@@ -80,7 +80,11 @@ jobs:
 
             # if prod => remove staging data & zip existing laravel core & remove existing laravel core
             DEMO_ZIP_NAME="bak-${{ env.LARAVEL_CORE_DIR_NAME }}-$(date +"%Y-%m-%d-%H-%M-%S").zip"
-            [[ "${{ inputs.is_production }}" == "true" ]] && rm -rf ${{ env.STAG_DIR }}/demo-* && rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}-staging && zip -r $DEMO_ZIP_NAME ${{ env.LARAVEL_CORE_DIR_NAME }} -x "*.zip" && rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}
+            [[ "${{ inputs.is_production }}" == "true" ]] && zip -r $DEMO_ZIP_NAME ${{ env.LARAVEL_CORE_DIR_NAME }} -x "*.zip" && rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}
+
+            # remove existing staging laravel core & staging demos
+            # ℹ️ Previously we were only performing this removal if `inputs.is_production` is true but doing this for staging as well might remove permission issue in future
+            rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}-staging && rm -rf ${{ env.STAG_DIR }}/demo-*
             
             # remove existing demos
             rm -rf ${{ env.DEPLOY_DIR }}/demo-*
