@@ -39,7 +39,7 @@ export class BootstrapFreeVersion {
     // Vuetify
     const vuetifyPluginSourceDir = path.join(pluginsSourceDir, 'vuetify')
     const vuetifyPluginDestDir = path.join(pluginsDestDir, 'vuetify')
-    
+
     fs.emptyDirSync(vuetifyPluginDestDir)
     fs.copySync(vuetifyPluginSourceDir, vuetifyPluginDestDir)
 
