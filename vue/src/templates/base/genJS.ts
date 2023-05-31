@@ -51,7 +51,8 @@ export class GenJS extends Utils {
 
     // Remove `rulePaths` from eslint options in config file
     // ℹ️ `eslint.options` is single key
-    delete vsCodeConfig['eslint.options'].rulePaths
+    if ('eslint.options' in vsCodeConfig)
+      delete vsCodeConfig['eslint.options'].rulePaths
 
     // Write back to config file
     fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 2 })
