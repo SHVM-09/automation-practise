@@ -42,6 +42,7 @@ export const injectGTM = (filePath: string, gtmConfig: GTMConfig) => {
       ℹ️ headScript should be as high as possible inside head tag
       ℹ️ bodyNoScript should be placed immediately after opening body tag
     */
+
   updateFile(
     // Path to `index.html`
     filePath,

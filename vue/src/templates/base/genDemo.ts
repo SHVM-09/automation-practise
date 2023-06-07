@@ -9,7 +9,7 @@ import { injectGTM } from './helper'
 import { execCmd, updateFile } from '@/utils/node'
 
 export class GenDemo {
-  constructor(private templateConfig: TemplateBaseConfig) {}
+  constructor(private templateConfig: TemplateBaseConfig) { }
 
   private updateBuildCommand() {
     // Remove vue-tsc from build command in package.json file
@@ -121,10 +121,23 @@ export class GenDemo {
     // Update build command to ignore vue-tsc errors
     // this.updateBuildCommand()
 
+    const indexHtmlPath = path.join(this.templateConfig.paths.tSFull, 'index.html')
+
     // inject GTM code in index.html file
     injectGTM(
-      path.join(this.templateConfig.paths.tSFull, 'index.html'),
+      indexHtmlPath,
       this.templateConfig.gtm,
+    )
+
+    const contentToReplace = `  <script>
+    window.isMarketplace = window.location.href.includes('marketplace')
+  </script>
+</body>`
+
+    updateFile(
+      indexHtmlPath,
+      htmlContent => htmlContent
+        .mustReplace('</body>', contentToReplace),
     )
 
     const themeConfigPath = path.join(this.templateConfig.paths.tSFull, 'themeConfig.ts')
