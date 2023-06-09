@@ -558,7 +558,6 @@ export class Laravel extends Utils {
     if (isFree) {
       const filesToUpdateLinksIn = [
         path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
-        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DrawerContent.vue'),
         path.join(this.projectPath, 'package.json'),
       ]
 
