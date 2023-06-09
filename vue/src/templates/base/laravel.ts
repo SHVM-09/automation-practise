@@ -1,15 +1,17 @@
-import fs from 'fs-extra'
-import { globbySync } from 'globby'
 import path from 'path'
 import * as url from 'url'
+import fs from 'fs-extra'
+import { globbySync } from 'globby'
 
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
+import { loadFile, writeFile } from 'magicast'
+import { addVitePlugin, updateVitePluginConfig } from 'magicast/helpers'
 import type { PackageJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
-import { addImport, addVitePlugin, getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
+import { getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { error, info, success } from '@/utils/logging'
 import { askBoolean, execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
@@ -121,33 +123,34 @@ export class Laravel extends Utils {
     })
   }
 
-  private updateViteConfig(lang: Lang) {
+  private async updateViteConfig(lang: Lang) {
     const viteConfigPath = path.join(this.projectPath, `vite.config.${lang}`)
 
-    updateFile(viteConfigPath, (viteConfig) => {
-      // Add laravel vite plugin import
-      // TODO: Only run this on first generation
-      viteConfig = addImport(viteConfig, 'import laravel from \'laravel-vite-plugin\'')
+    const mod = await loadFile(viteConfigPath)
 
-      // add laravel vite plugin in plugins array
-      // ℹ️ We aren't adding trailing command because `addVitePlugin` does this
-      const laravelPluginConfig = `laravel({
-  input: ['resources/${lang}/main.${lang}'],
-  refresh: true,
-})`
-      viteConfig = addVitePlugin(viteConfig, laravelPluginConfig)
-
-      viteConfig = viteConfig.mustReplace(/vue\(\)/g, `vue({
-  template: {
-      transformAssetUrls: {
+    updateVitePluginConfig(mod, '@vitejs/plugin-vue', {
+      template: {
+        transformAssetUrls: {
           base: null,
           includeAbsolute: false,
+        },
       },
-  },
-})`)
+    })
 
-      // return modified data
-      return viteConfig
+    addVitePlugin(mod, {
+      from: 'laravel-vite-plugin',
+      constructor: 'laravel',
+      options: {
+        input: [`resources/${lang}/main.${lang}`],
+        refresh: true,
+      },
+      index: 2,
+    })
+
+    await writeFile(mod.$ast, viteConfigPath, {
+      quote: 'single',
+      useTabs: true,
+      trailingComma: true,
     })
   }
 
@@ -395,7 +398,7 @@ export class Laravel extends Utils {
     )
   }
 
-  private genLaravel(options?: { isSK?: boolean; isJS?: boolean, isFree?: boolean }) {
+  private async genLaravel(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
       because `genLaravel` method is called multiple times after initializing the class once
@@ -412,24 +415,24 @@ export class Laravel extends Utils {
     //     ? this.templateConfig.paths.tSStarter
     //     : this.templateConfig.paths.tSFull
 
-    const sourcePath =
+    const sourcePath
       // If Free version
-      isFree
+      = isFree
         ? isJS
           ? this.templateConfig.paths.freeJS
           : this.templateConfig.paths.freeTS
-      
-      // (Else) Premium
-      : isJS
-        // If JS Version 
-        ? isSK
-          ? this.templateConfig.paths.jSStarter
-          : this.templateConfig.paths.jSFull
 
-        // (Else) TS Version
-        : isSK
-          ? this.templateConfig.paths.tSStarter
-          : this.templateConfig.paths.tSFull
+        // (Else) Premium
+        : isJS
+          // If JS Version
+          ? isSK
+            ? this.templateConfig.paths.jSStarter
+            : this.templateConfig.paths.jSFull
+
+          // (Else) TS Version
+          : isSK
+            ? this.templateConfig.paths.tSStarter
+            : this.templateConfig.paths.tSFull
 
     const lang: Lang = isJS ? 'js' : 'ts'
     const langConfigFile: LangConfigFile = lang === 'ts' ? 'tsconfig.json' : 'jsconfig.json'
@@ -439,7 +442,7 @@ export class Laravel extends Utils {
 
     this.copyVueProjectFiles(lang, sourcePath)
 
-    // Remove generated js files from iconify dir 
+    // Remove generated js files from iconify dir
     if (!isJS) {
       const filesToRemove = globbySync(
         '*.js',
@@ -459,19 +462,20 @@ export class Laravel extends Utils {
     )
 
     // Update BuyNow or Upgrade to pro link
-    if (isFree)
+    if (isFree) {
       updateFile(
         path.join(this.resourcesPath, lang, 'components', 'UpgradeToPro.vue'),
         data => data
-          .mustReplace("vuejs-admin-template", "vuejs-laravel-admin-template")
-          .mustReplace("Vuetify Admin Template", "Vuetify Laravel Admin Template")
+          .mustReplace('vuejs-admin-template', 'vuejs-laravel-admin-template')
+          .mustReplace('Vuetify Admin Template', 'Vuetify Laravel Admin Template'),
       )
-    else 
+    }
+    else {
       updateFile(
         path.join(this.resourcesPath, lang, '@core', 'components', 'BuyNow.vue'),
-        data => data.mustReplace(/(?<=const buyNowUrl =.*?')(http.*?)(?='\))/g, this.templateConfig.laravel.buyNowLink),
+        data => data.mustReplace(/https:\/\/themeselection\.com.*\//g, this.templateConfig.laravel.buyNowLink),
       )
-    
+    }
 
     // update package.json
     this.updatePkgJson(sourcePath, lang)
@@ -507,7 +511,7 @@ export class Laravel extends Utils {
     return view('application');
 })->where('any', '.*');`),
     )
-    
+
     // update documentation link
     ;[
       path.join(this.resourcesPath, lang, 'layouts', 'components', 'Footer.vue'),
@@ -527,7 +531,7 @@ export class Laravel extends Utils {
     })
 
     // Update vite config
-    this.updateViteConfig(lang)
+    await this.updateViteConfig(lang)
 
     // ❗ We are moving images before doing `yarn` because we have postinstall script that can generate SVG based on iconify-svg dir and this dir is in images
     this.moveImages(lang, langConfigFile)
@@ -543,7 +547,7 @@ export class Laravel extends Utils {
       const paths = this.templateConfig.laravel.paths
 
       if (isFree)
-          return isJS ? paths.freeJS : paths.freeTS
+        return isJS ? paths.freeJS : paths.freeTS
       else if (isJS)
         return isSK ? paths.JSStarter : paths.JSFull
       else
@@ -577,7 +581,7 @@ export class Laravel extends Utils {
     const { TSFull } = this.templateConfig.laravel.paths
 
     // Generate Laravel TS Full
-    this.genLaravel()
+    await this.genLaravel()
 
     // Report if any file is over 100KB
     /*
@@ -589,13 +593,13 @@ export class Laravel extends Utils {
     })
 
     // Generate Laravel TS Starter
-    this.genLaravel({ isSK: true })
+    await this.genLaravel({ isSK: true })
 
     // Generate Laravel JS Full
-    this.genLaravel({ isJS: true })
+    await this.genLaravel({ isJS: true })
 
     // Generate Laravel JS Starter
-    this.genLaravel({
+    await this.genLaravel({
       isJS: true,
       isSK: true,
     })
@@ -695,17 +699,17 @@ export class Laravel extends Utils {
 
   async genFreeLaravel() {
     // Generate TS Version
-    this.genLaravel({ isFree: true })
+    await this.genLaravel({ isFree: true })
 
     // // Generate JS Version
-    this.genLaravel({ isFree: true, isJS: true })
+    await this.genLaravel({ isFree: true, isJS: true })
 
     // Copy release related files
     const vueRepoRoot = path.join(this.templateConfig.paths.freeTS, '..')
     const vueLaravelRepoRoot = path.join(this.templateConfig.laravel.paths.freeTS, '..')
 
-    console.log(execCmd(`ls -la ${vueRepoRoot}`, { encoding: 'utf-8' }));
-    console.log(execCmd(`pwd`, { encoding: 'utf-8', cwd: vueRepoRoot }));
+    console.log(execCmd(`ls -la ${vueRepoRoot}`, { encoding: 'utf-8' }))
+    console.log(execCmd('pwd', { encoding: 'utf-8', cwd: vueRepoRoot }))
 
     const filesToCopy = [
       'package.json',
@@ -717,8 +721,8 @@ export class Laravel extends Utils {
     await Promise.all(
       filesToCopy.map(file => fs.copy(
         path.join(vueRepoRoot, file),
-        path.join(vueLaravelRepoRoot, file))
-      )
+        path.join(vueLaravelRepoRoot, file)),
+      ),
     )
   }
 

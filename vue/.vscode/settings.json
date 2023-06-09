@@ -17,5 +17,20 @@
         "typecheck",
         "Vuetify",
         "Webfontloader"
-    ]
+    ],
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true,
+        "source.fixAll.stylelint": true,
+        "source.organizeImports": true
+    },
+    "eslint.alwaysShowStatus": true,
+    "eslint.format.enable": true,
+    "eslint.packageManager": "pnpm",
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+        "editor.autoClosingBrackets": "always"
+    },
 }

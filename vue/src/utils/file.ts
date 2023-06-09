@@ -17,10 +17,8 @@ import { error, info, success } from '@/utils/logging'
    * @param importStatement import statement as string
    * @returns Returns modified data
    */
-export const addImport = (data: string, importStatement: string) => data.mustReplace(/(import .*\n)(\n*)(?!import)/gm, `$1${importStatement}\n$2`)
 
 // https://regex101.com/r/ba5Vcn/2
-export const addVitePlugin = (data: string, pluginConfig: string, insertTrailingComma = true) => data.mustReplace(/(( +)plugins:\s*\[)/gm, `$1\n$2$2${pluginConfig}${insertTrailingComma ? ',' : ''}`)
 
 // check file size and return array of files that are over the limit
 export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100) => {

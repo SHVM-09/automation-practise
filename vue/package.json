@@ -33,6 +33,7 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-unicorn": "^43.0.2",
+    "magicast": "^0.2.9",
     "minimist": "^1.2.8",
     "tinify": "^1.7.1",
     "tsx": "^3.12.7",

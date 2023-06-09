@@ -1,14 +1,18 @@
+import path from 'path'
+
+import fs from 'fs-extra'
+import { globbySync } from 'globby'
+import JSON5 from 'json5'
+import { loadFile, writeFile } from 'magicast'
+import { updateVitePluginConfig } from 'magicast/helpers'
+import type { PackageJson } from 'type-fest'
+
+import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
 import { error } from '@/utils/logging'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
-import fs from 'fs-extra'
-import { globbySync } from 'globby'
-import JSON5 from 'json5'
-import path from 'path'
-import type { PackageJson } from 'type-fest'
-import type { TemplateBaseConfig } from './config'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -16,22 +20,46 @@ export class GenJS extends Utils {
   }
 
   // 👉 updateViteConfig
-  private updateViteConfig() {
-    updateFile(
-      path.join(this.tempDir, 'vite.config.ts'),
-      (viteConfig) => {
-        // Replace themeConfig.ts alias to themeConfig.js
-        viteConfig = viteConfig[this.isFree ? 'replace' : 'mustReplace']('themeConfig.ts', 'themeConfig.js')
+  private async updateViteConfig() {
+    // updateFile(
+    //   path.join(this.tempDir, 'vite.config.ts'),
+    //   (viteConfig) => {
+    //     // Replace themeConfig.ts alias to themeConfig.js
+    // viteConfig = viteConfig[this.isFree ? 'replace' : 'mustReplace']('themeConfig.ts', 'themeConfig.js')
 
-        // enable eslintrc in AutoImport plugin
-        const autoImportEslintConfig = `eslintrc: {
-            enabled: true,
-            filepath: './.eslintrc-auto-import.json',
-        },`
+    //     // enable eslintrc in AutoImport plugin
+    //     const autoImportEslintConfig = `eslintrc: {
+    //         enabled: true,
+    //         filepath: './.eslintrc-auto-import.json',
+    //     },`
 
-        return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/g, `$1${autoImportEslintConfig}\n$2`)
+    //     return viteConfig.mustReplace(/(AutoImport\({\n(\s+))/g, `$1${autoImportEslintConfig}\n$2`)
+    //   },
+    // )
+
+    const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
+
+    // Replace themeConfig.ts alias to themeConfig.js
+    updateFile(viteConfigPath, (viteConfig) => {
+      viteConfig = viteConfig[this.isFree ? 'replace' : 'mustReplace']('themeConfig.ts', 'themeConfig.js')
+      return viteConfig
+    })
+
+    const mod = await loadFile(viteConfigPath)
+
+    // enable eslintrc in AutoImport plugin
+    updateVitePluginConfig(mod, 'unplugin-auto-import/vite', {
+      eslintrc: {
+        enabled: true,
+        filepath: './.eslintrc-auto-import.json',
       },
-    )
+    })
+
+    await writeFile(mod.$ast, viteConfigPath, {
+      quote: 'single',
+      useTabs: true,
+      trailingComma: true,
+    })
   }
 
   // 👉 removeEslintInternalRules
@@ -274,7 +302,7 @@ export class GenJS extends Utils {
   }
 
   // 👉 genJS
-  genJS() {
+  async genJS() {
     const {
       tSFull: tSFullPath,
       tSStarter: tSStarterPath,
@@ -313,7 +341,7 @@ export class GenJS extends Utils {
     )
 
     // Update vite config
-    this.updateViteConfig()
+    await this.updateViteConfig()
 
     /*
       update eslint

@@ -5,6 +5,8 @@ import { globbySync } from 'globby'
 import { Octokit } from 'octokit'
 
 import type { Tracker } from '@types'
+import { loadFile, writeFile } from 'magicast'
+import { updateVitePluginConfig } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 
 import { Utils } from '@/templates/base/helper'
@@ -249,7 +251,7 @@ export class GenSK extends Utils {
     )
   }
 
-  private updateViteConfig() {
+  private async updateViteConfig() {
     updateFile(
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
@@ -263,7 +265,7 @@ export class GenSK extends Utils {
         viteConfig = viteConfig.mustReplace(/VueI18nPlugin\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 
         // Remove i18n auto import preset from AutoImport plugin
-        viteConfig = viteConfig.mustReplace(/'vue-i18n', /g, '')
+        // viteConfig = viteConfig.mustReplace(/'vue-i18n', /g, '')
 
         // ℹ️ Remove vueI18n import.
         viteConfig = viteConfig.split('\n')
@@ -273,6 +275,20 @@ export class GenSK extends Utils {
         return viteConfig
       },
     )
+
+    const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
+    const mod = await loadFile(viteConfigPath)
+
+    // Remove i18n auto import preset from AutoImport plugin
+    updateVitePluginConfig(mod, 'unplugin-auto-import/vite', {
+      imports: ['vue', 'vue-router', '@vueuse/core', '@vueuse/math', 'pinia'],
+    })
+
+    await writeFile(mod.$ast, viteConfigPath, {
+      quote: 'single',
+      useTabs: true,
+      trailingComma: true,
+    })
   }
 
   private replaceStarterKit() {
@@ -320,7 +336,7 @@ export class GenSK extends Utils {
 
     this.updateThemeConfig()
 
-    this.updateViteConfig()
+    await this.updateViteConfig()
 
     // Place temp dir content in ts/js starter-kit
     this.replaceStarterKit()
