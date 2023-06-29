@@ -2,7 +2,6 @@
 
 Before starting to contribute to our automation script, it's recommended that you familiarize yourself with the following packages:
 
-- [ChalkJs](https://github.com/chalk/chalk)
 - [fs-extra](https://github.com/jprichardson/node-fs-extra)
 - [Globby](https://github.com/sindresorhus/globby)
 - [JSON5](https://github.com/json5/json5)

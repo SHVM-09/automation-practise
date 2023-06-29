@@ -7,11 +7,11 @@ import { loadFile, writeFile } from 'magicast'
 import { updateVitePluginConfig } from 'magicast/helpers'
 import type { PackageJson } from 'type-fest'
 
+import { consola } from 'consola'
 import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { error } from '@/utils/logging'
 import { execCmd, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
@@ -187,7 +187,7 @@ export class GenJS extends Utils {
 
     // Remove "typecheck" script
     if (!pkgJson.scripts) {
-      error('No scripts found in package.json')
+      consola.error(new Error('No scripts found in package.json'))
       return
     }
 
@@ -206,7 +206,7 @@ export class GenJS extends Utils {
     )
 
     if (!pkgJson.devDependencies) {
-      error('No devDependencies found in package.json')
+      consola.error(new Error('No devDependencies found in package.json'))
       return
     }
 

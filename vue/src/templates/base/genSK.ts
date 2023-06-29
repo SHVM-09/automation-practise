@@ -5,13 +5,13 @@ import { globbySync } from 'globby'
 import { Octokit } from 'octokit'
 
 import type { Tracker } from '@types'
+import { consola } from 'consola'
 import { loadFile, writeFile } from 'magicast'
 import { updateVitePluginConfig } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { error } from '@/utils/logging'
 import { execCmd, removeEmptyDirsRecursively, replaceDir, updateFile } from '@/utils/node'
 
 export class GenSK extends Utils {
@@ -68,7 +68,7 @@ export class GenSK extends Utils {
 
           // If commit time is not defined throw error
           if (!commitTime) {
-            error('Can\'t find committer date!')
+            consola.error(new Error('Can\'t find committer date!'))
           }
 
           // If commit time is not preset in tracker update the tracker file
@@ -90,7 +90,7 @@ export class GenSK extends Utils {
               err.push(`New commit time: ${String(new Date(commitTime))}`)
               err.push(`Tracker details: ${JSON.stringify(trackableFile)}`)
 
-              error(err.join('\n'))
+              consola.error(new Error(err.join('\n')))
             }
           }
         },

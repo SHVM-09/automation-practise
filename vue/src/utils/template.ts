@@ -1,11 +1,11 @@
+import { consola } from 'consola'
 import fs from 'fs-extra'
 import type { PackageJson } from 'type-fest'
-import { error, info } from '@/utils/logging'
 import { ask } from '@/utils/node'
 
 export const validateSemanticVersion = (version: string) => {
   if (!/(\d\.){2}\d/.test(version))
-    error(`version: ${version} doesn't match the pattern. e.g. 0.0.0`)
+    consola.error(new Error(`version: ${version} doesn't match the pattern. e.g. 0.0.0`))
 }
 
 export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPath: string, packageVersionToUpdate?: string) => {
@@ -32,7 +32,7 @@ export const updatePkgJsonVersion = async (pkgJsonPaths: string[], pkgJsonSrcPat
     return newVersion
   }
   else {
-    info('Ignoring version update!')
+    consola.info('Ignoring version update!')
 
     return (pkgJson.version as string)
   }

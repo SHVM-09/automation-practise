@@ -1,13 +1,13 @@
 import '@/utils/injectMustReplace'
 import path from 'path'
 import type { OversizedFileStats } from '@types'
+import { consola } from 'consola'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import tinify from 'tinify'
 import type { PackageJson } from 'type-fest'
 import { execCmd } from '@/utils/node'
-import { error, info, success } from '@/utils/logging'
 /**
    * Adds received import string as last import statement
    *
@@ -54,7 +54,7 @@ export const reportOversizedFiles = (globPattern: string, options: { reportPathR
   if (overSizedFiles.length) {
     const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
 
-    error(`Please optimize (<${maxSizeInKb}kb) the following images: \n${filesStr}\n`)
+    consola.error(new Error(`Please optimize (<${maxSizeInKb}kb) the following images: \n${filesStr}\n`))
   }
 }
 
@@ -69,17 +69,17 @@ export const compressOverSizedFiles = async (globPattern: string, options: { rep
 
   const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
 
-  info(`🐼 Compressing following files with TinyPNG:\n${filesStr}`)
+  consola.info(`🐼 Compressing following files with TinyPNG:\n${filesStr}`)
   tinify.key = process.env.TINY_PNG_API_KEY || ''
   for (const f of overSizedFiles)
     await tinify.fromFile(f.filePath).toFile(f.filePath)
 
-  success('File compression done, Thanks 🐼')
+  consola.success('File compression done, Thanks 🐼')
 
-  info('Checking for oversized files again...')
+  consola.info('Checking for oversized files again...')
   reportOversizedFiles(globPattern, options)
 
-  success('All files are optimized 🎉')
+  consola.success('All files are optimized 🎉')
 
   // ℹ️ We are returning the overSizedFiles but they are already optimized so you can use them for other purposes like commiting them to git
   return overSizedFiles

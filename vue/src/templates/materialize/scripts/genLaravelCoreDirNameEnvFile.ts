@@ -11,4 +11,4 @@ const fileContent = `LARAVEL_CORE_DIR_NAME=${config.laravel.pkgName}${isStaging 
 
 writeFileSyncUTF8(zipFileName, fileContent)
 
-console.log(`✅ Generated \`${zipFileName}\` file with content: "${fileContent}"`)
+console.log(`Generated \`${zipFileName}\` file with content: "${fileContent}"`)

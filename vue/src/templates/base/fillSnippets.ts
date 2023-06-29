@@ -1,5 +1,5 @@
 import path from 'path'
-import chalk from 'chalk'
+import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
@@ -9,7 +9,7 @@ import { execCmd } from '@/utils/node'
 
 export class FillSnippets {
   constructor(private tSFull: string, private jSFull: string) {
-    console.log(chalk.blueBright(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`))
+    console.log(consola.info(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`))
   }
 
   /**
@@ -85,7 +85,7 @@ export class FillSnippets {
    * Fill the code snippets for current project instance
    */
   fillSnippet() {
-    console.log(chalk.blueBright('Filling snippets...'))
+    console.log(consola.info('Filling snippets...'))
 
     // Find snippet all files for TS Full
     const tSSnippetsFilesPaths = globbySync('**/demoCode*', {

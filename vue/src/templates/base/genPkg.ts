@@ -6,12 +6,11 @@ import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
-import { Utils } from '@/templates/base/helper'
-import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
-import { success, warning } from '@/utils/logging'
-import { askBoolean, execCmd } from '@/utils/node'
-import { TempLocation } from '@/utils/temp'
 import { updatePkgJsonVersion } from '@/utils/template'
+import { TempLocation } from '@/utils/temp'
+import { askBoolean, execCmd } from '@/utils/node'
+import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
+import { Utils } from '@/templates/base/helper'
 
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private hooks: GenPkgHooks) {
@@ -27,13 +26,13 @@ export class GenPkg extends Utils {
 
     // Ask user to commit the compressed images
     if (isInteractive && compressedFiles.length) {
-      warning('If you want to commit compressed images, make sure you don\'t have extra changes except compressed images.')
+      consola.warn('If you want to commit compressed images, make sure you don\'t have extra changes except compressed images.')
       const shouldCommit = await askBoolean('Do you want to commit the compressed images?')
 
       if (shouldCommit) {
         execCmd('git add .', { cwd: tSFull })
         execCmd('git commit -m "chore: compress images"', { cwd: tSFull })
-        success('Compressed images committed successfully.')
+        consola.success('Compressed images committed successfully.')
       }
     }
     consola.success('Image size validation completed\n')
@@ -45,12 +44,12 @@ export class GenPkg extends Utils {
 
     // Generate JS Full
     consola.start('Generating JS version')
-    new GenJS(this.templateConfig).genJS()
+    await new GenJS(this.templateConfig).genJS()
     consola.success('JS version generated successfully\n')
 
     //  Generate JS SK
     consola.start('Generating JS starter kit')
-    new GenJS(this.templateConfig, true).genJS()
+    await new GenJS(this.templateConfig, true).genJS()
     consola.success('JS starter kit generated successfully\n')
 
     // Fill snippets

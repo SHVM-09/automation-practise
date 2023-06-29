@@ -13,7 +13,6 @@ import { Utils, injectGTM } from './helper'
 
 import { getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
-import { error, info, success } from '@/utils/logging'
 import { askBoolean, execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -107,13 +106,13 @@ export class Laravel extends Utils {
 
     // Add laravel-vite-plugin in devDependencies
     if (!vuePkgJSON.devDependencies) {
-      error('devDependencies field not found in package.json')
+      consola.error(new Error('devDependencies field not found in package.json'))
       return
     }
     vuePkgJSON.devDependencies['laravel-vite-plugin'] = laravelVitePluginVersion
 
     if (!vuePkgJSON.scripts) {
-      error('scripts field not found in package.json')
+      consola.error(new Error('scripts field not found in package.json'))
       return
     }
 
@@ -381,7 +380,7 @@ export class Laravel extends Utils {
     // ❗ Only update root package.json & .gitignore if master vue dir exist
     // ℹ️ This will make cloning master vue repo optional when generating pkg in release github action
     if (!fs.pathExistsSync(masterVuePath)) {
-      info('master vue doesn\'t exist. Omitting updating root package.json & gitignore')
+      consola.info('master vue doesn\'t exist. Omitting updating root package.json & gitignore')
       return
     }
 
@@ -698,7 +697,7 @@ export class Laravel extends Utils {
     )
 
     execCmd(`zip -rq ${zipPath} .`, { cwd: tempPkgDir })
-    success(`✅ Package generated at: ${zipPath}`)
+    consola.success(`Package generated at: ${zipPath}`)
   }
 
   async genFreeLaravel() {
@@ -731,7 +730,7 @@ export class Laravel extends Utils {
   }
 
   genDemos(isStaging: boolean) {
-    info('isStaging: ', isStaging.toString())
+    consola.info('isStaging: ', isStaging.toString())
 
     const { TSFull } = this.templateConfig.laravel.paths
 
@@ -792,9 +791,9 @@ export class Laravel extends Utils {
       // Generate demo number
       const demoNumber = demoIndex + 1
 
-      info(`Generating demo ${demoNumber}`)
+      consola.info(`Generating demo ${demoNumber}`)
 
-      info('Updating localStorage keys...')
+      consola.info('Updating localStorage keys...')
       this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
 
       // ℹ️ Demo config can be null if there's no changes in themeConfig
@@ -839,7 +838,7 @@ export class Laravel extends Utils {
       // Reset the themeConfig
       fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
 
-      success(`✅ Demo ${demoNumber} generation completed`)
+      consola.success(`Demo ${demoNumber} generation completed`)
     })
 
     // Remove node_modules & public dir
@@ -850,7 +849,7 @@ export class Laravel extends Utils {
     // Remove ASSET_URL as we don't want it in laravel core
     updateFile(envPath, data => data.mustReplace(/ASSET_URL=.*/g, ''))
 
-    info('Creating zip...')
+    consola.info('Creating zip...')
 
     // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
     const zipWrapperDirParent = new TempLocation().tempDir

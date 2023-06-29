@@ -7,7 +7,7 @@ import { Octokit } from 'octokit'
 import type { TemplateBaseConfig } from '@templates/base'
 import { TemplateBase } from '@templates/base'
 
-import { error, info, success } from '@/utils/logging'
+import { consola } from 'consola'
 import { downloadFile, execCmd } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 
@@ -28,7 +28,7 @@ export class PixInventTemplate<TemplateConfig extends TemplateBaseConfig> extend
 
     // Validate release assets
     if (data.assets.length !== 1)
-      error(`Expected only one release asset from latest release but got ${data.assets.length}.\nVisit ${data.html_url} to check the release.`)
+      consola.error(new Error(`Expected only one release asset from latest release but got ${data.assets.length}.\nVisit ${data.html_url} to check the release.`))
 
     const asset = data.assets[0]
 
@@ -37,9 +37,9 @@ export class PixInventTemplate<TemplateConfig extends TemplateBaseConfig> extend
 
     console.log('asset.browser_download_url :>> ', JSON.stringify(asset))
 
-    info('⬇️ Downloading latest release asset...')
+    consola.info('⬇️ Downloading latest release asset...')
     await downloadFile(asset.browser_download_url, path.join(tempReleaseAssetDir, asset.name))
-    success('✅ Downloaded latest release asset.')
+    consola.success('Downloaded latest release asset.')
 
     // Extract the package
     execCmd(`unzip -qq ${asset.name}`, { cwd: tempReleaseAssetDir })
@@ -62,7 +62,7 @@ export class PixInventTemplate<TemplateConfig extends TemplateBaseConfig> extend
     execCmd(`cp -r ${path.join(tempReleaseAssetDir, '*')} ${tempPkgDir}`)
 
     // Log that we are assuming others will update readme, changelog, hire-us.
-    info('Assuming readme, changelog, hire-us in the root of the package is already updated.')
+    consola.info('Assuming readme, changelog, hire-us in the root of the package is already updated.')
   }
 }
 

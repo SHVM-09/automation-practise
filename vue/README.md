@@ -24,12 +24,11 @@ We use some third-party libraries in our automation scripts because node doesn't
 **Third-party libs:**
 
 1. [acorn](https://github.com/acornjs/acorn): For AST parsing in `sfcCompiler`
-2. [chalk](https://github.com/chalk/chalk): For colored outputs
-3. [dotenv](https://github.com/motdotla/dotenv): For reading env vars from `.env` file
-4. [escodegen](https://github.com/estools/escodegen): for generating es6 code from AST nodes (`sfcCompiler`)
-5. [fs-extra](https://github.com/jprichardson/node-fs-extra): Provides convenient features for working with file system
-6. [globby](https://github.com/sindresorhus/globby): for globbing
-7. [minimist](https://github.com/minimistjs/minimist): For parsing CLI.
+2. [dotenv](https://github.com/motdotla/dotenv): For reading env vars from `.env` file
+3. [escodegen](https://github.com/estools/escodegen): for generating es6 code from AST nodes (`sfcCompiler`)
+4. [fs-extra](https://github.com/jprichardson/node-fs-extra): Provides convenient features for working with file system
+5. [globby](https://github.com/sindresorhus/globby): for globbing
+6. [minimist](https://github.com/minimistjs/minimist): For parsing CLI.
 
 ### Running automation scripts
 

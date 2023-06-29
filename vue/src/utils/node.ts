@@ -1,8 +1,8 @@
 import type { ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
 import { execSync } from 'child_process'
 import readline from 'readline'
+import { consola } from 'consola'
 import fs from 'fs-extra'
-import chalk from 'chalk'
 
 export function execCmd(command: string): Buffer | undefined
 export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string | undefined
@@ -12,18 +12,8 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
   try {
     return execSync(command, options)
   }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  catch (err: any) {
-    console.log(chalk.redBright('Error:', err))
-    console.log(chalk.redBright('message:', err.message))
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    console.log(chalk.redBright('stdout:', err.stdout.toString()))
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    console.log(chalk.redBright('sdtErr: ', err.stderr.toString()))
-
-    return undefined
+  catch (err) {
+    consola.error(err)
   }
 }
 
