@@ -564,7 +564,7 @@ export class Laravel extends Utils {
       filesToUpdateLinksIn.forEach((filePath) => {
         updateFile(
           filePath,
-          data => data.mustReplace('materio-vuetify-vuejs-admin-template', 'materio-vuetify-laravel-admin-template'),
+          data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
         )
       })
     }

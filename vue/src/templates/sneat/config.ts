@@ -12,6 +12,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const sneatVuePath = path.join(getTemplatePath('sneat', 'vue'))
 const sneatVueLaravelPath = path.join(getTemplatePath('sneat', 'vue-laravel'))
 const sneatVueFreePath = sneatVuePath.mustReplace('vue', 'vue-free')
+const sneatVueLaravelFreePath = sneatVuePath.mustReplace('vue', 'vue-laravel-free')
 
 export const config: SneatConfig = {
   templateName: 'sneat',
@@ -125,6 +126,10 @@ export const config: SneatConfig = {
     pageTitle: 'Sneat - Vuetify Vuejs Admin Template',
     docUrl: 'https://demos.themeselection.com/sneat-vuetify-vuejs-admin-template/documentation/',
   },
+  changelog: {
+    pageTitle: 'Sneat - Vuetify Vuejs Admin Template Changelog',
+    url: 'https://demos.themeselection.com/sneat-vuetify-vuejs-admin-template/changelog.html',
+  },
   gh: {
     ownerName: 'themeselection',
     repoName: 'sneat-vuetify-vuejs-admin-template',
@@ -140,11 +145,17 @@ export const config: SneatConfig = {
       TSStarter: path.join(sneatVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(sneatVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(sneatVueLaravelPath, 'javascript-version', 'starter-kit'),
+      freeTS: path.join(sneatVueLaravelFreePath, 'typescript-version'),
+      freeJS: path.join(sneatVueLaravelFreePath, 'javascript-version'),
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/sneat-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
       pageTitle: 'Sneat - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/sneat-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    changelog: {
+      pageTitle: 'Sneat - Vuetify Vuejs Laravel Admin Template Changelog',
+      url: 'https://demos.themeselection.com/sneat-vuetify-vuejs-laravel-admin-template/changelog.html',
     },
   },
 }
