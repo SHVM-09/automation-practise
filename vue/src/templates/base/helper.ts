@@ -1,7 +1,7 @@
 import '@/utils/injectMustReplace'
 import path from 'path'
 import type { GTMConfig, TemplateBaseConfig } from './config'
-import { execCmd, updateFile } from '@/utils/node'
+import { execCmd, filterFileByLine, updateFile } from '@/utils/node'
 import { TempLocation } from '@/utils/temp'
 
 export class Utils {
@@ -28,11 +28,9 @@ export class Utils {
   }
 
   protected removeBuyNow(projectDir: string) {
-    updateFile(
-      path.join(projectDir, 'src', 'App.vue'),
-      app => app.split('\n')
-        .filter(line => !line.includes('BuyNow'))
-        .join('\n'),
+    filterFileByLine(
+      path.join(projectDir, 'src', 'components', 'BuyNow.vue'),
+      line => !line.includes('BuyNow'),
     )
   }
 }

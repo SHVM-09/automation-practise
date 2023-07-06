@@ -13,7 +13,7 @@ import { Utils, injectGTM } from './helper'
 
 import { getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
-import { askBoolean, execCmd, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
+import { askBoolean, execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { updatePkgJsonVersion } from '@/utils/template'
@@ -24,12 +24,21 @@ type LangConfigFile = 'tsconfig.json' | 'jsconfig.json'
 export class Laravel extends Utils {
   private projectPath: string
   private resourcesPath: string
+  private isGenLaravelForFirstTime: boolean
+  private currentLaravelVersion!: string
 
   constructor(private templateConfig: TemplateBaseConfig) {
     super()
 
     this.projectPath = path.join(this.tempDir, this.templateConfig.laravel.pkgName)
     this.resourcesPath = path.join(this.projectPath, 'resources')
+
+    this.isGenLaravelForFirstTime = !!this.templateConfig.laravel.projectPath
+    consola.info(
+      this.isGenLaravelForFirstTime
+        ? `Laravel dir (${this.templateConfig.laravel.projectPath}) exist, Marking process as generating laravel for first time`
+        : `Laravel dir (${this.templateConfig.laravel.projectPath}) doesn't exist, Marking process as updating existing laravel`,
+    )
   }
 
   private initializePaths() {
@@ -104,6 +113,12 @@ export class Laravel extends Utils {
       path.join(sourcePath, pkgJSONFileName),
     )
 
+    // Update package version according to laravel's current version
+    vuePkgJSON.version = this.currentLaravelVersion
+
+    // Update package name
+    vuePkgJSON.name = this.templateConfig.laravel.pkgName
+
     // Add laravel-vite-plugin in devDependencies
     if (!vuePkgJSON.devDependencies) {
       consola.error(new Error('devDependencies field not found in package.json'))
@@ -153,12 +168,11 @@ export class Laravel extends Utils {
 
     await writeFile(mod.$ast, viteConfigPath, {
       quote: 'single',
-      useTabs: true,
       trailingComma: true,
     })
   }
 
-  private copyVueProjectFiles(lang: Lang, sourcePath: string) {
+  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean) {
     // copy vue project src directory in ts/js dir
     this.copyProject(
       path.join(sourcePath, 'src'),
@@ -185,11 +199,13 @@ export class Laravel extends Utils {
       )
     })
 
-    // copy .vscode dir
-    fs.copySync(
-      path.join(sourcePath, '.vscode'),
-      path.join(this.projectPath, '.vscode'),
-    )
+    // copy .vscode & eslint-internal-rules dir
+    ;['.vscode', ...(isJS ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
+      fs.copySync(
+        path.join(sourcePath, dirName),
+        path.join(this.projectPath, dirName),
+      )
+    })
 
     // Copy vue project's public files in laravel project's public dir
     const publicFilesToCopy = globbySync('*', {
@@ -216,7 +232,7 @@ export class Laravel extends Utils {
     // add new alias in tsconfig/jsconfig
     const configFilePath = path.join(this.projectPath, langConfigFile)
     const config = fs.readJSONSync(configFilePath)
-    config.compilerOptions.paths['@core-scss/*'] = ['resources/styles/@core']
+    config.compilerOptions.paths['@core-scss/*'] = ['resources/styles/@core/*']
     fs.writeJsonSync(
       configFilePath,
       config,
@@ -390,16 +406,22 @@ export class Laravel extends Utils {
       pkgJsonPath,
     )
 
+    // // Update version from 0.0.0 to actual version
+    // const tsFullPkgJSONPath = path.join(this.templateConfig.paths.tSFull, 'package.json')
+    // updateJSONFileField(pkgJsonPath, 'version', fs.readJSONSync(tsFullPkgJSONPath).version)
+
     // if repo is for pixinvent
     if (this.templateConfig.templateDomain === 'pi')
       // Update release command => Remove prompt for changing CHANGELOG.md
       updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=yarn bumpp)/g, ''))
 
-    // Update root package.json file
+    // Update root .gitignore file
     fs.copyFileSync(
       path.join(masterVuePath, '.gitignore'),
       gitIgnorePath,
     )
+    // Remove JS version from gitignore
+    filterFileByLine(gitIgnorePath, line => !line.includes('javascript-version'))
   }
 
   private async genLaravel(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
@@ -410,14 +432,6 @@ export class Laravel extends Utils {
     this.initializePaths()
 
     const { isSK = false, isJS = false, isFree = false } = options || {}
-
-    // const sourcePath = isJS
-    //   ? isSK
-    //     ? this.templateConfig.paths.jSStarter
-    //     : this.templateConfig.paths.jSFull
-    //   : isSK
-    //     ? this.templateConfig.paths.tSStarter
-    //     : this.templateConfig.paths.tSFull
 
     const sourcePath
       // If Free version
@@ -444,7 +458,7 @@ export class Laravel extends Utils {
     // create new laravel project
     this.bootstrapLaravelInTempDir(lang, sourcePath)
 
-    this.copyVueProjectFiles(lang, sourcePath)
+    this.copyVueProjectFiles(lang, sourcePath, isJS)
 
     // Remove generated js files from iconify dir
     if (!isJS) {
@@ -578,10 +592,19 @@ export class Laravel extends Utils {
 
     // Place temp dir content in js full version
     replaceDir(this.projectPath, replaceDest)
+
+    execCmd('npm run lint', { cwd: replaceDest })
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
     const { TSFull } = this.templateConfig.laravel.paths
+
+    // Set current laravel version in class property
+    const laravelPkgJSON: PackageJson = fs.readJSONSync(
+      path.join(TSFull, 'package.json'),
+    )
+
+    this.currentLaravelVersion = laravelPkgJSON.version || '0.0.0'
 
     // Generate Laravel TS Full
     await this.genLaravel()
@@ -646,11 +669,9 @@ export class Laravel extends Utils {
     // Remove BuyNow from both full versions
     // TODO: removeBuyNow method is not generic
     ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath, index) => {
-      updateFile(
+      filterFileByLine(
         path.join(projectPath, 'resources', index === 0 ? 'ts' : 'js', 'App.vue'),
-        app => app.split('\n')
-          .filter(line => !line.includes('BuyNow'))
-          .join('\n'),
+        line => !line.includes('BuyNow'),
       )
     })
     // this.removeBuyNow(tempPkgTSFull)

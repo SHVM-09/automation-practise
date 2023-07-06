@@ -1,5 +1,5 @@
-import type { ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
-import { execSync } from 'child_process'
+import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
+import { exec, execSync } from 'child_process'
 import readline from 'readline'
 import { consola } from 'consola'
 import fs from 'fs-extra'
@@ -11,6 +11,15 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
 export function execCmd(command: string, options?: ExecSyncOptions): string | Buffer | undefined {
   try {
     return execSync(command, options)
+  }
+  catch (err) {
+    consola.error(err)
+  }
+}
+
+export function execCmdAsync(command: string, callback?: (error: ExecException | null, stdout: string, stderr: string) => void): ChildProcess | undefined {
+  try {
+    return exec(command, callback)
   }
   catch (err) {
     consola.error(err)
@@ -37,6 +46,10 @@ export const updateFile = (path: string, modifier: UpdateFileModifier) => {
     modifier(fs.readFileSync(path, { encoding: 'utf-8' })),
     { encoding: 'utf-8' },
   )
+}
+
+export const filterFileByLine = (path: string, filter: (value: string, index: number, array: string[]) => boolean) => {
+  updateFile(path, data => data.split('\n').filter(filter).join('\n'))
 }
 
 // TODO: use this utility function

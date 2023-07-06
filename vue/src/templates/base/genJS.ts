@@ -12,7 +12,7 @@ import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { execCmd, replaceDir, updateFile } from '@/utils/node'
+import { execCmd, filterFileByLine, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -101,9 +101,12 @@ export class GenJS extends Utils {
       Remove all the lines which contains word 'typescript' or 'antfu'
       ℹ️ We will remove line that contains word 'antfu' => We need to remove antfu eslint config as this also add TS rules
     */
-    eslintConfig = eslintConfig.split('\n')
-      .filter(line => !(line.includes('typescript') || line.includes('antfu')))
-      .join('\n')
+    filterFileByLine(
+      eslintConfigPath,
+      line => !(
+        line.includes('typescript') || line.includes('antfu')
+      ),
+    )
 
     // Remove eslint internal rules
     eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
