@@ -175,7 +175,7 @@ export class GenDemo {
       const demoDeploymentBase = this.templateConfig.demoDeploymentBase(demoNumber, isStaging)
 
       // Run build
-      execCmd(`yarn build --base=${demoDeploymentBase}`, { cwd: this.templateConfig.paths.tSFull })
+      execCmd(`pnpm build --base=${demoDeploymentBase}`, { cwd: this.templateConfig.paths.tSFull })
 
       // At the moment of this script execution, we will have "dist" in root the tsFull
       // Rename dist to demo-$demoNumber & all that

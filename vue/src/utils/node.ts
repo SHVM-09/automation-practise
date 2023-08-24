@@ -2,6 +2,7 @@ import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithS
 import { exec, execSync } from 'child_process'
 import readline from 'readline'
 import { consola } from 'consola'
+import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
 
 export function execCmd(command: string): Buffer | undefined
@@ -14,6 +15,9 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
   }
   catch (err) {
     consola.error(err)
+
+    // @ts-expect-error I know what I'm doing
+    console.log(colorize('red', String(err.stdout)))
   }
 }
 

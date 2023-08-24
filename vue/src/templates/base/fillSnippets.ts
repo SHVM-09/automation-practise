@@ -110,7 +110,7 @@ export class FillSnippets {
     })
 
     // Lint both versions
-    execCmd('yarn lint', { cwd: this.tSFull })
-    execCmd('yarn lint', { cwd: this.jSFull })
+    execCmd('pnpm lint', { cwd: this.tSFull })
+    execCmd('pnpm lint', { cwd: this.jSFull })
   }
 }

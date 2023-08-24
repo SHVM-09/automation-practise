@@ -79,6 +79,7 @@
     // Extension: SpellChecker
     "cSpell.words": [
         "antfu",
+        "Cmds",
         "commiting",
         "consola",
         "customizer",
@@ -87,6 +88,7 @@
         "Laravel",
         "Materialize",
         "Materio",
+        "Nuxt",
         "pixinvent",
         "rulesdir",
         "sneat",

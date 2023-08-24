@@ -36,11 +36,11 @@ jobs:
       
       - name: ⬇️ Install packages in automation-scripts dir
         working-directory: automation-scripts/vue
-        run: yarn
+        run: pnpm
         
       - name: 📦 Generate package
         working-directory: automation-scripts/vue
-        run: yarn tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravel.ts --version ${{ github.ref_name }}
+        run: pnpm tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravel.ts --version ${{ github.ref_name }}
 
       - name: 🚀 Release
         uses: softprops/action-gh-release@v1

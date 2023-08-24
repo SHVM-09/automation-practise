@@ -42,6 +42,9 @@ export interface TemplateBaseConfig {
     branch?: string
   }
   gtm: GTMConfig
+  nuxt: {
+    pkgName: string
+  }
   laravel: {
     pkgName: string
     buyNowLink: string

@@ -413,7 +413,7 @@ export class Laravel extends Utils {
     // if repo is for pixinvent
     if (this.templateConfig.templateDomain === 'pi')
       // Update release command => Remove prompt for changing CHANGELOG.md
-      updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=yarn bumpp)/g, ''))
+      updateFile(pkgJsonPath, data => data.mustReplace(/(?<="release": ").*(?=pnpm bumpp)/g, ''))
 
     // Update root .gitignore file
     fs.copyFileSync(
@@ -551,11 +551,11 @@ export class Laravel extends Utils {
     // Update vite config
     await this.updateViteConfig(lang)
 
-    // ❗ We are moving images before doing `yarn` because we have postinstall script that can generate SVG based on iconify-svg dir and this dir is in images
+    // ❗ We are moving images before doing `pnpm` because we have postinstall script that can generate SVG based on iconify-svg dir and this dir is in images
     this.moveImages(lang, langConfigFile)
 
     // install packages
-    execCmd('yarn', { cwd: this.projectPath })
+    execCmd('pnpm', { cwd: this.projectPath })
 
     this.useStylesDir(lang, langConfigFile)
 
@@ -847,7 +847,7 @@ export class Laravel extends Utils {
       )
 
       // Run build
-      execCmd('yarn build', { cwd: this.templateConfig.laravel.paths.TSFull })
+      execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
 
       // At the moment of this script execution, we will have "public" in root the TSFull
       // Duplicate public to demo-$demoNumber

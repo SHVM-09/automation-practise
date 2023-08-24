@@ -12,6 +12,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
 const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
 const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
+const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace('vue', 'vue-laravel-free')
 
 export const config: VuexyConfig = {
   templateName: 'vuexy',
@@ -125,12 +126,19 @@ export const config: VuexyConfig = {
     pageTitle: 'Vuexy - Vuejs Admin Template',
     docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/',
   },
+  changelog: {
+    pageTitle: 'Vuexy - Vuejs Admin Template Changelog',
+    url: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/changelog.html',
+  },
   gh: {
     ownerName: 'pixinvent',
     repoName: 'vuexy-vuejs-admin-template',
     branch: 'dev',
   },
   gtm: pixinventGTMConfig,
+  nuxt: {
+    pkgName: 'vuexy-nuxtjs-admin-template',
+  },
   laravel: {
     pkgName: 'vuexy-vuejs-laravel-admin-template',
     buyNowLink: 'https://1.envato.market/vuexy_admin',
@@ -140,11 +148,17 @@ export const config: VuexyConfig = {
       TSStarter: path.join(vuexyVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(vuexyVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(vuexyVueLaravelPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(vuexyVueLaravelFreePath, 'javascript-version'),
+      freeTS: path.join(vuexyVueLaravelFreePath, 'typescript-version'),
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {
       pageTitle: 'Vuexy - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    changelog: {
+      pageTitle: 'Vuexy - Vuejs Laravel Admin Template Changelog',
+      url: 'https://demos.pixinvent.com/vuexy-vuejs-laravel-admin-template/changelog.html',
     },
   },
 }

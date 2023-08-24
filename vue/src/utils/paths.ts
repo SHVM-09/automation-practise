@@ -14,6 +14,21 @@ export const repoPath = path.join(projectPath, '../')
 export const getTemplatePath = (name: string, technology: string) => path.join(repoPath, `../${name}`, technology)
 
 /**
+ * Removes a prefix from a given path string.
+ * Regex101: https://regex101.com/r/1MjJc8/4
+ *
+ * @param {string} path - The path string to remove the prefix from.
+ * @param {string} prefix - The prefix to remove from the path string.
+ * @returns {string} - The path string with the prefix removed.
+ */
+export const removePathPrefix = (path: string, prefix: string) => {
+  const pathStr = `(^\.)?((?<=\.?)\/${prefix})|(${prefix}\/)`
+  const pattern = new RegExp(`^${pathStr}|(?! )${pathStr}`, 'gm')
+
+  return path.replace(pattern, '')
+}
+
+/**
  * ℹ️ This can be generic utility function
  * Safely replace path inside string. It will preserve the path formats (relative & absolute).
  *

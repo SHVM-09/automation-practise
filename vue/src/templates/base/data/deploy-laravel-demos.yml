@@ -32,15 +32,15 @@ jobs:
       
       - name: ⬇️ Install packages in automation-scripts dir
         working-directory: automation-scripts/vue
-        run: yarn
+        run: pnpm
 
       - name: ⚙️ Set LARAVEL_CORE_DIR_NAME environment variable from generated env file
         working-directory: automation-scripts/vue
-        run: yarn tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravelCoreDirNameEnvFile.ts $([[ "${{ inputs.is_production }}" != "true" ]] && echo --staging) && cat .env.laravel-core-dir-name >> $GITHUB_ENV
+        run: pnpm tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravelCoreDirNameEnvFile.ts $([[ "${{ inputs.is_production }}" != "true" ]] && echo --staging) && cat .env.laravel-core-dir-name >> $GITHUB_ENV
 
       - name: ⬇️ Install packages in typescript full version
         working-directory: ${{ env.BRAND_NAME }}/vue-laravel/typescript-version/full-version
-        run: yarn && composer install
+        run: pnpm && composer install
         
       - name: 🎭 Create .env file from .env.example & generate APP_KEY via `php artisan key:generate`
         working-directory: ${{ env.BRAND_NAME }}/vue-laravel/typescript-version/full-version
@@ -48,7 +48,7 @@ jobs:
 
       - name: 📦 Generate demos
         working-directory: automation-scripts/vue
-        run: yarn tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravelDemos.ts $([[ "${{ inputs.is_production }}" != "true" ]] && echo --staging)
+        run: pnpm tsx src/templates/${{ env.BRAND_NAME }}/scripts/genLaravelDemos.ts $([[ "${{ inputs.is_production }}" != "true" ]] && echo --staging)
 
       - name: 🚀 Upload demos zip
         uses: appleboy/scp-action@master

@@ -9,6 +9,7 @@
         "sburg.vscode-javascript-booster",
         "johnsoncodehk.vscode-tsconfig-helper",
         "yoavbls.pretty-ts-errors",
-        "meganrogge.template-string-converter"
+        "meganrogge.template-string-converter",
+        "orta.vscode-twoslash-queries"
     ]
 }

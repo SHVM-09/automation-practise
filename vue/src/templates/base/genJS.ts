@@ -57,7 +57,6 @@ export class GenJS extends Utils {
 
     await writeFile(mod.$ast, viteConfigPath, {
       quote: 'single',
-      useTabs: true,
       trailingComma: true,
     })
   }
@@ -92,7 +91,7 @@ export class GenJS extends Utils {
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
 
     // Add import resolver package
-    execCmd('yarn add eslint-import-resolver-alias', { cwd: this.tempDir })
+    execCmd('pnpm add eslint-import-resolver-alias', { cwd: this.tempDir })
 
     // Read eslint config
     let eslintConfig = fs.readFileSync(eslintConfigPath, { encoding: 'utf-8' })
@@ -335,7 +334,7 @@ export class GenJS extends Utils {
 
       /*
         ℹ️ Don't include env & shims file because those are TS only files.
-        We will copy components.d.ts & auto-imports.d.ts for "yarn tsc" to run without errors
+        We will copy components.d.ts & auto-imports.d.ts for "pnpm tsc" to run without errors
       */
       [
         ...this.templateConfig.packageCopyIgnorePatterns,
@@ -367,13 +366,13 @@ export class GenJS extends Utils {
       Install packages
       ℹ️ We need this to run tsc & generate build
     */
-    execCmd('yarn', { cwd: this.tempDir })
+    execCmd('pnpm', { cwd: this.tempDir })
 
     // ❗ Generate build-icons.js before running tsc
-    execCmd('yarn build:icons', { cwd: this.tempDir })
+    execCmd('pnpm build:icons', { cwd: this.tempDir })
 
     // Run `tsc` to compile TypeScript files
-    execCmd('yarn tsc', { cwd: this.tempDir })
+    execCmd('pnpm tsc', { cwd: this.tempDir })
 
     // Remove all TypeScript files
     this.removeAllTSFile()
@@ -396,7 +395,7 @@ export class GenJS extends Utils {
       ℹ️ We need to run build command to generate some `d.ts` files for antfu's vite plugins
       This will mitigate the ESLint errors in next step where we run eslint to auto format the code
     */
-    execCmd('yarn build', { cwd: this.tempDir })
+    execCmd('pnpm build', { cwd: this.tempDir })
 
     /*
       Remove typescript eslint comments from tsx/ts files
@@ -409,12 +408,12 @@ export class GenJS extends Utils {
     execCmd(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i ${process.platform === 'darwin' ? '""' : ''} -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
 
     // ℹ️ Remove d.ts files from JS project
-    // ℹ️ We need to remove all d.ts files before we run `yarn lint` because we are removing d.ts from ignore in `updateEslintConfig` method
+    // ℹ️ We need to remove all d.ts files before we run `pnpm lint` because we are removing d.ts from ignore in `updateEslintConfig` method
     const dTsFiles = globbySync(['*.d.ts'], { cwd: this.tempDir, absolute: true })
     dTsFiles.forEach(f => fs.removeSync(f))
 
     // Auto format all files using eslint
-    execCmd('yarn lint', { cwd: this.tempDir })
+    execCmd('pnpm lint', { cwd: this.tempDir })
 
     const replaceDest = (() => {
       // If generating JS for free version => Replace with free JS

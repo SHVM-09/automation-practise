@@ -286,7 +286,6 @@ export class GenSK extends Utils {
 
     await writeFile(mod.$ast, viteConfigPath, {
       quote: 'single',
-      useTabs: true,
       trailingComma: true,
     })
   }
@@ -299,10 +298,10 @@ export class GenSK extends Utils {
     const sKProjectPath = this.templateConfig.paths.tSStarter
 
     // ℹ️ Run installation if there's no node_modules
-    execCmd('yarn', { cwd: sKProjectPath })
+    execCmd('pnpm', { cwd: sKProjectPath })
 
     // ℹ️ Run linting after filling all snippets to auto format
-    execCmd('yarn lint', { cwd: sKProjectPath })
+    execCmd('pnpm lint', { cwd: sKProjectPath })
   }
 
   async genSK() {

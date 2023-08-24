@@ -12,6 +12,7 @@ const masterVuePath = path.join(getTemplatePath('master', 'vue'))
 const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
 const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
 const masterVueFreeInternalPath = masterVuePath.mustReplace('vue', 'vue-free-internal')
+const masterVueLaravelFreePath = masterVuePath.mustReplace('vue', 'vue-laravel-free')
 
 export const config: MasterConfig = {
   templateName: 'master',
@@ -114,6 +115,9 @@ export const config: MasterConfig = {
     repoName: 'master-vue--material',
   },
   gtm: themeselectionGTMConfig,
+  nuxt: {
+    pkgName: 'master-nuxtjs-admin-template',
+  },
   laravel: {
     pkgName: 'master-vuetify-vuejs-laravel-admin-template',
     buyNowLink: 'https://themeselection.com/item/master-vuetify-vuejs-admin-template/',
@@ -123,6 +127,8 @@ export const config: MasterConfig = {
       TSStarter: path.join(masterVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(masterVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(masterVueLaravelPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(masterVueLaravelFreePath, 'javascript-version'),
+      freeTS: path.join(masterVueLaravelFreePath, 'typescript-version'),
     },
     demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/master-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
     documentation: {

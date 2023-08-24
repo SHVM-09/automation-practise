@@ -37,7 +37,7 @@ You can run automation via scripts. You can find each template's scripts in `src
 These are normal scripts that you run except it requires running via [tsx](https://github.com/esbuild-kit/tsx). To run the script use:
 
 ```bash
-yarn tsx src/templates/<template-name>/scripts/<script-file-with-extension> <params-if-any>
+pnpm tsx src/templates/<template-name>/scripts/<script-file-with-extension> <params-if-any>
 ```
 
 While generating JS version or its superior scripts you might get warning or error for rule `vue/require-default-prop`. Ignore this rule's error as this error's code will be generated via vue compiler and we don't have control over it.

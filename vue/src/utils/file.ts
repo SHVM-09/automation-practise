@@ -19,6 +19,19 @@ import { execCmd } from '@/utils/node'
    */
 
 // https://regex101.com/r/ba5Vcn/2
+export const addImport = (data: string, importStatement: string) => {
+  if (data.startsWith('import'))
+    return data.mustReplace(/(import .*\n)(\n*)(?!import)/gm, `$1${importStatement}\n$2`)
+  else
+    return `${importStatement}\n\n${data}`
+}
+
+/**
+ * Remove top level import statement from data
+ * @param data data source to remove imports from
+ * @returns Returns data without any imports
+ */
+export const removeAllImports = (data: string) => data.replace(/import .*\n\n?/gm, '')
 
 // check file size and return array of files that are over the limit
 export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100) => {
@@ -86,8 +99,8 @@ export const compressOverSizedFiles = async (globPattern: string, options: { rep
 }
 
 export const getPackagesVersions = (tsFullPath: string): PackageJson.Dependency => {
-  // Run the yarn list command and capture its output
-  const output = execCmd('yarn list --depth=0', {
+  // Run the pnpm list command and capture its output
+  const output = execCmd('pnpm list --depth=0', {
     cwd: tsFullPath,
   })?.toString()
 
