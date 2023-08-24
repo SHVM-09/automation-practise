@@ -4,4 +4,4 @@ import { Materio, config } from '@templates/materio'
 const materio = new Materio(config)
 
 const jsGenerator = new GenJS(materio.config, false, true)
-jsGenerator.genJS()
+await jsGenerator.genJS()

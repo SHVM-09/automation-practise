@@ -1,10 +1,26 @@
 import { Laravel } from '@templates/base/laravel'
 import { Vuexy, config } from '@templates/vuexy'
-import parseArgs from 'minimist'
+import { defineCommand, runMain } from 'citty'
 
-const vuexy = new Vuexy(config)
-const laravel = new Laravel(vuexy.config)
+const main = defineCommand({
+  meta: {
+    name: 'genLaravelDemos.ts',
+    description: 'Generate laravel demos',
+  },
+  args: {
+    staging: {
+      type: 'boolean',
+      description: 'Generate demos for staging environment',
+      default: false,
+    },
+  },
+  run({ args }) {
+    const vuexy = new Vuexy(config)
+    const laravel = new Laravel(vuexy.config)
 
-const argv = parseArgs(process.argv.slice(2))
+    laravel.genDemos(args.staging)
+  },
+})
 
-laravel.genDemos(!!argv.staging)
+await runMain(main)
+

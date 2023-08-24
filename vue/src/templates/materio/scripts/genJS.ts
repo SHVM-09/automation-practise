@@ -1,10 +1,28 @@
 import { GenJS } from '@templates/base/genJS'
 import { Materio, config } from '@templates/materio'
 
-import parseArgs from 'minimist'
-const argv = parseArgs(process.argv.slice(2))
+import { defineCommand, runMain } from 'citty'
 
-const materio = new Materio(config)
+const main = defineCommand({
+  meta: {
+    name: 'genJS.ts',
+    description: 'Generate Javascript version',
+  },
+  args: {
+    'starter-kit': {
+      alias: 'sk',
+      type: 'boolean',
+      description: 'Generate starter kit variant',
+      default: false,
+    },
+  },
+  async run({ args }) {
+    const materio = new Materio(config)
 
-const jsGenerator = new GenJS(materio.config, !!argv.sk)
-jsGenerator.genJS()
+    const jsGenerator = new GenJS(materio.config, args['starter-kit'])
+    await jsGenerator.genJS()
+  },
+})
+
+await runMain(main)
+

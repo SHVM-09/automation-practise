@@ -1,12 +1,26 @@
 import { GenDemo } from '@templates/base/genDemo'
 import { Vuexy, config } from '@templates/vuexy'
-import parseArgs from 'minimist'
 
-const vuexy = new Vuexy(config)
+import { defineCommand, runMain } from 'citty'
 
-const demoGenerator = new GenDemo(vuexy.config)
+const main = defineCommand({
+  meta: {
+    name: 'genDemos.ts',
+    description: 'Generate demos',
+  },
+  args: {
+    staging: {
+      type: 'boolean',
+      description: 'Generate demos for staging environment',
+      default: false,
+    },
+  },
+  run({ args }) {
+    const vuexy = new Vuexy(config)
 
-const argv = parseArgs(process.argv.slice(2))
+    const demoGenerator = new GenDemo(vuexy.config)
+    demoGenerator.generate(args.staging)
+  },
+})
 
-// ℹ️ argv.staging can be undefined so we will convert it to boolean
-demoGenerator.generate(!!argv.staging)
+await runMain(main)

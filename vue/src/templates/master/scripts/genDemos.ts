@@ -1,12 +1,27 @@
 import { GenDemo } from '@templates/base/genDemo'
 import { Master, config } from '@templates/master'
-import parseArgs from 'minimist'
+import { defineCommand, runMain } from 'citty'
 
-const master = new Master(config)
+const main = defineCommand({
+  meta: {
+    name: 'genDemos.ts',
+    description: 'Generate demos',
+  },
+  args: {
+    staging: {
+      type: 'boolean',
+      description: 'Generate demos for staging environment',
+      default: false,
+    },
+  },
+  run({ args }) {
+    const master = new Master(config)
 
-const demoGenerator = new GenDemo(master.config)
+    const demoGenerator = new GenDemo(master.config)
 
-const argv = parseArgs(process.argv.slice(2))
+    demoGenerator.generate(args.staging)
+  },
+})
 
-// ℹ️ argv.staging can be undefined so we will convert it to boolean
-demoGenerator.generate(!!argv.staging)
+await runMain(main)
+

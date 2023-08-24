@@ -1,10 +1,37 @@
 import { Laravel } from '@templates/base/laravel'
 import { Master, config } from '@templates/master'
-import parseArgs from 'minimist'
+import { defineCommand, runMain } from 'citty'
 
-const master = new Master(config)
-const laravel = new Laravel(master.config)
+const main = defineCommand({
+  meta: {
+    name: 'genLaravel.ts',
+    description: 'Generate Laravel',
+  },
+  args: {
+    'version': {
+      type: 'string',
+      description: 'Define package/template version for generated project. This will be used in package.json file.',
+      valueHint: '1.0.0',
+    },
+    'non-interactive': {
+      alias: 'n',
+      type: 'boolean',
+      description: 'Run script in non-interactive mode',
+      default: false,
+    },
+  },
+  async run({ args }) {
+    const master = new Master(config)
+    const laravel = new Laravel(master.config)
 
-const argv = parseArgs(process.argv.slice(2))
+    await laravel.genPkg(
+      {
+        postProcessGeneratedPkg: (...args) => master.postProcessGeneratedPkg(...args),
+      },
+      args['non-interactive'],
+      args.version,
+    )
+  },
+})
 
-await laravel.genPkg(!argv.n, argv.version)
+await runMain(main)

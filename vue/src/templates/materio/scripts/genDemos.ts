@@ -1,12 +1,27 @@
 import { GenDemo } from '@templates/base/genDemo'
 import { Materio, config } from '@templates/materio'
-import parseArgs from 'minimist'
 
-const materio = new Materio(config)
+import { defineCommand, runMain } from 'citty'
 
-const demoGenerator = new GenDemo(materio.config)
+const main = defineCommand({
+  meta: {
+    name: 'genDemos.ts',
+    description: 'Generate demos',
+  },
+  args: {
+    staging: {
+      type: 'boolean',
+      description: 'Generate demos for staging environment',
+      default: false,
+    },
+  },
+  run({ args }) {
+    const materio = new Materio(config)
 
-const argv = parseArgs(process.argv.slice(2))
+    const demoGenerator = new GenDemo(materio.config)
+    demoGenerator.generate(args.staging)
+  },
+})
 
-// ℹ️ argv.staging can be undefined so we will convert it to boolean
-demoGenerator.generate(!!argv.staging)
+await runMain(main)
+

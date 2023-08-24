@@ -1,12 +1,27 @@
 import { GenDemo } from '@templates/base/genDemo'
 import { Sneat, config } from '@templates/sneat'
-import parseArgs from 'minimist'
 
-const sneat = new Sneat(config)
+import { defineCommand, runMain } from 'citty'
 
-const demoGenerator = new GenDemo(sneat.config)
+const main = defineCommand({
+  meta: {
+    name: 'genDemos.ts',
+    description: 'Generate demos',
+  },
+  args: {
+    staging: {
+      type: 'boolean',
+      description: 'Generate demos for staging environment',
+      default: false,
+    },
+  },
+  run({ args }) {
+    const sneat = new Sneat(config)
 
-const argv = parseArgs(process.argv.slice(2))
+    const demoGenerator = new GenDemo(sneat.config)
+    demoGenerator.generate(args.staging)
+  },
+})
 
-// ℹ️ argv.staging can be undefined so we will convert it to boolean
-demoGenerator.generate(!!argv.staging)
+await runMain(main)
+
