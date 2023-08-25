@@ -12,7 +12,7 @@ import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { execCmd, filterFileByLine, replaceDir, updateFile } from '@/utils/node'
+import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile } from '@/utils/node'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -61,30 +61,6 @@ export class GenJS extends Utils {
     })
   }
 
-  // 👉 removeEslintInternalRules
-  private removeEslintInternalRules() {
-    // Remove eslint internal rules dir
-    fs.removeSync(
-      path.join(this.tempDir, 'eslint-internal-rules'),
-    )
-
-    // Remove eslint internal rules from vscode config
-    const vsCodeConfigPath = path.join(this.tempDir, '.vscode', 'settings.json')
-
-    // Read config file as string as pass to json5 `parse` method
-    const vsCodeConfig = JSON5.parse(
-      fs.readFileSync(vsCodeConfigPath, { encoding: 'utf-8' }),
-    )
-
-    // Remove `rulePaths` from eslint options in config file
-    // ℹ️ `eslint.options` is single key
-    if ('eslint.options' in vsCodeConfig)
-      delete vsCodeConfig['eslint.options'].rulePaths
-
-    // Write back to config file
-    fs.writeJsonSync(vsCodeConfigPath, vsCodeConfig, { spaces: 2 })
-  }
-
   // 👉 updateEslintConfig
   private updateEslintConfig() {
     const eslintConfigPath = path.join(this.tempDir, '.eslintrc.js')
@@ -94,7 +70,7 @@ export class GenJS extends Utils {
     execCmd('pnpm add eslint-import-resolver-alias', { cwd: this.tempDir })
 
     // Read eslint config
-    let eslintConfig = fs.readFileSync(eslintConfigPath, { encoding: 'utf-8' })
+    let eslintConfig = readFileSyncUTF8(eslintConfigPath)
 
     /*
       Remove all the lines which contains word 'typescript' or 'antfu'
@@ -106,9 +82,6 @@ export class GenJS extends Utils {
         line.includes('typescript') || line.includes('antfu')
       ),
     )
-
-    // Remove eslint internal rules
-    eslintConfig = eslintConfig.mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, '')
 
     // Remove `*.d.ts` from ignorePatterns
     eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/g, '')
@@ -202,7 +175,7 @@ export class GenJS extends Utils {
       Object.entries<string>(pkgJson.scripts).map(([scriptName, script]) => {
         return [
           scriptName,
-          script.replace(/( --rulesdir eslint-internal-rules\/|vue-tsc --noEmit && | && vue-tsc --noEmit)/, ''),
+          script.replace(/(vue-tsc --noEmit && | && vue-tsc --noEmit)/, ''),
         ]
       }),
     )
@@ -353,7 +326,7 @@ export class GenJS extends Utils {
     this.updateEslintConfig()
 
     // Remove eslintInternal rules
-    this.removeEslintInternalRules()
+    this.removeEslintInternalRules(this.tempDir)
 
     /*
       ℹ️ Now we will generate the js & jsx files from ts & tsx files

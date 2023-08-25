@@ -787,6 +787,7 @@ export {}`,
     execCmd(`code --profile vue ${path.join(this.tempDir, this.templateConfig.nuxt.pkgName)}`)
 
     await this.copyVueProjectFiles(sourcePath, isJS, lang)
+    this.removeEslintInternalRules(this.projectPath)
 
     this.updatePkgJson(sourcePath)
 
