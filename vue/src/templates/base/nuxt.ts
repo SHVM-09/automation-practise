@@ -667,8 +667,9 @@ const handleError = () => clearError({ redirect: '/' })
 
     const serverDirPath = path.join(this.projectPath, 'server')
 
-    // Replace server dir
-    replaceDir(masterServerApiPath, serverDirPath)
+    // Copy server dir
+    fs.copySync(masterServerApiPath, serverDirPath)
+    // replaceDir(masterServerApiPath, serverDirPath)
 
     // Paths
     const templateImgDir = path.join(masterServerApiRepoPath, 'templates', this.templateConfig.templateName, 'public', 'images')
