@@ -522,7 +522,7 @@ export class Nuxt extends Utils {
         )
 
         newData = newData.mustReplace(
-          /(<script setup.*)/gm,
+          /(<script.*)/gm,
           '$1\nimport type { NuxtError } from \'nuxt/app\'',
         )
         // newData = addImport(newData, 'import type { NuxtError } from \'nuxt/app\'')
@@ -633,15 +633,23 @@ const handleError = () => clearError({ redirect: '/' })
 
     layoutsPaths.forEach(modifyLayout)
 
-    // Replace RouterView with NuxtLayout & NuxtPage
+    // Replace RouterView with NuxtLayout, NuxtPage & Loading indicator
     updateFile(
       path.join(this.projectPath, 'app.vue'),
-      data => data.mustReplace(
-        '<RouterView />',
-      `<NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>`,
-      ))
+      data => data
+        .mustReplace(
+          '<RouterView />',
+          `<NuxtLayout>
+            <div>
+              <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
+              <NuxtPage :transition="{ name: appRouteTransition, mode: 'out-in' }" />
+            </div>
+          </NuxtLayout>`,
+        ).mustReplace(
+          '} = useThemeConfig()',
+          ', appRouteTransition } = useThemeConfig()',
+        ),
+    )
 
     // Use slot in nuxt
     const defaultLayoutPath = path.join(layoutsDirPath, 'default.vue')
@@ -692,6 +700,51 @@ const handleError = () => clearError({ redirect: '/' })
     replaceDir(templateImgDir, projectImgDir)
   }
 
+  private handleRouterChanges() {
+    // Change RouterLink to NuxtLink
+    execCmd('fd --type file --exec sd RouterLink NuxtLink', { cwd: this.projectPath })
+
+    // Add import statement for NuxtLink as it can't be resolved like a RouterLink
+    const fileWithDynamicNuxtLink = execCmd('grep -rl "\'NuxtLink\'" --exclude-dir=.nuxt | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean)
+    fileWithDynamicNuxtLink?.forEach((filePath) => {
+      updateFile(
+        filePath,
+        data => data
+          .mustReplace(/'NuxtLink'/gm, 'NuxtLink')
+          .mustReplace(/(<script.*)/gm, '$1\nimport { NuxtLink } from \'#components\''),
+      )
+    })
+
+    // Change `router.push` to `navigateTo`
+    execCmd('fd --type file --exec sd "router\.push" "navigateTo"', { cwd: this.projectPath })
+
+    // Replace `router.replace` content with `navigateTo` + { replace: true }
+    execCmd('fd --type file --exec sd \'router\.replace\((.*)\)\' \'navigateTo($1, { replace: true })\'', { cwd: this.projectPath })
+  }
+
+  private async updateCustomRouteMeta(sourcePath: string) {
+    // Nuxt Docs: https://nuxt.com/docs/guide/directory-structure/pages/#typing-custom-metadata
+    const vueRouteMetaFilePath = path.join(sourcePath, 'env.d.ts')
+    const vueRouteMetaFileContent = readFileSyncUTF8(vueRouteMetaFilePath)
+    const routeMeta = Array.from(await vueRouteMetaFileContent.mustMatch(/interface RouteMeta {(?<meta>.*?)}/gms))[0].groups?.meta
+
+    if (!routeMeta)
+      throw consola.error(new Error('Unable to find route meta in env.d.ts file'))
+
+    // We are removing layout route meta because layout is now handled by nuxt
+    const nuxtRouteMeta = routeMeta.mustReplace(/layout\?:.*/gm, '')
+    const nuxtRouteMetaFilePath = path.join(this.projectPath, 'index.d.ts')
+    writeFileSyncUTF8(
+      nuxtRouteMetaFilePath,
+      `declare module '#app' {
+  interface PageMeta {${nuxtRouteMeta}}
+}
+
+// It is always important to ensure you import/export something when augmenting a type
+export {}`,
+    )
+  }
+
   private async genNuxt(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
@@ -732,9 +785,8 @@ const handleError = () => clearError({ redirect: '/' })
     // Open generated nuxt project in vscode
     execCmd(`code --profile vue ${path.join(this.tempDir, this.templateConfig.nuxt.pkgName)}`)
 
-    this.copyVueProjectFiles(sourcePath, isJS, lang)
+    await this.copyVueProjectFiles(sourcePath, isJS, lang)
 
-    // update package.json
     this.updatePkgJson(sourcePath)
 
     // Remove src prefix from various files
@@ -779,8 +831,9 @@ const handleError = () => clearError({ redirect: '/' })
 
     this.copyServerApi()
 
-    // Replace RouterLink with NuxtLink
-    execCmd('fd --type file --exec sd RouterLink NuxtLink', { cwd: this.projectPath })
+    this.handleRouterChanges()
+
+    await this.updateCustomRouteMeta(sourcePath)
 
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
