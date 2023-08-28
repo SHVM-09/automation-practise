@@ -1,3 +1,4 @@
+import consola from 'consola'
 import { compileScript, parse } from 'vue/compiler-sfc'
 import { tsCompile } from '@/sfcCompiler/utils'
 
@@ -7,7 +8,7 @@ export const sfcToJs = (sfc: string): SfcToJSReturnType => {
   const parsedSfc = parse(sfc)
 
   if (parsedSfc.descriptor.script !== null && parsedSfc.descriptor.scriptSetup !== null)
-    throw new Error('Both script & script setup found')
+    throw consola.error('Error while parsing SFC', e)
 
   // Skip if there's no script block
   if (parsedSfc.descriptor.script === null && parsedSfc.descriptor.scriptSetup === null)
