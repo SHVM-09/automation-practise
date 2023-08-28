@@ -2,6 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "exec": "node --loader @esbuild-kit/esm-loader",
     "lint": "eslint . --fix --ext .js,.ts,.mjs,.cjs"
   },
   "dependencies": {
