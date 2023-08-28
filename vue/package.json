@@ -9,7 +9,7 @@
     "acorn": "^8.8.2",
     "ast-types": "^0.14.2",
     "citty": "^0.1.2",
-    "consola": "^3.1.0",
+    "consola": "^3.2.3",
     "defu": "^6.1.2",
     "dotenv": "^16.0.3",
     "escodegen": "^2.0.0",

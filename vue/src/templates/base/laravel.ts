@@ -555,7 +555,7 @@ export class Laravel extends Utils {
     this.moveImages(lang, langConfigFile)
 
     // install packages
-    execCmd('pnpm', { cwd: this.projectPath })
+    execCmd('pnpm install', { cwd: this.projectPath })
 
     this.useStylesDir(lang, langConfigFile)
 

@@ -793,7 +793,7 @@ const handleError = () => clearError({ redirect: '/' })
 
     // Run lint to fix linting errors
     consola.start('Linting the code...')
-    execCmd('pnpm run lint', { cwd: this.projectPath })
+    execCmd('pnpm lint', { cwd: this.projectPath })
 
     // TODO: Remove eslint internal rules. I suggest creating separate utility function because we are doing this at multiple places
 

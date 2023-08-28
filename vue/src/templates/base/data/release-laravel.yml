@@ -36,7 +36,7 @@ jobs:
       
       - name: ⬇️ Install packages in automation-scripts dir
         working-directory: automation-scripts/vue
-        run: pnpm
+        run: pnpm install
         
       - name: 📦 Generate package
         working-directory: automation-scripts/vue

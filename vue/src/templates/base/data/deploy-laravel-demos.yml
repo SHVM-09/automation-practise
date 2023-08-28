@@ -32,7 +32,7 @@ jobs:
       
       - name: ⬇️ Install packages in automation-scripts dir
         working-directory: automation-scripts/vue
-        run: pnpm
+        run: pnpm install
 
       - name: ⚙️ Set LARAVEL_CORE_DIR_NAME environment variable from generated env file
         working-directory: automation-scripts/vue

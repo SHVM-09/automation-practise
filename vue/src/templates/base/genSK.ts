@@ -298,7 +298,7 @@ export class GenSK extends Utils {
     const sKProjectPath = this.templateConfig.paths.tSStarter
 
     // ℹ️ Run installation if there's no node_modules
-    execCmd('pnpm', { cwd: sKProjectPath })
+    execCmd('pnpm install', { cwd: sKProjectPath })
 
     // ℹ️ Run linting after filling all snippets to auto format
     execCmd('pnpm lint', { cwd: sKProjectPath })

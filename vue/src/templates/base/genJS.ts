@@ -366,7 +366,7 @@ export class GenJS extends Utils {
       Install packages
       ℹ️ We need this to run tsc & generate build
     */
-    execCmd('pnpm', { cwd: this.tempDir })
+    execCmd('pnpm install', { cwd: this.tempDir })
 
     // ❗ Generate build-icons.js before running tsc
     execCmd('pnpm build:icons', { cwd: this.tempDir })
