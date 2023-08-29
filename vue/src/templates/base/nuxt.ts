@@ -258,7 +258,6 @@ export class Nuxt extends Utils {
 
     const routerPluginPath = path.join(this.projectPath, 'plugins', 'router')
     const additionalRoutesPath = path.join(routerPluginPath, `additional-routes.${lang}`)
-    const routerFilePath = path.join(routerPluginPath, `index.${lang}`)
 
     const extendedRoutesStr = addImport(
       readFileSyncUTF8(additionalRoutesPath),
@@ -269,6 +268,12 @@ export class Nuxt extends Utils {
 
       // Remove export keyword
       .mustReplace(/^export const/gm, 'const')
+
+      // Use meta.middleware instead of redirect [Note: h('div') is workaround to avoid type error]
+      .mustReplace(
+        /(?<=name: 'index',\s+)redirect:( to => {.*?)(?=\s+},\s+{\s+path:)/gms,
+        'meta: {\nmiddleware:$1\n},\ncomponent: h(\'div\'),',
+      )
 
     const configContent = `${extendedRoutesStr}
 
