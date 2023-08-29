@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
@@ -329,6 +329,12 @@ export class Nuxt extends Utils {
     const viteConfigStr = readFileSyncUTF8(viteConfigPath)
     const { plugins: _, ...viteConfig } = getDefaultExportOptions(viteConfigMod)
 
+    // Replace relative path to "./src" dir with "../src" dir. Later src dir will be removed as prefix
+    const vueTsConfigPaths = langConfig.compilerOptions?.paths || {}
+    const nuxtTsConfigPaths: Exclude<TsConfigJson['compilerOptions'], undefined>['paths'] = {}
+    for (const pathAlias in vueTsConfigPaths)
+      nuxtTsConfigPaths[pathAlias] = vueTsConfigPaths[pathAlias].map(path => path.replace('./', '../'))
+
     nuxtConfigMod.exports.default.$args[0] = {
       css: [
         '@core/scss/template/index.scss',
@@ -379,10 +385,9 @@ export class Nuxt extends Utils {
         // typecheck: true,
         tsConfig: {
           compilerOptions: {
-            paths: langConfig.compilerOptions?.paths,
+            paths: nuxtTsConfigPaths,
           },
-          include: ['themeConfig.ts'],
-          exclude: ['src/@iconify/*'],
+          include: ['../themeConfig.ts'],
         },
       },
       // ℹ️ Disable source maps until this is resolved: https://github.com/vuetifyjs/vuetify-loader/issues/290
@@ -790,6 +795,17 @@ export {}`,
 
     this.updatePkgJson(sourcePath)
     this.removeEslintInternalRules(this.projectPath)
+
+    // Update eslint config to use .nuxt tsconfig
+    updateFile(
+      path.join(this.projectPath, '.eslintrc.js'),
+      data => data.mustReplace(
+        'typescript: {},',
+        `typescript: {
+        project: './.nuxt/tsconfig.json',
+      },`,
+      ),
+    )
 
     // Remove src prefix from various files
     const filesToRemoveSrcPrefix = [
