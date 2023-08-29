@@ -647,12 +647,9 @@ const handleError = () => clearError({ redirect: '/' })
           `<NuxtLayout>
             <div>
               <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
-              <NuxtPage :transition="{ name: appRouteTransition, mode: 'out-in' }" />
+              <NuxtPage />
             </div>
           </NuxtLayout>`,
-        ).mustReplace(
-          '} = useThemeConfig()',
-          ', appRouteTransition } = useThemeConfig()',
         ),
     )
 
