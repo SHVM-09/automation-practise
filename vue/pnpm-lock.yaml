@@ -52,6 +52,9 @@ devDependencies:
   '@antfu/eslint-config-ts':
     specifier: ^0.41.0
     version: 0.41.0(eslint@8.48.0)(typescript@5.2.2)
+  '@esbuild-kit/esm-loader':
+    specifier: ^2.5.5
+    version: 2.5.5
   '@types/escodegen':
     specifier: ^0.0.7
     version: 0.0.7
@@ -243,7 +246,7 @@ packages:
     resolution: {integrity: sha512-Qwfvj/qoPbClxCRNuac1Du01r9gvNOT+pMYtJDapfB1eoGN1YlJ1BixLyL9WVENRx5RXgNLdfYdx/CuswlGhMw==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
     dev: true
 
   /@esbuild/android-arm64@0.17.19:
