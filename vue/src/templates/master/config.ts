@@ -1,9 +1,10 @@
+import path from 'node:path'
+import * as url from 'node:url'
+
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
 import '@/utils/injectMustReplace'
 import { getTemplatePath } from '@/utils/paths'
-import path from 'path'
-import * as url from 'url'
 
 export type MasterConfig = TemplateBaseConfig & { paths: { freeInternalTs: string } }
 
@@ -40,7 +41,9 @@ export const config: MasterConfig = {
     '!pages',
     '!avatars',
     '!misc',
+    '!icons/payments',
     '!iconify-svg',
+    '!customizer-icons',
   ],
   paths: {
     tSFull: path.join(masterVuePath, 'typescript-version', 'full-version'),

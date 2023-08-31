@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
@@ -7,7 +7,6 @@ import { Octokit } from 'octokit'
 import type { Tracker } from '@types'
 import { consola } from 'consola'
 import { loadFile, writeFile } from 'magicast'
-import { updateVitePluginConfig } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 
 import { Utils } from '@/templates/base/helper'
@@ -37,6 +36,7 @@ export class GenSK extends Utils {
     dotenv.config()
 
     // create new octokit instance
+    // eslint-disable-next-line n/prefer-global/process
     const octokit = new Octokit({ auth: process.env.GitHubPersonalToken })
 
     // Tracker file
@@ -107,8 +107,8 @@ export class GenSK extends Utils {
 
     // Temporary move 404 page outside of pages dir because we will remove whole pages dir in upcoming statements
     fs.moveSync(
-      path.join(destPath, '[...all].vue'),
-      path.join(destPath, '..', '[...all].vue'),
+      path.join(destPath, '[...error].vue'),
+      path.join(destPath, '..', '[...error].vue'),
     )
 
     fs.removeSync(destPath)
@@ -119,28 +119,28 @@ export class GenSK extends Utils {
 
     // Move 404 page from src (we moved above) to pages dir
     fs.moveSync(
-      path.join(destPath, '..', '[...all].vue'),
-      path.join(destPath, '[...all].vue'),
+      path.join(destPath, '..', '[...error].vue'),
+      path.join(destPath, '[...error].vue'),
     )
   }
 
   private updateRouter() {
     updateFile(
-      path.join(this.tempDir, 'src', 'router', 'index.ts'),
+      path.join(this.tempDir, 'src', 'plugins', 'router', 'index.ts'),
       (routerData) => {
         /*
           Remove root route
           ℹ️ We assume we won't add any extra route manually other than root route
-          Regex: https://regex101.com/r/uMDiMU/3
+          Regex: https://regex101.com/r/0TgITH/1
         */
-        routerData = routerData.mustReplace(/routes: \[(\n|.)*],/gm, 'routes: [\n    ...setupLayouts(routes)\n  ],')
+        routerData = routerData.mustReplace(/extendRoutes: pages => \[(\n|.)*],/gm, 'extendRoutes: pages => [\n   ...[...pages].map(route => recursiveLayouts(route))\n  ],')
 
         /*
           Remove router.beforeEach hook
           ℹ️ Assumes last `)}` in router file is of router.beforeEach hook
-          Regex: https://regex101.com/r/Dv64Hy/1
+          Regex: https://regex101.com/r/ywccpB/1
         */
-        routerData = routerData.mustReplace(/router\.beforeEach(\n|.)*}\)/gm, '')
+        routerData = routerData.mustReplace(/setupGuards\(router\)/gm, '')
 
         // ℹ️ Remove unused imports. We are removing whole line which includes `isUserLoggedIn` import
         routerData = routerData.split('\n')
@@ -179,7 +179,7 @@ export class GenSK extends Utils {
         // ❗ Order matters: First of all we will remove i18n, shortcuts, notification & theme-switcher component rendering & import
         // ℹ️ We will use "<NavbarThemeSwitcher" instead of "NavbarThemeSwitcher" because we don't want to remove its import as we will later add NavbarThemeSwitcher again
         data = data.split('\n')
-          .filter(line => !['NavSearchBar', 'NavBarI18n', 'NavbarShortcuts', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavSearchBar', 'NavbarShortcuts', '<NavbarThemeSwitcher', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // ❗ Order matters: now let's NavbarThemeSwitcher just before VSpacer
@@ -201,7 +201,7 @@ export class GenSK extends Utils {
       (data) => {
         // Remove i18n, shortcuts & notification
         data = data.split('\n')
-          .filter(line => !['NavSearchBar', 'NavBarI18n', 'NavbarShortcuts', 'NavBarNotifications'].some(i => line.includes(i)))
+          .filter(line => !['NavSearchBar', 'NavbarShortcuts', 'NavBarNotifications'].some(i => line.includes(i)))
           .join('\n')
 
         // Remove search button
@@ -218,12 +218,12 @@ export class GenSK extends Utils {
     )
   }
 
-  private updateMainTs() {
+  private removeBuyNowButton() {
     updateFile(
-      path.join(this.tempDir, 'src', 'main.ts'),
+      path.join(this.tempDir, 'src', 'App.vue'),
       (data) => {
         // Remove abilitiesPlugin injection in app instance
-        data = data.mustReplace(/app\.use\(abilitiesPlugin.*(\n.*){2}/gm, '')
+        data = data.mustReplace(/<BuyNow \/>/gm, '')
 
         // Remove i18n, acl & fake-db => Remove lines that contains specific word
         data = data.split('\n')
@@ -247,7 +247,7 @@ export class GenSK extends Utils {
     // Set enableI18n to false in themeConfig.ts
     updateFile(
       path.join(this.tempDir, 'themeConfig.ts'),
-      themeConfig => themeConfig.mustReplace(/enableI18n: \w+/g, 'enableI18n: false'),
+      themeConfig => themeConfig.mustReplace(/i18n: {\n *enable: true,/gm, 'i18n: {\n enable: false,'),
     )
   }
 
@@ -255,12 +255,6 @@ export class GenSK extends Utils {
     updateFile(
       path.join(this.tempDir, 'vite.config.ts'),
       (viteConfig) => {
-        // Remove additional email routes
-        viteConfig = viteConfig.mustReplace(
-          /(?<pagesStart>Pages\({)(?<beforeOnRoutesGeneratedConfig>(?:.|\n)*\n)(?<commentBeforeOnRoutesGenerated>\n\s*\/\/.*\n)(?<onRoutesGenerated>\s+onRoutesGenerated.*(?:\n\s{7,}.+)+\n.*\n)/gm,
-          '$1$2',
-        )
-
         // Remove i18n plugin
         viteConfig = viteConfig.mustReplace(/VueI18nPlugin\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 
@@ -278,11 +272,6 @@ export class GenSK extends Utils {
 
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
     const mod = await loadFile(viteConfigPath)
-
-    // Remove i18n auto import preset from AutoImport plugin
-    updateVitePluginConfig(mod, 'unplugin-auto-import/vite', {
-      imports: ['vue', 'vue-router', '@vueuse/core', '@vueuse/math', 'pinia'],
-    })
 
     await writeFile(mod.$ast, viteConfigPath, {
       quote: 'single',
@@ -314,8 +303,6 @@ export class GenSK extends Utils {
       this.templateConfig.packageCopyIgnorePatterns,
     )
 
-    this.removeBuyNow(this.tempDir)
-
     this.removeViews()
 
     this.replacePages()
@@ -324,12 +311,14 @@ export class GenSK extends Utils {
 
     this.replaceNavigationData()
 
-    // Remove fake-db dir
-    fs.removeSync(path.join(this.tempDir, 'src', '@fake-db'))
+    // Remove fake-api  dir
+    fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'fake-api'))
+    fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'router', 'additional-routes.ts'))
+    fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'router', 'guards.ts'))
 
     this.updateLayouts()
 
-    this.updateMainTs()
+    this.removeBuyNowButton()
 
     this.removeUnwantedImages()
 

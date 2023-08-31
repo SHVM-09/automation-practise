@@ -3,7 +3,7 @@ import type { VerticalNavItems } from '@/@layouts/types'
 export default [
   {
     title: 'Home',
-    to: { name: 'index' },
+    to: { name: 'root' },
     icon: { icon: 'mdi-home-outline' },
   },
   {

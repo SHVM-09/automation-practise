@@ -1,4 +1,4 @@
-import { Laravel } from '@templates/base/laravel'
+import { Laravel } from '@templates/base/genLaravel'
 import { Master, config } from '@templates/master'
 import { defineCommand, runMain } from 'citty'
 
