@@ -220,6 +220,9 @@ export class Nuxt extends Utils {
   }
 
   private updatePlugins() {
+    // Remove pinia plugin because we are using pinia nuxt module
+    fs.removeSync(path.join(this.projectPath, 'plugins', 'pinia.ts'))
+
     const pluginFiles = globbySync([
       'plugins/*.ts',
       'plugins/*/index.ts',
@@ -375,12 +378,7 @@ export class Nuxt extends Utils {
       ],
       imports: {
         dirs: ['./@core/utils', './@core/composable/', './plugins/*/composables/*'],
-        presets: [
-          {
-            from: 'vue-i18n',
-            imports: ['useI18n'],
-          },
-        ],
+        presets: ['vue-i18n', 'pinia'],
       },
       hooks: {
         // We are adding hooks so that we can use them later for injecting code using easy regex
