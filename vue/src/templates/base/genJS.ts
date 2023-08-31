@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
@@ -266,16 +266,6 @@ export class GenJS extends Utils {
     fs.removeSync(tsConfigPath)
   }
 
-  // 👉 updateGitIgnore
-  private updateGitIgnore() {
-    updateFile(
-      path.join(this.tempDir, '.gitignore'),
-
-      // replace: src/@iconify/*.js => src/@iconify/icons-bundle.js
-      gitIgnore => gitIgnore.mustReplace(/(?<=.*@iconify\/)\*\.js/gm, 'icons-bundle.js'),
-    )
-  }
-
   // 👉 genJS
   async genJS() {
     const {
@@ -359,9 +349,6 @@ export class GenJS extends Utils {
 
     // create [jsconfig.json](https://code.visualstudio.com/docs/languages/jsconfig) for vscode
     this.genJSConfig()
-
-    // Remove iconify js files from gitignore
-    this.updateGitIgnore()
 
     /*
       Run build command
