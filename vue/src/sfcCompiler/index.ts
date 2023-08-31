@@ -21,7 +21,35 @@ export class SFCCompiler {
       */
 
       // Remove generated `_useCssVars` when v-bind is used in style block (https://vuejs.org/api/sfc-css-features.html#v-bind-in-css)
-      const _compiledSfc = compiledSfc.replace(/^\s+_useCssVars.*?}\)\);\n/gms, '')
+      let _compiledSfc = compiledSfc.replace(/^\s+_useCssVars.*?}\)\);\n/gms, '')
+
+      /*
+        Handle await usage in script setup
+        When we use await for API calls in script setup vue generates code like below:
+        ```
+        let __temp, __restore
+
+        // some other code
+
+        const result = (
+          ([__temp,__restore] = _withAsyncContext(() => new Promise(r => setTimeout(r, 2000)))),
+          __temp = await __temp,
+          __restore(),
+          __temp
+        )
+        ```
+
+        We need to remove this code and replace it back with normal `await` keyword & remove `__temp` & `__restore` variables
+      */
+      if (_compiledSfc.includes('let __temp, __restore')) {
+        _compiledSfc = _compiledSfc.mustReplace(
+          /\(\[__temp, __restore\] = _withAsyncContext\(\(\) => (.*?)\),\s*__temp = await __temp,\s*__restore\(\),\s*__temp\);/gms,
+          'await $1',
+        )
+
+        // Remove `let __temp, __restore` line
+        _compiledSfc = _compiledSfc.mustReplace(/let __temp, __restore;\n/gm, '')
+      }
 
       if (isScriptSetup) {
         const codeComments = extractComments(_compiledSfc).filter(cmt => cmt.nextLine.trim())
