@@ -415,6 +415,10 @@ export class Nuxt extends Utils {
     // Add modules
     addNuxtModule(nuxtConfigMod, '@vueuse/nuxt')
 
+    // Add pinia
+    this.pkgsToInstall.devDependencies.push('@pinia/nuxt')
+    addNuxtModule(nuxtConfigMod, '@pinia/nuxt')
+
     // Add imports
     const importsToAdd: ImportItemInput[] = [
       { from: 'node:url', imported: 'fileURLToPath' },
