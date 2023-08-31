@@ -361,7 +361,10 @@ export class Nuxt extends Utils {
             path: '~/components/global',
             global: true,
           },
-          '~/components',
+          {
+            path: '~/components',
+            pathPrefix: false,
+          },
         ],
       },
       plugins: [
