@@ -51,6 +51,9 @@ export class SFCCompiler {
         _compiledSfc = _compiledSfc.mustReplace(/let __temp, __restore;\n/gm, '')
       }
 
+      // handle defineExpose => __expose
+      _compiledSfc = _compiledSfc.replace('__expose', 'defineExpose')
+
       if (isScriptSetup) {
         const codeComments = extractComments(_compiledSfc).filter(cmt => cmt.nextLine.trim())
 
