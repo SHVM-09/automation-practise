@@ -881,7 +881,9 @@ export const $api = ofetch.create({
     updateFile(
       path.join(this.projectPath, '.eslintrc.js'),
       data => data.mustReplace(
-        'typescript: {},',
+        `typescript: {
+        project: 'tsconfig.json',
+      },`,
         `typescript: {
         project: './.nuxt/tsconfig.json',
       },`,
