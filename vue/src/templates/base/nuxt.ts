@@ -784,7 +784,8 @@ export {}`,
     // pattern: createUrl\((.*?}\))\)
 
     // Remove `createUrl` usage from fetch hook using fd
-    execCmd('fd --type file --exec sd \'createUrl\((.*?}\))\)\' \'$1\'', { cwd: this.projectPath })
+    // eslint-disable-next-line @typescript-eslint/quotes
+    execCmd(`fd --type file --exec sd 'createUrl\\((.*?}\\))\\)' '$1'`, { cwd: this.projectPath })
 
     // update .env & .env.example files
     ;[
