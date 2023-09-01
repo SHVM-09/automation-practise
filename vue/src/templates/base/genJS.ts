@@ -69,9 +69,6 @@ export class GenJS extends Utils {
     // Add import resolver package
     execCmd('pnpm add eslint-import-resolver-alias', { cwd: this.tempDir })
 
-    // Read eslint config
-    let eslintConfig = readFileSyncUTF8(eslintConfigPath)
-
     /*
       Remove all the lines which contains word 'typescript' or 'antfu'
       ℹ️ We will remove line that contains word 'antfu' => We need to remove antfu eslint config as this also add TS rules
@@ -82,6 +79,10 @@ export class GenJS extends Utils {
         line.includes('typescript') || line.includes('antfu')
       ),
     )
+
+    // ❗ It's important to read after filtering the file because we are removing some lines
+    // Read eslint config
+    let eslintConfig = readFileSyncUTF8(eslintConfigPath)
 
     // Remove `*.d.ts` from ignorePatterns
     eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/g, '')
