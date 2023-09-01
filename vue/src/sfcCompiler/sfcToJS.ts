@@ -8,7 +8,7 @@ export const sfcToJs = (sfc: string): SfcToJSReturnType => {
   const parsedSfc = parse(sfc)
 
   if (parsedSfc.descriptor.script !== null && parsedSfc.descriptor.scriptSetup !== null)
-    throw consola.error('Error while parsing SFC', e)
+    throw consola.error('Error while parsing SFC')
 
   // Skip if there's no script block
   if (parsedSfc.descriptor.script === null && parsedSfc.descriptor.scriptSetup === null)
