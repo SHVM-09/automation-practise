@@ -825,13 +825,10 @@ export function useApi<T>(url: string, options: UseFetchOptions<T> = {}) {
       path.join(this.projectPath, 'utils', 'api.ts'),
       `import { ofetch } from 'ofetch'
 
-export const $api = () => {
-  const config = useRuntimeConfig()
-
-  return ofetch.create({
-    baseURL: config.public.apiBaseUrl,
-  })
-}`,
+export const $api = ofetch.create({
+  // ℹ️ We have to duplicate the \`nuxt.config.ts\`'s  \`runtimeConfig.public.apiBaseUrl\` here.
+  baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
+})`,
     )
   }
 
