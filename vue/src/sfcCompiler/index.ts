@@ -1,5 +1,7 @@
+import '@/utils/injectMustMatch'
 import { parse } from 'acorn'
 import type { namedTypes as n } from 'ast-types'
+import { consola } from 'consola'
 import { generate } from 'escodegen'
 import { sfcToJs } from './sfcToJS'
 import { extractComments, generateCodeFromAST } from './utils'
@@ -11,7 +13,7 @@ export class SFCCompiler {
    * @param sfc Vue SFC as string
    * @returns Compiled (JS) script block of SFC just like tsc does with ts & tsx files
    */
-  compileSFCScript(sfc: string): string | undefined {
+  async compileSFCScript(sfc: string): Promise<string | undefined> {
     const { code: compiledSfc, isCompiled, isScriptSetup } = sfcToJs(sfc)
 
     if (isCompiled && compiledSfc) {
@@ -57,9 +59,6 @@ export class SFCCompiler {
       if (isScriptSetup) {
         const codeComments = extractComments(_compiledSfc).filter(cmt => cmt.nextLine.trim())
 
-        // I think I don't need to format the generated code
-        // const compiledFormattedSfc = await formatCode(_compiledSfc, eslintConfigFilePath)
-
         const jsSfcScriptSetup: string[] = []
 
         // @ts-expect-error This returns the program AST
@@ -69,6 +68,16 @@ export class SFCCompiler {
         }) as n.Program
 
         jsSfcScriptSetup.push(...this.extractImports(body))
+
+        if (sfc.includes('defineOptions({')) {
+          const defineOptionsMatch = await sfc.mustMatch(/(?<defineOptions>defineOptions.*?\n}\))/gms)
+          const defineOptionsStr = Array.from(defineOptionsMatch)[0].groups?.defineOptions
+
+          if (!defineOptionsStr)
+            throw consola.error('Error extracting `defineOptions` from SFC: ', sfc)
+
+          jsSfcScriptSetup.push(defineOptionsStr)
+        }
 
         jsSfcScriptSetup.push(...this.extractPropsEmitsSetup(body))
 

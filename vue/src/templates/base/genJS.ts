@@ -99,9 +99,23 @@ export class GenJS extends Utils {
     // Add vite aliases in eslint import config
     const viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
     const importAliases = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
-    const importAliasesEslintConfig = `alias: {'extensions': ['.ts', '.js', '.tsx', '.jsx', '.mjs'], 'map': ${JSON.stringify([...importAliases].map(m => m.groups && Object.values(m.groups)))}}`
+    const importAliasesStr = JSON.stringify([...importAliases].map(m => m.groups && Object.values(m.groups)))
+      .mustReplace(/],\s?\[/gm, '],\n[')
+      .mustReplace(/\[\[/gm, '[\n[')
+      .mustReplace(']]', ']\n]')
 
-    eslintConfig = eslintConfig.mustReplace(/(module\.exports = {(\n|.)*\s{6}},)((\n|.)*)/g, `$1${importAliasesEslintConfig}$3`)
+    const importAliasesEslintConfig = `alias: {
+      'extensions': [
+        '.ts',
+        '.js',
+        '.tsx',
+        '.jsx',
+        '.mjs'
+      ],
+      'map': ${importAliasesStr}
+    }`
+
+    eslintConfig = eslintConfig.mustReplace(/(node:.*\n.*extensions.*\n.*)/gm, `$1\n${importAliasesEslintConfig}`)
 
     fs.writeFileSync(eslintConfigPath, eslintConfig, { encoding: 'utf-8' })
   }
@@ -128,29 +142,31 @@ export class GenJS extends Utils {
     tSFiles.forEach(f => fs.removeSync(f))
   }
 
-  private compileSFCs() {
+  private async compileSFCs() {
     const sFCCompiler = new SFCCompiler()
 
     // Collect all the SFCs
     const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true })
 
     // Compile all SFCs
-    sFCPaths.forEach((sFCPath) => {
+    await Promise.all(
+      sFCPaths.map(async (sFCPath) => {
       // Read SFC
-      const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' })
+        const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' })
 
-      // Compile SFC's script block
-      const compiledSFCScript = sFCCompiler.compileSFCScript(sFC)
+        // Compile SFC's script block
+        const compiledSFCScript = await sFCCompiler.compileSFCScript(sFC)
 
-      /*
+        /*
         If compiledSFCScript is string => It is compiled => Write compiled SFC script block back to SFC
         else it's undefined => There's no script block => No compilation => Don't touch the file
       */
-      if (compiledSFCScript) {
-        const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/g, compiledSFCScript.trim())
-        fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
-      }
-    })
+        if (compiledSFCScript) {
+          const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/g, compiledSFCScript.trim())
+          fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
+        }
+      }),
+    )
   }
 
   // 👉 updatePkgJson
@@ -357,7 +373,7 @@ export class GenJS extends Utils {
     this.removeAllTSFile()
 
     // Compile all SFCs written using TS to SFC JS
-    this.compileSFCs()
+    await this.compileSFCs()
 
     this.updatePkgJson()
 
