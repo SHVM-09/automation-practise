@@ -344,6 +344,7 @@ export class Nuxt extends Utils {
       nuxtTsConfigPaths[pathAlias] = vueTsConfigPaths[pathAlias].map(path => path.replace('./', '../'))
 
     nuxtConfigMod.exports.default.$args[0] = {
+      devtools: { enabled: true },
       css: [
         '@core/scss/template/index.scss',
         '@styles/styles.scss',
@@ -459,6 +460,27 @@ export class Nuxt extends Utils {
         newData = newData.mustReplace(
           /(\n +sourcemap: {)/gm,
           '// ℹ️ Disable source maps until this is resolved: https://github.com/vuetifyjs/vuetify-loader/issues/290$1',
+        )
+
+        // Add runtimeConfig for baseUrl
+        newData = newData.mustReplace(
+          'components: {',
+          `/*
+    ❗ Please read the docs before updating runtimeConfig
+    https://nuxt.com/docs/guide/going-further/runtime-config
+  */
+  runtimeConfig: {
+    // Private keys are only available on the server
+    // yourSecret: '123',
+
+    /*
+      Public keys that are exposed to the client.
+    */
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
+    },
+  },
+  components: {`,
         )
 
         return removePathPrefix(newData, 'src')
@@ -758,6 +780,58 @@ export {}`,
     )
   }
 
+  private useNuxtFetch() {
+    // pattern: createUrl\((.*?}\))\)
+
+    // Remove `createUrl` usage from fetch hook using fd
+    execCmd('fd --type file --exec sd \'createUrl\((.*?}\))\)\' \'$1\'', { cwd: this.projectPath })
+
+    // update .env & .env.example files
+    ;[
+      path.join(this.projectPath, '.env'),
+      path.join(this.projectPath, '.env.example'),
+    ].forEach((filePath) => {
+      updateFile(
+        filePath,
+        () => filePath.includes('example')
+          ? 'NUXT_PUBLIC_API_BASE_URL='
+          : 'NUXT_PUBLIC_API_BASE_URL=http://localhost:3000/api',
+      )
+    })
+
+    // Update `useApi`
+    writeFileSyncUTF8(
+      path.join(this.projectPath, 'composables', 'useApi.ts'),
+      `import { defu } from 'defu'
+import type { UseFetchOptions } from 'nuxt/app'
+
+export function useApi<T>(url: string, options: UseFetchOptions<T> = {}) {
+  const config = useRuntimeConfig()
+
+  const defaults: UseFetchOptions<T> = {
+    baseURL: config.public.apiBaseUrl,
+    key: url,
+  }
+
+  // for nice deep defaults, please use unjs/defu
+  const params = defu(options, defaults)
+
+  return useFetch(url, params)
+}`,
+    )
+
+    // update `$api`
+    writeFileSyncUTF8(
+      path.join(this.projectPath, 'utils', 'api.ts'),
+      `import { ofetch } from 'ofetch'
+
+export const $api = ofetch.create({
+  // ℹ️ We have to duplicate the \`nuxt.config.ts\`'s  \`runtimeConfig.public.apiBaseUrl\` here.
+  baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
+})`,
+    )
+  }
+
   private async genNuxt(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
@@ -856,7 +930,21 @@ export {}`,
 
     this.copyServerApi()
 
+    // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
+    writeFileSyncUTF8(
+      path.join(this.projectPath, 'components', 'VueApexCharts.client.vue'),
+      `<script setup lang="ts">
+import VueApexCharts from 'vue3-apexcharts'
+</script>
+
+<template>
+  <VueApexCharts />
+</template>`,
+    )
+
     this.handleRouterChanges()
+
+    this.useNuxtFetch()
 
     await this.updateCustomRouteMeta(sourcePath)
 
