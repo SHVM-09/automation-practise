@@ -43,5 +43,6 @@ module.exports = {
   ],
   rules: {
     'no-console': 'off',
+    'antfu/top-level-function': 'off',
   },
 }

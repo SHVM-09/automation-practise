@@ -168,7 +168,7 @@ export class GenJS extends Utils {
 
     delete pkgJson.scripts.typecheck
     // Update build:icons script
-    pkgJson.scripts['build:icons'] = 'node src/@iconify/build-icons.js'
+    pkgJson.scripts['build:icons'] = 'tsx src/plugins/iconify/build-icons.js'
 
     // Remove vue-tsc --noEmit & ` --rulesdir eslint-internal-rules/` from all scripts
     pkgJson.scripts = Object.fromEntries(
@@ -200,6 +200,18 @@ export class GenJS extends Utils {
       path.join(this.tempDir, 'index.html'),
       indexHTML => indexHTML.mustReplace('main.ts', 'main.js'),
     )
+  }
+
+  // update Plugin util that register app plugins
+  private updatePluginUtil() {
+    // Path to plugin.ts
+    const pluginFile = path.join(this.tempDir, 'src', '@core', 'utils', 'plugins.ts')
+    let plugin = fs.readFileSync(pluginFile, { encoding: 'utf-8' })
+
+    // Replace `.ts` extensions with `.js` extension
+    plugin = plugin.mustReplace('.ts', '.js')
+
+    fs.writeFileSync(pluginFile, plugin, { encoding: 'utf-8' })
   }
 
   /**
@@ -324,6 +336,9 @@ export class GenJS extends Utils {
         1. Disable source maps
     */
     this.updateTSConfig()
+
+    // Update plugin util
+    this.updatePluginUtil()
 
     /*
       Install packages
