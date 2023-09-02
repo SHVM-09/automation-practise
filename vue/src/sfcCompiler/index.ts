@@ -54,7 +54,7 @@ export class SFCCompiler {
       }
 
       // handle defineExpose => __expose
-      _compiledSfc = _compiledSfc.replace('__expose', 'defineExpose')
+      _compiledSfc = _compiledSfc.replaceAll('__expose', 'defineExpose')
 
       if (isScriptSetup) {
         const codeComments = extractComments(_compiledSfc).filter(cmt => cmt.nextLine.trim())
@@ -83,15 +83,27 @@ export class SFCCompiler {
 
         const jsSfc: string[] = []
 
+        // ℹ️ We have to do normalization to avoid indentation & formatting differences. E.g. {a,b} vs { a, b }
+        const _normalizeLineForComments = (line: string) => line.trim().replaceAll(' ', '')
+
         // ℹ️ We need to join and split again because jsSfcScriptSetup may contain whole block as single element and we want it to be single line
         jsSfcScriptSetup.join('\n').split('\n').forEach((line) => {
-          // ℹ️ We need to trim line & comment next line to avoid indentation differences
-          const comment = codeComments.find(cmt => line.trim() === cmt.nextLine.trim())
+          const comment = codeComments.find(cmt => _normalizeLineForComments(line) === _normalizeLineForComments(cmt.nextLine))
 
           if (comment) {
+            const normalizedNextLine = _normalizeLineForComments(comment.nextLine)
+            if (!(normalizedNextLine.startsWith('//') || normalizedNextLine.startsWith('/*'))) {
+              const nextComment = codeComments.find(cmt => _normalizeLineForComments(comment.comment) === _normalizeLineForComments(cmt.nextLine))
+
+              if (nextComment) {
+                // ℹ️ Add blank line before comment
+                jsSfc.push('', nextComment.comment)
+              }
+            }
+
+            // Add actual comment after the previous dependent comment is added
             // ℹ️ Add blank line before comment
-            jsSfc.push('')
-            jsSfc.push(comment.comment)
+            jsSfc.push('', comment.comment)
           }
           jsSfc.push(line)
         })

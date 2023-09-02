@@ -39,10 +39,12 @@ export const extractComments = (content: string) => {
   let isMultilineCommentActive = false
 
   lines.forEach((line, index) => {
-    if (isMultilineCommentActive) {
-      multilineComment += line === '*/' ? line : (`${line}\n`)
+    const _line = line.trim()
 
-      if (line === '*/') {
+    if (isMultilineCommentActive) {
+      multilineComment += _line === '*/' ? _line : (`${_line}\n`)
+
+      if (_line === '*/') {
         isMultilineCommentActive = false
         comments.push({
           comment: multilineComment,
@@ -52,23 +54,28 @@ export const extractComments = (content: string) => {
     }
     else {
       // find block comment
-      if (line.match(/^\s*\/\//g)) {
+      if (_line.match(/^\s*\/\//g)) {
         // ℹ️ Don't include typescript eslint comments
-        if (!line.includes(' @typescript-eslint/')) {
+        if (!_line.includes(' @typescript-eslint/')) {
           comments.push({
-            comment: line,
+            comment: _line,
             nextLine: lines[index + 1],
           })
         }
       }
 
       // Find multiline comment
-      if (line.startsWith('/*')) {
-        if (line.endsWith('*/'))
-          throw new Error('Single line comment using /* */ syntax found!')
-
-        multilineComment = '/*'
-        isMultilineCommentActive = true
+      if (_line.startsWith('/*')) {
+        if (_line.endsWith('*/')) {
+          comments.push({
+            comment: _line,
+            nextLine: lines[index + 1],
+          })
+        }
+        else {
+          multilineComment = '/*'
+          isMultilineCommentActive = true
+        }
       }
     }
   })
