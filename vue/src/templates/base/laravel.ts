@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
@@ -57,10 +57,10 @@ export class Laravel extends Utils {
       { cwd: this.tempDir },
     )
 
-    execCmd(
-      'php artisan sail:install',
-      { cwd: this.projectPath },
-    )
+    // execCmd(
+    //   'php artisan sail:install',
+    //   { cwd: this.projectPath },
+    // )
 
     // remove unwanted js/ts dir and create new according to `isTs`
     fs.removeSync(
@@ -156,6 +156,10 @@ export class Laravel extends Utils {
       },
     })
 
+    updateVitePluginConfig(mod, 'unplugin-vue-router/vite', {
+      routesFolder: `resources/${lang}/pages`,
+    })
+
     addVitePlugin(mod, {
       from: 'laravel-vite-plugin',
       constructor: 'laravel',
@@ -169,6 +173,37 @@ export class Laravel extends Utils {
     await writeFile(mod.$ast, viteConfigPath, {
       quote: 'single',
       trailingComma: true,
+    })
+  }
+
+  // 👉 updateTSConfig
+  private updateTSConfig() {
+    // Path to tsconfig.json
+    const tsConfigPath = path.join(this.projectPath, 'tsconfig.json')
+
+    // read tsconfig
+    const tsConfig = fs.readJsonSync(tsConfigPath)
+
+    // adding base url in to tsconfig
+    if (!tsConfig.compilerOptions.baseUrl)
+      tsConfig.compilerOptions = { baseUrl: './', ...tsConfig.compilerOptions }
+
+    // Write back to tsconfig
+    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 2 })
+  }
+
+  private updateEnvFile() {
+    // update .env & .env.example files
+    [
+      path.join(this.projectPath, '.env'),
+      path.join(this.projectPath, '.env.example'),
+    ].forEach((filePath) => {
+      updateFile(
+        filePath,
+        (data) => {
+          return filePath.includes('example') ? `${data}VITE_API_BASE_URL=` : `${data}VITE_API_BASE_URL=http://localhost:5173/api`
+        },
+      )
     })
   }
 
@@ -267,7 +302,7 @@ export class Laravel extends Utils {
     // update relative path to @core's vuetify SASS var file
     updateFile(
       path.join(stylesDirPath, 'variables', '_vuetify.scss'),
-      data => replacePath(data, '../@core-scss', '@core'),
+      data => replacePath(data, '../../../@core-scss', '../@core'),
     )
   }
 
@@ -551,6 +586,12 @@ export class Laravel extends Utils {
     // Update vite config
     await this.updateViteConfig(lang)
 
+    // Update tsconfig.json
+    this.updateTSConfig()
+
+    // Update env file
+    this.updateEnvFile()
+
     // ❗ We are moving images before doing `pnpm` because we have postinstall script that can generate SVG based on iconify-svg dir and this dir is in images
     this.moveImages(lang, langConfigFile)
 
@@ -600,11 +641,16 @@ export class Laravel extends Utils {
     const { TSFull } = this.templateConfig.laravel.paths
 
     // Set current laravel version in class property
-    const laravelPkgJSON: PackageJson = fs.readJSONSync(
-      path.join(TSFull, 'package.json'),
-    )
+    if (this.isGenLaravelForFirstTime) {
+      this.currentLaravelVersion = '0.0.0'
+    }
+    else {
+      const laravelPkgJSON: PackageJson = fs.readJSONSync(
+        path.join(TSFull, 'package.json'),
+      )
 
-    this.currentLaravelVersion = laravelPkgJSON.version || '0.0.0'
+      this.currentLaravelVersion = laravelPkgJSON.version || '0.0.0'
+    }
 
     // Generate Laravel TS Full
     await this.genLaravel()
