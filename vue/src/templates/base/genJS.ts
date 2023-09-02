@@ -162,7 +162,7 @@ export class GenJS extends Utils {
     await Promise.all(
       sFCPaths.map(async (sFCPath) => {
       // Read SFC
-        const sFC = fs.readFileSync(sFCPath, { encoding: 'utf-8' })
+        const sFC = readFileSyncUTF8(sFCPath)
 
         // Compile SFC's script block
         const compiledSFCScript = await sFCCompiler.compileSFCScript(sFC)
