@@ -84,11 +84,14 @@ export class GenJS extends Utils {
     // Read eslint config
     let eslintConfig = readFileSyncUTF8(eslintConfigPath)
 
-    // Remove `*.d.ts` from ignorePatterns
-    eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/g, '')
+    // Old (Remove `*.d.ts` from ignorePatterns)
+    // We'll ignore generated d.ts files
+    // eslintConfig = eslintConfig.mustReplace(/(?<=ignorePatterns.*), '\*.d.ts'/g, '')
 
-    // Replace .ts extension with .js
-    eslintConfig = eslintConfig.replaceAll('.ts', '.js')
+    // Replace .ts extension with .js & revert back *.d.js to *.d.ts
+    eslintConfig = eslintConfig
+      .replaceAll('.ts', '.js')
+      .mustReplace(/\*\.d\.js/gm, '*.d.ts')
 
     /*
       Add auto-import json file in extends array
