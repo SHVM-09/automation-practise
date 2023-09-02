@@ -258,6 +258,9 @@ export class GenSK extends Utils {
         // Remove i18n plugin
         viteConfig = viteConfig.mustReplace(/VueI18nPlugin\({\n((?:\s{6}).*)+\n\s+}\),/gm, '')
 
+        // remove email extra routes: https:// regex101.com/r/9G5HMI/1
+        viteConfig = viteConfig.mustReplace(/beforeWriteFiles: root =>.\{(\n|.)*?},/gm, '')
+
         // Remove i18n auto import preset from AutoImport plugin
         // viteConfig = viteConfig.mustReplace(/'vue-i18n', /g, '')
 

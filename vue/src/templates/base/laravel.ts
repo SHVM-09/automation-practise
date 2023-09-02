@@ -177,19 +177,19 @@ export class Laravel extends Utils {
   }
 
   // 👉 updateTSConfig
-  private updateTSConfig() {
-    // Path to tsconfig.json
-    const tsConfigPath = path.join(this.projectPath, 'tsconfig.json')
+  private updateTSConfig(lang: Lang) {
+    // Path to tsconfig.json/jsconfig.json
+    const tsJsConfigPath = path.join(this.projectPath, `${lang}config.json`)
 
-    // read tsconfig
-    const tsConfig = fs.readJsonSync(tsConfigPath)
+    // read tsconfig/jsconfig
+    const tsJsConfig = fs.readJsonSync(tsJsConfigPath)
 
-    // adding base url in to tsconfig
-    if (!tsConfig.compilerOptions.baseUrl)
-      tsConfig.compilerOptions = { baseUrl: './', ...tsConfig.compilerOptions }
+    // adding base url in to tsconfig/jsconfig
+    if (!tsJsConfig.compilerOptions.baseUrl)
+      tsJsConfig.compilerOptions = { baseUrl: './', ...tsJsConfig.compilerOptions }
 
-    // Write back to tsconfig
-    fs.writeJsonSync(tsConfigPath, tsConfig, { spaces: 2 })
+    // Write back to tsconfig/jsconfig
+    fs.writeJsonSync(tsJsConfigPath, tsJsConfig, { spaces: 2 })
   }
 
   private updateEnvFile() {
@@ -217,7 +217,7 @@ export class Laravel extends Utils {
     // copy vue project's root files in laravel project
     const rootFilesToCopy = globbySync(
       // ℹ️ We will manually update gitignore file because we have to merge those two files
-      ['*', '!package.json', '!index.html', '!.DS_Store', '!.gitignore'],
+      ['*', '!package.json', '!index.html', '!.DS_Store', '!.gitignore', '!.env', '!.env.example'],
       {
         cwd: sourcePath,
         onlyFiles: true,
@@ -257,6 +257,8 @@ export class Laravel extends Utils {
   }
 
   private useStylesDir(lang: Lang, langConfigFile: LangConfigFile) {
+    const assetsDir = path.join(this.resourcesPath, lang, 'assets')
+
     // add new alias in vite config
     // https://regex101.com/r/1RYdYv/2
     updateFile(
@@ -282,20 +284,23 @@ export class Laravel extends Utils {
 
     const stylesDirPath = path.join(this.resourcesPath, 'styles')
     fs.moveSync(
-      path.join(this.resourcesPath, lang, 'styles'),
+      path.join(this.resourcesPath, lang, 'assets/styles'),
       stylesDirPath,
     )
 
     fs.moveSync(
       path.join(this.resourcesPath, lang, '@core', 'scss'),
       path.join(stylesDirPath, '@core'),
-    );
+    )
+
+    // remove assets dir because it's now empty
+    fs.removeSync(assetsDir)
 
     // update paths in files
-    [langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
+    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
-        data => replacePath(data, `resources/${lang}/styles`, 'resources/styles'),
+        data => replacePath(data, `resources/${lang}/assets/styles`, 'resources/styles'),
       )
     })
 
@@ -313,9 +318,6 @@ export class Laravel extends Utils {
       path.join(assetsDir, 'images'),
       path.join(this.resourcesPath, 'images'),
     )
-
-    // remove assets dir because it's now empty
-    fs.removeSync(assetsDir)
 
     // update path in files
     ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
@@ -500,7 +502,7 @@ export class Laravel extends Utils {
       const filesToRemove = globbySync(
         '*.js',
         {
-          cwd: path.join(this.resourcesPath, lang, '@iconify'),
+          cwd: path.join(this.resourcesPath, lang, 'plugins/iconify'),
           absolute: true,
         },
       )
@@ -510,7 +512,7 @@ export class Laravel extends Utils {
 
     // if iconify icon sources have src/assets/images path replace with resources/images
     updateFile(
-      path.join(this.resourcesPath, lang, '@iconify', `build-icons.${lang}`),
+      path.join(this.resourcesPath, lang, 'plugins/iconify', `build-icons.${lang}`),
       data => replacePath(data, 'src/assets/images', 'resources/images'),
     )
 
@@ -587,7 +589,7 @@ export class Laravel extends Utils {
     await this.updateViteConfig(lang)
 
     // Update tsconfig.json
-    this.updateTSConfig()
+    this.updateTSConfig(lang)
 
     // Update env file
     this.updateEnvFile()
@@ -634,7 +636,7 @@ export class Laravel extends Utils {
     // Place temp dir content in js full version
     replaceDir(this.projectPath, replaceDest)
 
-    execCmd('npm run lint', { cwd: replaceDest })
+    execCmd('pnpm lint', { cwd: replaceDest })
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
