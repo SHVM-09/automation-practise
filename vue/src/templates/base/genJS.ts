@@ -137,9 +137,19 @@ export class GenJS extends Utils {
 
   private removeAllTSFile() {
     // Remove all TypeScript files
-    const tSFiles = globbySync(['**/*.ts', '**/*.tsx', '!node_modules'], { cwd: this.tempDir, absolute: true })
-
-    tSFiles.forEach(f => fs.removeSync(f))
+    globbySync(
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.d.ts',
+        '!node_modules',
+      ],
+      {
+        cwd: this.tempDir,
+        absolute: true,
+      },
+    )
+      .forEach(fs.removeSync)
   }
 
   private async compileSFCs() {
@@ -217,18 +227,6 @@ export class GenJS extends Utils {
       path.join(this.tempDir, 'index.html'),
       indexHTML => indexHTML.mustReplace('main.ts', 'main.js'),
     )
-  }
-
-  // update Plugin util that register app plugins
-  private updatePluginUtil() {
-    // Path to plugin.ts
-    const pluginFile = path.join(this.tempDir, 'src', '@core', 'utils', 'plugins.ts')
-    let plugin = fs.readFileSync(pluginFile, { encoding: 'utf-8' })
-
-    // Replace `.ts` extensions with `.js` extension
-    plugin = plugin.mustReplace('.ts', '.js')
-
-    fs.writeFileSync(pluginFile, plugin, { encoding: 'utf-8' })
   }
 
   /**
@@ -354,20 +352,8 @@ export class GenJS extends Utils {
     */
     this.updateTSConfig()
 
-    // Update plugin util
-    this.updatePluginUtil()
-
-    /*
-      Install packages
-      ℹ️ We need this to run tsc & generate build
-    */
-    execCmd('pnpm install', { cwd: this.tempDir })
-
-    // ❗ Generate build-icons.js before running tsc
-    execCmd('pnpm build:icons', { cwd: this.tempDir })
-
-    // Run `tsc` to compile TypeScript files
-    execCmd('pnpm tsc', { cwd: this.tempDir })
+    // Install packages & Run `tsc` to compile TypeScript files
+    execCmd('pnpm install && pnpm tsc', { cwd: this.tempDir })
 
     // Remove all TypeScript files
     this.removeAllTSFile()
@@ -398,11 +384,6 @@ export class GenJS extends Utils {
     */
     // ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
     execCmd(`find ./src \\( -iname \\*.vue -o -iname \\*.js -o -iname \\*.jsx \\) -type f | xargs sed -i ${process.platform === 'darwin' ? '""' : ''} -e '/@typescript-eslint/d;/@ts-expect/d'`, { cwd: this.tempDir })
-
-    // ℹ️ Remove d.ts files from JS project
-    // ℹ️ We need to remove all d.ts files before we run `pnpm lint` because we are removing d.ts from ignore in `updateEslintConfig` method
-    const dTsFiles = globbySync(['*.d.ts'], { cwd: this.tempDir, absolute: true })
-    dTsFiles.forEach(f => fs.removeSync(f))
 
     // Auto format all files using eslint
     execCmd('pnpm lint', { cwd: this.tempDir })
