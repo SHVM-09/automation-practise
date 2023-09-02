@@ -750,11 +750,29 @@ const handleError = () => clearError({ redirect: '/' })
       )
     })
 
+    const removeUnusedRouter = (filePath: string) => {
+      updateFile(
+        filePath,
+        (data) => {
+          let _data = data
+          const routerComposableStr = 'const router = useRouter()'
+          if (data.includes(routerComposableStr) && !data.includes('router.'))
+            _data = _data.mustReplace(routerComposableStr, '')
+
+          return _data
+        },
+      )
+    }
+
     // Change `router.push` to `navigateTo`
+    const filesWithRouterPush = execCmd('grep -rl "router\.push" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
     execCmd('fd --type file --exec sd "router\.push" "navigateTo"', { cwd: this.projectPath })
+    filesWithRouterPush.forEach(filePath => removeUnusedRouter(filePath))
 
     // Replace `router.replace` content with `navigateTo` + { replace: true }
+    const filesWithRouterReplace = execCmd('grep -rl "router\.replace" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
     execCmd('fd --type file --exec sd \'router\.replace\((.*)\)\' \'navigateTo($1, { replace: true })\'', { cwd: this.projectPath })
+    filesWithRouterReplace.forEach(filePath => removeUnusedRouter(filePath))
   }
 
   private async updateCustomRouteMeta(sourcePath: string) {
