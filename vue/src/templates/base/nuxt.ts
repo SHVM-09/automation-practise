@@ -73,6 +73,9 @@ export class Nuxt extends Utils {
       this.projectPath,
     )
 
+    // remove main.ts
+    fs.removeSync(path.join(this.projectPath, 'main.ts'))
+
     // copy vue project's root files in laravel project
     const rootFilesToIgnoreForCopy = [
       'package.json',
@@ -243,6 +246,10 @@ export class Nuxt extends Utils {
               'export default defineNuxtPlugin(nuxtApp => {\n$1\n})',
             )
             .replace('app.use', 'nuxtApp.vueApp.use')
+
+          // If nuxtApp callback function parameter is not used remove nuxtApp
+          if (!updatedData.includes('nuxtApp.'))
+            updatedData = updatedData.mustReplace(/nuxtApp/gm, '()')
 
           // If it's vuetify plugin then enable SSR
           if (filePath.includes('vuetify'))
