@@ -12,7 +12,7 @@ import type { TemplateBaseConfig } from './config'
 import { SFCCompiler } from '@/sfcCompiler'
 import { Utils } from '@/templates/base/helper'
 import '@/utils/injectMustReplace'
-import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile } from '@/utils/node'
+import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 
 export class GenJS extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private isSK: boolean = false, private isFree: boolean = false) {
@@ -67,7 +67,7 @@ export class GenJS extends Utils {
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
 
     // Add import resolver package
-    execCmd('pnpm add eslint-import-resolver-alias', { cwd: this.tempDir })
+    execCmd('pnpm add eslint-import-resolver-custom-alias', { cwd: this.tempDir })
 
     /*
       Remove all the lines which contains word 'typescript' or 'antfu'
@@ -75,9 +75,15 @@ export class GenJS extends Utils {
     */
     filterFileByLine(
       eslintConfigPath,
-      line => !(
-        line.includes('typescript') || line.includes('antfu')
-      ),
+      (line) => {
+        // ℹ️ We want to preserve typescript in import/resolver
+        if (line.trim() === 'typescript: {},')
+          return true
+
+        return !(
+          line.includes('typescript') || line.includes('antfu')
+        )
+      },
     )
 
     // ❗ It's important to read after filtering the file because we are removing some lines
@@ -100,14 +106,17 @@ export class GenJS extends Utils {
     eslintConfig = eslintConfig.mustReplace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
 
     // Add vite aliases in eslint import config
-    const viteConfig = fs.readFileSync(viteConfigPath, { encoding: 'utf-8' })
-    const importAliases = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
-    const importAliasesStr = JSON.stringify([...importAliases].map(m => m.groups && Object.values(m.groups)))
-      .mustReplace(/],\s?\[/gm, '],\n[')
-      .mustReplace(/\[\[/gm, '[\n[')
-      .mustReplace(']]', ']\n]')
+    const viteConfig = readFileSyncUTF8(viteConfigPath)
+    const importAliasesMatches = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
+    const importAliases = Object.fromEntries([...importAliasesMatches].map((m) => {
+      if (!m.groups)
+        throw consola.error(new Error('No groups found in regex match while updating eslint config'))
 
-    const importAliasesEslintConfig = `alias: {
+      return Object.values(m.groups)
+    }))
+
+    const importAliasesEslintConfig = `'eslint-import-resolver-custom-alias': {
+      'alias': ${JSON.stringify(importAliases, null, 2)},
       'extensions': [
         '.ts',
         '.js',
@@ -115,12 +124,11 @@ export class GenJS extends Utils {
         '.jsx',
         '.mjs'
       ],
-      'map': ${importAliasesStr}
-    }`
+    },`
 
-    eslintConfig = eslintConfig.mustReplace(/(node:.*\n.*extensions.*\n.*)/gm, `$1\n${importAliasesEslintConfig}`)
+    eslintConfig = eslintConfig.mustReplace(/(node: true,)/gm, `$1\n${importAliasesEslintConfig}`)
 
-    fs.writeFileSync(eslintConfigPath, eslintConfig, { encoding: 'utf-8' })
+    writeFileSyncUTF8(eslintConfigPath, eslintConfig)
   }
 
   // 👉 updateTSConfig
@@ -176,7 +184,7 @@ export class GenJS extends Utils {
       */
         if (compiledSFCScript) {
           const compiledSfc = sFC.mustReplace(/<script.*>(?:\n|.)*<\/script>/g, compiledSFCScript.trim())
-          fs.writeFileSync(sFCPath, compiledSfc, { encoding: 'utf-8' })
+          writeFileSyncUTF8(sFCPath, compiledSfc)
         }
       }),
     )
@@ -244,7 +252,7 @@ export class GenJS extends Utils {
       Read tsconfig
       ℹ️ We will read as text instead of JSON => It's easy to find & replace .ts extension with .js on whole string
     */
-    let tsConfig = fs.readFileSync(tsConfigPath, { encoding: 'utf-8' })
+    let tsConfig = readFileSyncUTF8(tsConfigPath)
 
     // ❗ This isn't working => ts => js
 
