@@ -817,6 +817,9 @@ export {}`,
       path.join(this.projectPath, '.env'),
       path.join(this.projectPath, '.env.example'),
     ].forEach((filePath) => {
+      // Create if doesn't exist in vue version
+      fs.ensureFileSync(filePath)
+
       updateFile(
         filePath,
         () => filePath.includes('example')
@@ -849,9 +852,7 @@ export function useApi<T>(url: string, options: UseFetchOptions<T> = {}) {
     // update `$api`
     writeFileSyncUTF8(
       path.join(this.projectPath, 'utils', 'api.ts'),
-      `import { ofetch } from 'ofetch'
-
-export const $api = ofetch.create({
+      `export const $api = $fetch.create({
   // ℹ️ We have to duplicate the \`nuxt.config.ts\`'s  \`runtimeConfig.public.apiBaseUrl\` here.
   baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
 })`,
