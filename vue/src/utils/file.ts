@@ -1,5 +1,5 @@
 import '@/utils/injectMustReplace'
-import path from 'path'
+import path from 'node:path'
 import type { OversizedFileStats } from '@types'
 import { consola } from 'consola'
 import * as dotenv from 'dotenv'
@@ -7,23 +7,28 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import tinify from 'tinify'
 import type { PackageJson } from 'type-fest'
-import { execCmd } from '@/utils/node'
+import { execCmd, readFileSyncUTF8, updateFile } from '@/utils/node'
+
 /**
-   * Adds received import string as last import statement
-   *
-   * https://regex101.com/r/3NfiKn/2
-   *
-   * @param data data source to add import
-   * @param importStatement import statement as string
-   * @returns Returns modified data
-   */
+ * Adds received import string as last import statement
+ *
+ * https://regex101.com/r/3NfiKn/2
+ *
+ * @param data data source to add import
+ * @param importStatement import statement as string
+ * @returns Returns modified data
+ */
 
 // https://regex101.com/r/ba5Vcn/2
-export const addImport = (data: string, importStatement: string) => {
+export const addImport = (data: string, importStatement: string): string => {
   if (data.startsWith('import'))
     return data.mustReplace(/(import .*\n)(\n*)(?!import)/gm, `$1${importStatement}\n$2`)
   else
     return `${importStatement}\n\n${data}`
+}
+
+export const addSfcImport = (data: string, importStatement: string): string => {
+  return data.mustReplace(/(<script.*)/gm, `$1\n${importStatement}\n\n`)
 }
 
 /**
@@ -158,4 +163,18 @@ export const genRedirectionHtmlFileContent = (placeholders: { templateFullName: 
 
 export const genRedirectionHtmlFile = (filePath: string, placeholders: Parameters<typeof genRedirectionHtmlFileContent>[0]) => {
   fs.writeFileSync(filePath, genRedirectionHtmlFileContent(placeholders))
+}
+
+export const mergeEnvFiles = (sourceFilePath: string, targetFilePath: string) => {
+  updateFile(
+    targetFilePath,
+    (data) => {
+      const sourceEnv = dotenv.parse(data)
+      const targetEnv = dotenv.parse(readFileSyncUTF8(sourceFilePath))
+
+      const mergedEnv = { ...targetEnv, ...sourceEnv }
+
+      return Object.entries(mergedEnv).map(([key, value]) => `${key}=${value}`).join('\n')
+    },
+  )
 }

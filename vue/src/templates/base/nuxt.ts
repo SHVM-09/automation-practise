@@ -12,7 +12,7 @@ import { addNuxtModule, getDefaultExportOptions } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
 
-import { addImport } from '@/utils/file'
+import { addImport, addSfcImport, mergeEnvFiles } from '@/utils/file'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, removePathPrefix } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -378,6 +378,12 @@ export class Nuxt extends Utils {
           },
         ],
       },
+      auth: {
+        globalAppMiddleware: false,
+        provider: {
+          type: 'authjs',
+        },
+      },
       plugins: [
         `@/plugins/casl/index.${lang}`,
         `@/plugins/vuetify/index.${lang}`,
@@ -401,7 +407,6 @@ export class Nuxt extends Utils {
           compilerOptions: {
             paths: nuxtTsConfigPaths,
           },
-          include: ['../themeConfig.ts'],
         },
       },
       // ℹ️ Disable source maps until this is resolved: https://github.com/vuetifyjs/vuetify-loader/issues/290
@@ -420,6 +425,8 @@ export class Nuxt extends Utils {
 
     // Add modules
     addNuxtModule(nuxtConfigMod, '@vueuse/nuxt')
+
+    addNuxtModule(nuxtConfigMod, '@sidebase/nuxt-auth')
 
     // Add pinia
     this.pkgsToInstall.devDependencies.push('@pinia/nuxt')
@@ -478,11 +485,10 @@ export class Nuxt extends Utils {
   */
   runtimeConfig: {
     // Private keys are only available on the server
-    // yourSecret: '123',
+    AUTH_ORIGIN: process.env.AUTH_ORIGIN,
+    AUTH_SECRET: process.env.AUTH_SECRET,
 
-    /*
-      Public keys that are exposed to the client.
-    */
+    // Public keys that are exposed to the client.
     public: {
       apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
     },
@@ -751,9 +757,10 @@ const handleError = () => clearError({ redirect: '/' })
     fileWithDynamicNuxtLink?.forEach((filePath) => {
       updateFile(
         filePath,
-        data => data
-          .mustReplace(/'NuxtLink'/gm, 'NuxtLink')
-          .mustReplace(/(<script.*)/gm, '$1\nimport { NuxtLink } from \'#components\''),
+        (data) => {
+          const newData = data.mustReplace(/'NuxtLink'/gm, 'NuxtLink')
+          return addSfcImport(newData, 'import { NuxtLink } from \'#components\'')
+        },
       )
     })
 
@@ -834,7 +841,7 @@ export {}`,
       `import { defu } from 'defu'
 import type { UseFetchOptions } from 'nuxt/app'
 
-export function useApi<T>(url: string, options: UseFetchOptions<T> = {}) {
+export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions<T> = {}) => {
   const config = useRuntimeConfig()
 
   const defaults: UseFetchOptions<T> = {
@@ -857,6 +864,120 @@ export function useApi<T>(url: string, options: UseFetchOptions<T> = {}) {
   baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
 })`,
     )
+  }
+
+  private useAuthModule() {
+    // Add sidebase nuxt auth module & next-auth
+    this.pkgsToInstall.devDependencies.push('@sidebase/nuxt-auth')
+    this.pkgsToInstall.dependencies.push('next-auth@4.21.1')
+
+    // Update login file
+    const loginFilePath = path.join(this.projectPath, 'pages', 'login.vue')
+    updateFile(
+      loginFilePath,
+      (data) => {
+        const newData = addSfcImport(data, 'import type { NuxtError } from \'nuxt/app\'\nimport { User } from \'next-auth\'\n\nconst { signIn, data: sessionData } = useAuth()\n\n')
+        return newData.mustReplace(
+          /const login.*?\n}/gms,
+          `async function login() {
+  const response = await signIn('credentials', {
+    callbackUrl: '/',
+    redirect: false,
+    ...credentials.value,
+  })
+
+  // If error is not null => Error is occurred
+  if (response && response.error) {
+    const apiStringifiedError = response.error
+    const apiError: NuxtError = JSON.parse(apiStringifiedError)
+    errors.value = apiError.data
+
+    // If err => Don't execute further
+    return
+  }
+
+  // Reset error on successful login
+  errors.value = {}
+
+  // Update user abilities
+  const { user } = sessionData.value!
+
+  useCookie<Partial<User>>('userData').value = user
+
+  // Save user abilities in cookie so we can retrieve it back on refresh
+  useCookie<User['abilityRules']>('userAbilityRules').value = user.abilityRules
+
+  ability.update(user.abilityRules ?? [])
+
+  navigateTo(route.query.to ? String(route.query.to) : '/', { replace: true })
+}`,
+        )
+      },
+    )
+
+    // Update logout
+    const logoutFilePath = path.join(this.projectPath, 'layouts', 'components', 'UserProfile.vue')
+    updateFile(
+      logoutFilePath,
+      data => data.mustReplace(
+        /const logout.*?\n}/gms,
+        `const { signOut } = useAuth()
+
+        async function logout() {
+          try {
+            await signOut({ redirect: false })
+
+            // Remove "userData" from cookie
+            userData.value = null
+
+            // Reset user abilities
+            ability.update([])
+            
+            navigateTo({ name: 'login' })
+          }
+          catch (error) {
+            throw createError(error)
+          }
+        }`,
+      ),
+    )
+
+    const masterServerApiRepoPath = getTemplatePath('master', 'nuxt-api')
+
+    // Copy next-auth.d.ts
+    fs.copyFileSync(
+      path.join(masterServerApiRepoPath, 'next-auth.d.ts'),
+      path.join(this.projectPath, 'next-auth.d.ts'),
+    )
+
+    // Merge .env & .env.example file
+    const apiEnvFilePath = path.join(masterServerApiRepoPath, '.env')
+    const envFilePath = path.join(this.projectPath, '.env')
+    mergeEnvFiles(apiEnvFilePath, envFilePath)
+
+    const apiEnvExampleFilePath = path.join(masterServerApiRepoPath, '.env.example')
+    const envExampleFilePath = path.join(this.projectPath, '.env.example')
+    mergeEnvFiles(apiEnvExampleFilePath, envExampleFilePath)
+
+    // Update app/router.options.ts
+    const routerOptionsPath = path.join(this.projectPath, 'app', 'router.options.ts')
+    updateFile(routerOptionsPath, (data) => {
+      return data.mustReplace(
+        /middleware: to => {.*?},(?=.*?},.*?component)/gms,
+        `middleware: to => {
+          const { data: sessionData } = useAuth()
+
+          const userRole = sessionData.value?.user.role
+
+          if (userRole === 'admin')
+            return { name: 'dashboards-crm' }
+          if (userRole === 'client')
+            return { name: 'access-control' }
+
+          return { name: 'login', query: to.query }
+        },`,
+      )
+    })
   }
 
   private async genNuxt(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
@@ -972,6 +1093,8 @@ import VueApexCharts from 'vue3-apexcharts'
     this.handleRouterChanges()
 
     this.useNuxtFetch()
+
+    this.useAuthModule()
 
     await this.updateCustomRouteMeta(sourcePath)
 
