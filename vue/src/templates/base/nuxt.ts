@@ -508,6 +508,13 @@ export class Nuxt extends Utils {
       // Replace `setupGuards` & `router.beforeEach` with `defineNuxtRouteMiddleware`
       .mustReplace(/export const setupGuards.*?router.beforeEach(\(.*?}\)).*/gms, 'export default defineNuxtRouteMiddleware$1')
 
+      // Replace vue's isLoggedIn check with nuxt module
+      .mustReplace(
+        /\/\*\*.*?const isLoggedIn.*?\n/gms,
+        `const { status } = useAuth()
+  const isLoggedIn = status.value === 'authenticated'`,
+      )
+
       // Use/Wrap `navigateTo` function instead of plain return in nuxt
       .mustReplace(/return (\w+\s+\? .*?(?:}|')\s+:\s.*?(?:(?:}|')$|true)|'.*?')/gms, 'return navigateTo($1)')
 
@@ -1098,6 +1105,15 @@ import VueApexCharts from 'vue3-apexcharts'
 
     await this.updateCustomRouteMeta(sourcePath)
 
+    // Handle SSR issue with light/dark mode
+    updateFile(
+      path.join(this.projectPath, 'plugins', 'vuetify', 'theme.ts'),
+      data => data.mustReplace(
+        /defaultTheme: resolveVuetifyTheme\(\),/g,
+        '// ❗ Don\'t define `defaultTheme` here. It will prevent switching to dark theme based on user preference due to SSR.',
+      ),
+    )
+
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
     consola.start('Installing packages...')
@@ -1113,6 +1129,7 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // TODO: Remove eslint internal rules. I suggest creating separate utility function because we are doing this at multiple places
 
+    execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
     consola.success('You are ready to rock baby!')
   }
 
