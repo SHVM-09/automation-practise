@@ -333,6 +333,7 @@ export class Laravel extends Utils {
    * Modifies the files to attach the demo-$number pattern to make all demos unique
    * This is used to isolate the demo config
    * @param demoNumber localStorage key to update for demo
+   * @param templateName
    */
   private updateLocalStorageKeys(demoNumber: number, templateName: string) {
     // default values for demo 1
@@ -890,7 +891,7 @@ export class Laravel extends Utils {
       )
 
       updateFile(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'router', 'index.ts'),
+        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', 'router', 'index.ts'),
         data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
       )
 
