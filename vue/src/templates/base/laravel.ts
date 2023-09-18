@@ -201,7 +201,7 @@ export class Laravel extends Utils {
       updateFile(
         filePath,
         (data) => {
-          return filePath.includes('example') ? `${data}VITE_API_BASE_URL=` : `${data}VITE_API_BASE_URL=http://localhost:5173/api`
+          return filePath.includes('example') ? `${data}VITE_API_BASE_URL=` : `${data}VITE_API_BASE_URL=http://127.0.0.1:8000/api`
         },
       )
     })
