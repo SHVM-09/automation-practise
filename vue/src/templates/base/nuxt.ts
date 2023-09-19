@@ -201,6 +201,9 @@ export class Nuxt extends Utils {
     // Remove typecheck script because in nuxt we use nuxt.config to enable type checking
     delete vuePkgJSON.scripts.typecheck
 
+    // @ts-expect-error - `PackageJson` don't know about msw
+    delete vuePkgJSON.msw
+
     // Remove unwanted packages
     delete vuePkgJSON.dependencies?.['vue-router']
     delete vuePkgJSON.devDependencies?.['vue-tsc']
@@ -1028,13 +1031,14 @@ export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions
     execCmd(`code --profile vue ${path.join(this.tempDir, this.templateConfig.nuxt.pkgName)}`)
 
     await this.copyVueProjectFiles(sourcePath, isJS, lang)
+    execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
 
     this.updatePkgJson(sourcePath)
     this.removeEslintInternalRules(this.projectPath)
 
     // Update eslint config to use .nuxt tsconfig
     updateFile(
-      path.join(this.projectPath, '.eslintrc.js'),
+      path.join(this.projectPath, '.eslintrc.cjs'),
       data => data.mustReplace(
         'typescript: {},',
         `typescript: {
@@ -1048,7 +1052,7 @@ export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions
       path.join(this.projectPath, `vite.config.${lang}`),
       path.join(this.projectPath, 'package.json'),
       path.join(this.projectPath, langConfigFile),
-      path.join(this.projectPath, '.eslintrc.js'),
+      path.join(this.projectPath, '.eslintrc.cjs'),
       path.join(this.projectPath, '.gitignore'),
       path.join(this.projectPath, 'plugins', 'iconify', `build-icons.${lang}`),
       path.join(this.projectPath, 'plugins', 'router', `index.${lang}`),
@@ -1116,11 +1120,11 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
-    consola.start('Installing packages...')
+    consola.start('Installing dynamic packages')
     execCmd(installPkgCmd, { cwd: this.projectPath })
 
     // Install all packages
-    consola.start('Installing all packages...')
+    consola.start('Installing packages from package.json')
     execCmd('pnpm install', { cwd: this.projectPath })
 
     // Run lint to fix linting errors
@@ -1128,8 +1132,6 @@ import VueApexCharts from 'vue3-apexcharts'
     execCmd('pnpm lint', { cwd: this.projectPath })
 
     // TODO: Remove eslint internal rules. I suggest creating separate utility function because we are doing this at multiple places
-
-    execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
     consola.success('You are ready to rock baby!')
   }
 

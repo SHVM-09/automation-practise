@@ -297,7 +297,7 @@ export class Laravel extends Utils {
     fs.removeSync(assetsDir)
 
     // update paths in files
-    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
+    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.cjs'].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
         data => replacePath(data, `resources/${lang}/assets/styles`, 'resources/styles'),
@@ -320,7 +320,7 @@ export class Laravel extends Utils {
     )
 
     // update path in files
-    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.js'].forEach((fileName) => {
+    ;[langConfigFile, `vite.config.${lang}`, '.eslintrc.cjs'].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
         data => replacePath(data, `resources/${lang}/assets/images`, 'resources/images'),
@@ -553,7 +553,7 @@ export class Laravel extends Utils {
     )
 
     // Thanks: https://stackoverflow.com/questions/74609771/how-to-use-foreach-on-inline-array-when-using-typescript
-    ;[...(lang === 'ts' ? ['components.d.ts'] : []), '.eslintrc.js', '.gitignore', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
+    ;[...(lang === 'ts' ? ['components.d.ts'] : []), '.eslintrc.cjs', '.gitignore', langConfigFile, `vite.config.${lang}`].forEach((fileName) => {
       updateFile(
         path.join(this.projectPath, fileName),
         data => this.replaceSrcWithResourcesLang(data, lang),

@@ -1,5 +1,5 @@
 import '@/utils/injectMustReplace'
-import path from 'path'
+import path from 'node:path'
 import fs from 'fs-extra'
 import JSON5 from 'json5'
 import type { GTMConfig, TemplateBaseConfig } from './config'
@@ -60,7 +60,7 @@ export class Utils {
 
     // Remove from eslint config
     updateFile(
-      path.join(projectDir, '.eslintrc.js'),
+      path.join(projectDir, '.eslintrc.cjs'),
       data => data
         .mustReplace(/(\s+\/\/ Internal Rules|\s+'valid-appcardcode.*)/g, ''),
     )

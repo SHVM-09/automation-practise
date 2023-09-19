@@ -63,7 +63,7 @@ export class GenJS extends Utils {
 
   // 👉 updateEslintConfig
   private updateEslintConfig() {
-    const eslintConfigPath = path.join(this.tempDir, '.eslintrc.js')
+    const eslintConfigPath = path.join(this.tempDir, '.eslintrc.cjs')
     const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
 
     // Add import resolver package
