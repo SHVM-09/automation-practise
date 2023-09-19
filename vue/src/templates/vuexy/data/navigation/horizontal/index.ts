@@ -1,5 +1,3 @@
-import type { HorizontalNavItems } from '@layouts/types'
-
 export default [
   {
     title: 'Home',
@@ -11,4 +9,4 @@ export default [
     to: { name: 'second-page' },
     icon: { icon: 'tabler-file' },
   },
-] as HorizontalNavItems
+]

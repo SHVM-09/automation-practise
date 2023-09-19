@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 
 import type { TemplateBaseConfig } from '@/templates/base'
 import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
@@ -45,6 +45,8 @@ export const config: VuexyConfig = {
     '!avatars',
     '!illustrations',
     '!misc',
+    '!icons/payments',
+    '!customizer-icons',
   ],
   paths: {
     tSFull: path.join(vuexyVuePath, 'typescript-version', 'full-version'),
