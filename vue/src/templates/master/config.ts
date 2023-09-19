@@ -33,6 +33,9 @@ export const config: MasterConfig = {
     'license.md',
     '*.log',
     '*.zip',
+
+    // Laravel only
+    'vendor',
   ],
   sKImagesRemovePatterns: [
     '**/*',
