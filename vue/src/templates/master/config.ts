@@ -61,51 +61,68 @@ export const config: MasterConfig = {
   },
   demosConfig: [
     // Demo 1
-    null,
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+    ],
 
-    // // Demo 2
-    // [
-    //   {
-    //     find: 'skin: Skins.Default',
-    //     replace: 'skin: Skins.Bordered',
-    //   },
-    // ],
+    // Demo 2
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
+        find: 'skin: Skins.Default',
+        replace: 'skin: Skins.Bordered',
+      },
+    ],
 
-    // // Demo 3
-    // [
-    //   {
-    //     find: 'isVerticalNavSemiDark: false',
-    //     replace: 'isVerticalNavSemiDark: true',
-    //   },
-    // ],
+    // Demo 3
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
+        find: 'isVerticalNavSemiDark: false',
+        replace: 'isVerticalNavSemiDark: true',
+      },
+    ],
 
-    // // Demo 4
-    // [
-    //   {
-    //     find: 'theme: \'light\'',
-    //     replace: 'theme: \'dark\'',
-    //   },
-    // ],
+    // Demo 4
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'dark\'',
+      },
+    ],
 
-    // // Demo 5
-    // [
-    //   {
-    //     find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
-    //     replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
-    //   },
-    // ],
+    // Demo 5
+    [
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'light\'',
+      },
+      {
+        find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
+        replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
+      },
+    ],
 
-    // // Demo 6
-    // [
-    //   {
-    //     find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
-    //     replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
-    //   },
-    //   {
-    //     find: 'theme: \'light\'',
-    //     replace: 'theme: \'dark\'',
-    //   },
-    // ],
+    // Demo 6
+    [
+      {
+        find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
+        replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
+      },
+      {
+        find: 'theme: \'system\'',
+        replace: 'theme: \'dark\'',
+      },
+    ],
   ],
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/master-vuetify-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
