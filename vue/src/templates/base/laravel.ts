@@ -57,10 +57,10 @@ export class Laravel extends Utils {
       { cwd: this.tempDir },
     )
 
-    // execCmd(
-    //   'php artisan sail:install',
-    //   { cwd: this.projectPath },
-    // )
+    execCmd(
+      'php artisan sail:install  --no-interaction',
+      { cwd: this.projectPath },
+    )
 
     // remove unwanted js/ts dir and create new according to `isTs`
     fs.removeSync(
