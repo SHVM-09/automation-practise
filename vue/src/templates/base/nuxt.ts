@@ -76,7 +76,7 @@ export class Nuxt extends Utils {
     // remove main.ts
     fs.removeSync(path.join(this.projectPath, 'main.ts'))
 
-    // copy vue project's root files in laravel project
+    // copy vue project's root files in nuxt project
     const rootFilesToIgnoreForCopy = [
       'package.json',
       'tsconfig.json',
@@ -115,8 +115,8 @@ export class Nuxt extends Utils {
 
     updateFile(projectGitIgnorePath, data => `${data}\n${customIgnores}`)
 
-    // copy .vscode & eslint-internal-rules dir
-    ;['.vscode', ...(isJS ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
+    // copy .vscode dir
+    ;['.vscode'].forEach((dirName) => {
       fs.copySync(
         path.join(sourcePath, dirName),
         path.join(this.projectPath, dirName),
@@ -790,12 +790,12 @@ const handleError = () => clearError({ redirect: '/' })
 
     // Change `router.push` to `navigateTo`
     const filesWithRouterPush = execCmd('grep -rl "router\.push" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
-    execCmd('fd --type file --exec sd "router\.push" "navigateTo"', { cwd: this.projectPath })
+    execCmd('fd --type file --exec sd "\$?router\.push" "navigateTo"', { cwd: this.projectPath })
     filesWithRouterPush.forEach(filePath => removeUnusedRouter(filePath))
 
     // Replace `router.replace` content with `navigateTo` + { replace: true }
     const filesWithRouterReplace = execCmd('grep -rl "router\.replace" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
-    execCmd('fd --type file --exec sd \'router\.replace\((.*)\)\' \'navigateTo($1, { replace: true })\'', { cwd: this.projectPath })
+    execCmd('fd --type file --exec sd \'\$?router\.replace\((.*)\)\' \'navigateTo($1, { replace: true })\'', { cwd: this.projectPath })
     filesWithRouterReplace.forEach(filePath => removeUnusedRouter(filePath))
   }
 
