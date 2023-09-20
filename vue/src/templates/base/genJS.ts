@@ -205,6 +205,7 @@ export class GenJS extends Utils {
     }
 
     delete pkgJson.scripts.typecheck
+
     // Update build:icons script
     pkgJson.scripts['build:icons'] = 'tsx src/plugins/iconify/build-icons.js'
 
@@ -225,7 +226,13 @@ export class GenJS extends Utils {
 
     // Remove TypeScript related packages => Remove all the devDependencies that contains "type" word and "vue-tsc"
     pkgJson.devDependencies = Object.fromEntries(
-      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => !(dep.includes('type') || dep.includes('vue-tsc'))),
+      Object.entries(pkgJson.devDependencies).filter(([dep, _]) => {
+        // We want to preserve this package for eslint import resolver
+        if (dep === 'eslint-import-resolver-typescript')
+          return true
+
+        return !(dep.includes('type') || dep.includes('vue-tsc'))
+      }),
     )
 
     // Write updated json to file
@@ -257,7 +264,7 @@ export class GenJS extends Utils {
     // ❗ This isn't working => ts => js
 
     // Replace `.ts` extensions with `.js` extension
-    tsConfig = tsConfig.mustReplace('.ts', '.js')
+    tsConfig = tsConfig.mustReplace('.ts', '.js').mustReplace('.d.js', '.d.ts')
 
     // Parse modified tsConfig as JSON
     const tsConfigJSON = JSON5.parse(tsConfig)
