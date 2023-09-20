@@ -511,6 +511,15 @@ export class Laravel extends Utils {
       filesToRemove.forEach(filePath => fs.removeSync(filePath))
     }
 
+    // add core-scss alias in  eslint-import-resolver-custom-alias in eslint
+    // https://regex101.com/r/GXptyF/1
+    if (isJS) {
+      updateFile(
+        path.join(this.projectPath, '.eslintrc.cjs'),
+        data => data.mustReplace(/('alias': \{\n(\s+))/g, '$1\"@core-scss": "./resources/styles/@core",\n$2'),
+      )
+    }
+
     // if iconify icon sources have src/assets/images path replace with resources/images
     updateFile(
       path.join(this.resourcesPath, lang, 'plugins/iconify', `build-icons.${lang}`),
