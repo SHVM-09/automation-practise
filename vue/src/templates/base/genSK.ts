@@ -316,6 +316,7 @@ export class GenSK extends Utils {
 
     // Remove fake-api  dir
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'fake-api'))
+    fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'casl'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'router', 'additional-routes.ts'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'router', 'guards.ts'))
 
