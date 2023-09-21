@@ -12,7 +12,7 @@ import { addNuxtModule, getDefaultExportOptions } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
 
-import { addImport, addSfcImport, mergeEnvFiles } from '@/utils/file'
+import { addImport, addSfcImport, mergeEnvFiles, reportOversizedFiles } from '@/utils/file'
 import { execCmd, readFileSyncUTF8, replaceDir, updateFile, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, removePathPrefix } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -67,14 +67,29 @@ export class Nuxt extends Utils {
     this.projectPath = path.join(this.tempDir, this.templateConfig.nuxt.pkgName)
   }
 
-  private async copyVueProjectFiles(sourcePath: string, isJS: boolean, lang: Lang) {
+  private async copyVueProjectFiles(sourcePath: string, isJS: boolean, lang: Lang, isSK: boolean) {
     this.copyProject(
       path.join(sourcePath, 'src'),
       this.projectPath,
     )
 
     // remove main.ts
-    fs.removeSync(path.join(this.projectPath, 'main.ts'))
+    const thingsToRemove = [
+      path.join(this.projectPath, 'main.ts'),
+      ...(
+        isSK
+          ? [
+              path.join(this.projectPath, 'plugins', 'casl'),
+              path.join(this.projectPath, 'plugins', 'i18n'),
+            ]
+          : []
+      ),
+      path.join(this.projectPath, 'plugins', 'fake-api'),
+      path.join(this.projectPath, '@core', 'composable', 'useCookie.ts'),
+    ]
+    thingsToRemove.map(async (thing) => {
+      await fs.remove(thing)
+    })
 
     // copy vue project's root files in nuxt project
     const rootFilesToIgnoreForCopy = [
@@ -161,15 +176,6 @@ export class Nuxt extends Utils {
       path.join(this.projectPath, 'pages', '[...error].vue'),
       path.join(this.projectPath, 'error.vue'),
     )
-
-    // Remove files or directories
-    const thingToRemove = [
-      path.join(this.projectPath, 'plugins', 'fake-api'),
-      path.join(this.projectPath, '@core', 'composable', 'useCookie.ts'),
-    ]
-    thingToRemove.forEach((thing) => {
-      fs.removeSync(thing)
-    })
   }
 
   private updatePkgJson(sourcePath: string) {
@@ -225,7 +231,7 @@ export class Nuxt extends Utils {
     this.pkgsToInstall.devDependencies.push('@vueuse/nuxt')
   }
 
-  private updatePlugins() {
+  private updatePlugins(isSK: boolean) {
     // Remove pinia plugin because we are using pinia nuxt module
     fs.removeSync(path.join(this.projectPath, 'plugins', 'pinia.ts'))
 
@@ -255,8 +261,13 @@ export class Nuxt extends Utils {
             updatedData = updatedData.mustReplace(/nuxtApp/gm, '()')
 
           // If it's vuetify plugin then enable SSR
-          if (filePath.includes('vuetify'))
+          if (filePath.includes('vuetify')) {
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
+
+            if (isSK)
+              // Remove i18n from vuetify if it's SK
+              updatedData = updatedData.mustReplace(/\n(\s+)locale: {.*?\n\1},/gms, '')
+          }
 
           return updatedData
         },
@@ -264,7 +275,7 @@ export class Nuxt extends Utils {
     })
   }
 
-  private injectExtendedRoutesInNuxtConfig(sourcePath: string, lang: Lang) {
+  private updateAdditionalRoutes(sourcePath: string, lang: Lang) {
     // Create app directory
     const appDirPath = path.join(this.projectPath, 'app')
     fs.ensureDirSync(appDirPath)
@@ -335,7 +346,7 @@ export class Nuxt extends Utils {
     // })
   }
 
-  private async updateNuxtConfig(sourcePath: string, lang: Lang, langConfigFile: LangConfigFile) {
+  private async updateNuxtConfig(sourcePath: string, lang: Lang, langConfigFile: LangConfigFile, isSk: boolean) {
     const nuxtConfigPath = path.join(this.projectPath, 'nuxt.config.ts')
     const nuxtConfigMod = await loadFile(nuxtConfigPath)
 
@@ -345,6 +356,8 @@ export class Nuxt extends Utils {
     const viteConfigPath = path.join(sourcePath, 'vite.config.ts')
     const viteConfigMod = await loadFile(viteConfigPath)
     const viteConfigStr = readFileSyncUTF8(viteConfigPath)
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { plugins: _, ...viteConfig } = getDefaultExportOptions(viteConfigMod)
 
     // Replace relative path to "./src" dir with "../src" dir. Later src dir will be removed as prefix
@@ -365,10 +378,14 @@ export class Nuxt extends Utils {
             path: '@/@core/components',
             pathPrefix: false,
           },
-          {
-            path: '@/views/demos',
-            pathPrefix: false,
-          },
+          ...(
+            isSk
+              ? []
+              : [{
+                  path: '@/views/demos',
+                  pathPrefix: false,
+                }]
+          ),
 
           // Defaults
           {
@@ -381,21 +398,27 @@ export class Nuxt extends Utils {
           },
         ],
       },
-      auth: {
-        globalAppMiddleware: false,
-        provider: {
-          type: 'authjs',
-        },
-      },
+      ...(
+        isSk
+          ? {}
+          : {
+              auth: {
+                globalAppMiddleware: false,
+                provider: {
+                  type: 'authjs',
+                },
+              },
+            }
+      ),
       plugins: [
-        `@/plugins/casl/index.${lang}`,
+        ...(isSk ? [] : [`@/plugins/casl/index.${lang}`]),
         `@/plugins/vuetify/index.${lang}`,
-        `@/plugins/i18n/index.${lang}`,
+        ...(isSk ? [] : [`@/plugins/i18n/index.${lang}`]),
         `@/plugins/iconify/index.${lang}`,
       ],
       imports: {
         dirs: ['./@core/utils', './@core/composable/', './plugins/*/composables/*'],
-        presets: ['vue-i18n', 'pinia'],
+        presets: [...(isSk ? [] : ['vue-i18n']), 'pinia'],
       },
       hooks: {
         // We are adding hooks so that we can use them later for injecting code using easy regex
@@ -429,7 +452,8 @@ export class Nuxt extends Utils {
     // Add modules
     addNuxtModule(nuxtConfigMod, '@vueuse/nuxt')
 
-    addNuxtModule(nuxtConfigMod, '@sidebase/nuxt-auth')
+    if (!isSk)
+      addNuxtModule(nuxtConfigMod, '@sidebase/nuxt-auth')
 
     // Add pinia
     this.pkgsToInstall.devDependencies.push('@pinia/nuxt')
@@ -441,6 +465,7 @@ export class Nuxt extends Utils {
       { from: 'vite-plugin-vuetify', imported: 'default', local: 'vuetify' },
       { from: '@intlify/unplugin-vue-i18n/vite', imported: 'default', local: 'VueI18nPlugin' },
     ]
+
     importsToAdd.forEach((importItem) => {
       nuxtConfigMod.imports.$add(importItem)
     })
@@ -462,14 +487,17 @@ export class Nuxt extends Utils {
         const vuetifyPluginStr = viteConfigStr.match(/vuetify\({.*?}\),/gms)?.[0]
         const i18nPluginStr = viteConfigStr.match(/VueI18nPlugin\({.*?}\),/gms)?.[0]
 
-        if (!vuetifyPluginStr || !i18nPluginStr)
-          throw consola.error(new Error('Unable to find vuetify or i18n plugin in vite config'))
+        if (!vuetifyPluginStr)
+          throw consola.error(new Error('Unable to find vuetify plugin in vite config'))
+
+        if (!isSk && !i18nPluginStr)
+          throw consola.error(new Error('Unable to find i18n in vite config'))
 
         newData = newData.mustReplace(
           /plugins: \[],/gm,
           `plugins: [
             ${vuetifyPluginStr}
-            ${i18nPluginStr}
+            ${isSk ? null : i18nPluginStr}
           ],`,
         )
 
@@ -480,8 +508,9 @@ export class Nuxt extends Utils {
         )
 
         // Add runtimeConfig for baseUrl
-        newData = newData.mustReplace(
-          'components: {',
+        if (!isSk) {
+          newData = newData.mustReplace(
+            'components: {',
           `/*
     ❗ Please read the docs before updating runtimeConfig
     https://nuxt.com/docs/guide/going-further/runtime-config
@@ -497,7 +526,8 @@ export class Nuxt extends Utils {
     },
   },
   components: {`,
-        )
+          )
+        }
 
         return removePathPrefix(newData, 'src')
       },
@@ -559,10 +589,6 @@ export class Nuxt extends Utils {
         },
       )
     })
-  }
-
-  private async replacePluginsWithModules(sourcePath: string, lang: Lang) {
-    // Can't use vuetify nuxt module we'll try with i18n next
   }
 
   private update404Page() {
@@ -851,12 +877,12 @@ export {}`,
       `import { defu } from 'defu'
 import type { UseFetchOptions } from 'nuxt/app'
 
-export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions<T> = {}) => {
+export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, options: UseFetchOptions<T> = {}) => {
   const config = useRuntimeConfig()
 
   const defaults: UseFetchOptions<T> = {
     baseURL: config.public.apiBaseUrl,
-    key: url,
+    key: toValue(url),
   }
 
   // for nice deep defaults, please use unjs/defu
@@ -990,6 +1016,30 @@ export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions
     })
   }
 
+  // TODO: We can convert this to utility function
+  private moveToProjectsDir(isFree: boolean, isJS: boolean, isSK: boolean) {
+    const replaceDest = (() => {
+      const paths = this.templateConfig.nuxt.paths
+
+      if (isFree)
+        return isJS ? paths.freeJS : paths.freeTS
+      else if (isJS)
+        return isSK ? paths.JSStarter : paths.JSFull
+      else
+        return isSK ? paths.TSStarter : paths.TSFull
+    })()
+
+    consola.info('replaceDest :>> ', replaceDest)
+
+    // TODO: For free we might have to update the links.
+
+    // Make sure dest dir exist. This is useful if we are generating laravel for first time.
+    fs.ensureDirSync(replaceDest)
+
+    // Place temp dir content in respected destination dir
+    replaceDir(this.projectPath, replaceDest)
+  }
+
   private async genNuxt(options?: { isSK?: boolean; isJS?: boolean; isFree?: boolean }) {
     /*
       ℹ️ Even though constructor of this class assigns the temp dir to the class we have to reinitialize the temp dir
@@ -1027,11 +1077,8 @@ export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions
       { cwd: this.tempDir },
     )
 
-    // Open generated nuxt project in vscode
-    execCmd(`code --profile vue ${path.join(this.tempDir, this.templateConfig.nuxt.pkgName)}`)
-
-    await this.copyVueProjectFiles(sourcePath, isJS, lang)
-    execCmd('git init && git add . && git commit -m init', { cwd: this.projectPath })
+    await this.copyVueProjectFiles(sourcePath, isJS, lang, isSK)
+    // execCmd('code --profile vue .', { cwd: this.projectPath })
 
     this.updatePkgJson(sourcePath)
     this.removeEslintInternalRules(this.projectPath)
@@ -1065,29 +1112,36 @@ export const useApi: typeof useFetch = <T>(url: string, options: UseFetchOptions
     })
 
     // Update plugins to use defineNuxtPlugin
-    this.updatePlugins()
+    this.updatePlugins(isSK)
 
     // Update nuxt.config.ts
-    await this.updateNuxtConfig(sourcePath, lang, langConfigFile)
-    this.injectExtendedRoutesInNuxtConfig(sourcePath, lang)
+    await this.updateNuxtConfig(sourcePath, lang, langConfigFile, isSK)
 
-    this.convertBeforeEachToMiddleware(sourcePath, lang)
+    if (!isSK)
+      this.updateAdditionalRoutes(sourcePath, lang)
+
+    if (isSK)
+      // We don't want additional routes in SK
+      await fs.remove(path.join(this.projectPath, 'app'))
+    else
+      this.convertBeforeEachToMiddleware(sourcePath, lang)
 
     // Remove unwanted files
-    fs.removeSync(path.join(this.projectPath, 'vite.config.ts'))
-    fs.removeSync(path.join(this.projectPath, 'plugins', 'router'))
+    await fs.remove(path.join(this.projectPath, 'vite.config.ts'))
+    await fs.remove(path.join(this.projectPath, 'plugins', 'router'))
 
     // Rename definePage to definePageMeta
     this.replaceDefinePageWithDefinePageMeta()
 
-    // Replace plugins with modules
-    await this.replacePluginsWithModules(sourcePath, lang)
-
     this.update404Page()
-    this.remove404PageNavLink()
+
+    if (!isSK)
+      this.remove404PageNavLink()
+
     this.updateLayouts()
 
-    this.copyServerApi()
+    if (!isSK)
+      this.copyServerApi()
 
     // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
     writeFileSyncUTF8(
@@ -1105,7 +1159,8 @@ import VueApexCharts from 'vue3-apexcharts'
 
     this.useNuxtFetch()
 
-    this.useAuthModule()
+    if (!isSK)
+      this.useAuthModule()
 
     await this.updateCustomRouteMeta(sourcePath)
 
@@ -1131,11 +1186,39 @@ import VueApexCharts from 'vue3-apexcharts'
     consola.start('Linting the code...')
     execCmd('pnpm lint', { cwd: this.projectPath })
 
-    // TODO: Remove eslint internal rules. I suggest creating separate utility function because we are doing this at multiple places
+    this.moveToProjectsDir(isFree, isJS, isSK)
     consola.success('You are ready to rock baby!')
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
+    const { TSFull } = this.templateConfig.nuxt.paths
+
+    // Gen Nuxt TS Full
     await this.genNuxt()
+
+    // Report if any file is over 100KB
+    /*
+      ℹ️ We aren't compressing files like vue package because nuxt is generated from vue package
+      Hence, if there's any asset over 100KB, just report it.
+    */
+    await reportOversizedFiles(
+      `${TSFull}/public/images`,
+      isInteractive,
+      {
+        reportPathRelativeTo: TSFull,
+      },
+    )
+
+    // Generate Nuxt TS Starter
+    await this.genNuxt({ isSK: true })
+
+    // Generate Nuxt JS Full
+    // await this.genNuxt({ isJS: true })
+
+    // // Generate Nuxt JS Starter
+    // await this.genNuxt({
+    //   isJS: true,
+    //   isSK: true,
+    // })
   }
 }

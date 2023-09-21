@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
 import fs from 'fs-extra'
@@ -20,9 +20,13 @@ export class GenPkg extends Utils {
   async genPkg(isInteractive = true, newPkgVersion?: string) {
     const { tSFull, jSFull } = this.templateConfig.paths
 
-    const compressedFiles = await compressOverSizedFiles(`${tSFull}/src/assets/images`, {
-      reportPathRelativeTo: tSFull,
-    })
+    const compressedFiles = await compressOverSizedFiles(
+      `${tSFull}/src/assets/images`,
+      isInteractive,
+      {
+        reportPathRelativeTo: tSFull,
+      },
+    )
 
     // Ask user to commit the compressed images
     if (isInteractive && compressedFiles.length) {

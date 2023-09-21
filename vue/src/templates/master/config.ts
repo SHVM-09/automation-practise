@@ -10,10 +10,14 @@ export type MasterConfig = TemplateBaseConfig & { paths: { freeInternalTs: strin
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const masterVuePath = path.join(getTemplatePath('master', 'vue'))
-const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
-const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
 const masterVueFreeInternalPath = masterVuePath.mustReplace('vue', 'vue-free-internal')
+const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
+
+const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
 const masterVueLaravelFreePath = masterVuePath.mustReplace('vue', 'vue-laravel-free')
+
+const masterNuxtPath = path.join(getTemplatePath('master', 'nuxt'))
+const masterNuxtFreePath = masterNuxtPath.mustReplace('nuxt', 'nuxt-free')
 
 export const config: MasterConfig = {
   templateName: 'master',
@@ -140,6 +144,14 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   nuxt: {
     pkgName: 'master-nuxtjs-admin-template',
+    paths: {
+      TSFull: path.join(masterNuxtPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(masterNuxtPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(masterNuxtPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(masterNuxtPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(masterNuxtFreePath, 'javascript-version'),
+      freeTS: path.join(masterNuxtFreePath, 'typescript-version'),
+    },
   },
   laravel: {
     pkgName: 'master-vuetify-vuejs-laravel-admin-template',
