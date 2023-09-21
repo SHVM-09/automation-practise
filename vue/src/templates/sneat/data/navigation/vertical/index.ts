@@ -1,9 +1,7 @@
-import type { VerticalNavItems } from '@/@layouts/types'
-
 export default [
   {
     title: 'Home',
-    to: { name: 'index' },
+    to: { name: 'root' },
     icon: { icon: 'bx-home-alt' },
   },
   {
@@ -11,4 +9,4 @@ export default [
     to: { name: 'second-page' },
     icon: { icon: 'bx-file-blank' },
   },
-] as VerticalNavItems
+]

@@ -1,9 +1,7 @@
-import type { HorizontalNavItems } from '@layouts/types'
-
 export default [
   {
     title: 'Home',
-    to: { name: 'index' },
+    to: { name: 'root' },
     icon: { icon: 'mdi-home-outline' },
   },
   {
@@ -11,4 +9,4 @@ export default [
     to: { name: 'second-page' },
     icon: { icon: 'mdi-file-document-outline' },
   },
-] as HorizontalNavItems
+]
