@@ -538,7 +538,7 @@ export class Laravel extends Utils {
     else {
       updateFile(
         path.join(this.resourcesPath, lang, '@core', 'components', 'BuyNow.vue'),
-        data => data.mustReplace(/https:\/\/themeselection\.com.*\//g, this.templateConfig.laravel.buyNowLink),
+        data => data.replace(/https:\/\/themeselection\.com.*\//g, this.templateConfig.laravel.buyNowLink),
       )
     }
 
