@@ -672,9 +672,11 @@ export class Laravel extends Utils {
       ℹ️ We aren't compressing files like vue package because laravel is generated from vue package
       Hence, if there's any asset over 100KB, just report it.
     */
-    reportOversizedFiles(`${TSFull}/resources/images`, {
-      reportPathRelativeTo: TSFull,
-    })
+    await reportOversizedFiles(
+      `${TSFull}/resources/images`,
+      isInteractive,
+      { reportPathRelativeTo: TSFull },
+    )
 
     // Generate Laravel TS Starter
     await this.genLaravel({ isSK: true })

@@ -16,6 +16,7 @@ export interface TemplateBaseConfig {
   projectPath: string
   packageCopyIgnorePatterns: string[]
   sKImagesRemovePatterns: string[]
+  // TODO: Align naming with laravel version paths
   paths: {
     tSFull: string
     tSStarter: string
@@ -44,6 +45,14 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   nuxt: {
     pkgName: string
+    paths: {
+      TSFull: string
+      TSStarter: string
+      JSFull: string
+      JSStarter: string
+      freeJS: string
+      freeTS: string
+    }
   }
   laravel: {
     pkgName: string

@@ -7,6 +7,7 @@ import fs from 'fs-extra'
 import { globbySync } from 'globby'
 import tinify from 'tinify'
 import type { PackageJson } from 'type-fest'
+import { TempLocation } from './temp'
 import { execCmd, readFileSyncUTF8, updateFile } from '@/utils/node'
 
 /**
@@ -65,18 +66,35 @@ const getFilesStrList = (files: { filePath: string; size: number }[], reportPath
   }).join('')
 }
 
-export const reportOversizedFiles = (globPattern: string, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}) => {
+export const reportOversizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}) => {
   const { reportPathRelativeTo, maxSizeInKb = 100 } = options
   const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb)
 
   if (overSizedFiles.length) {
     const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
 
-    consola.error(new Error(`Please optimize (<${maxSizeInKb}kb) the following images: \n${filesStr}\n`))
+    if (!isInteractive) {
+      consola.info('Skipping due to non-interactive mode. Please optimize the following images: \n', filesStr)
+      return
+    }
+
+    const tempDir = new TempLocation().tempDir
+
+    overSizedFiles.forEach((f) => {
+      fs.copySync(f.filePath, path.join(tempDir, path.basename(f.filePath)))
+    })
+    consola.info(`Large images copied to ${tempDir}`)
+
+    const shouldIgnoreOversizedFiles = await consola.prompt(`Below files are still oversized even after compression would you like to continue?\n${filesStr}`, {
+      type: 'confirm',
+    })
+
+    if (!shouldIgnoreOversizedFiles)
+      throw consola.error(new Error(`Please optimize (<${maxSizeInKb}kb) the following images: \n${filesStr}\n`))
   }
 }
 
-export const compressOverSizedFiles = async (globPattern: string, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}): Promise<OversizedFileStats[]> => {
+export const compressOverSizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}): Promise<OversizedFileStats[]> => {
   dotenv.config()
 
   const { reportPathRelativeTo, maxSizeInKb = 100 } = options
@@ -95,7 +113,7 @@ export const compressOverSizedFiles = async (globPattern: string, options: { rep
   consola.success('File compression done, Thanks 🐼')
 
   consola.info('Checking for oversized files again...')
-  reportOversizedFiles(globPattern, options)
+  await reportOversizedFiles(globPattern, isInteractive, options)
 
   consola.success('All files are optimized 🎉')
 

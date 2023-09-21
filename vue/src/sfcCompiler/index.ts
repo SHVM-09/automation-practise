@@ -114,6 +114,12 @@ export class SFCCompiler {
         if (jsSfc[jsSfc.length - 1] === '')
           jsSfc.pop()
 
+        // If there's ending comment in SFC script block add it back 
+        const endingComment = codeComments.find(cmt => cmt.nextLine.trim() === 'return (_ctx, _cache) => {')
+
+        if (endingComment)
+          jsSfc.push(endingComment.comment)
+
         return ['<script setup>', ...jsSfc, '</script>'].join('\n')
       }
       else {
