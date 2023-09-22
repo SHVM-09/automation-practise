@@ -1,6 +1,7 @@
 import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
+import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
@@ -8,7 +9,7 @@ import { GenJS } from './genJS'
 import { GenSK } from './genSK'
 import { updatePkgJsonVersion } from '@/utils/template'
 import { TempLocation } from '@/utils/temp'
-import { askBoolean, execCmd } from '@/utils/node'
+import { execCmd } from '@/utils/node'
 import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
 import { Utils } from '@/templates/base/helper'
 
@@ -31,7 +32,9 @@ export class GenPkg extends Utils {
     // Ask user to commit the compressed images
     if (isInteractive && compressedFiles.length) {
       consola.warn('If you want to commit compressed images, make sure you don\'t have extra changes except compressed images.')
-      const shouldCommit = await askBoolean('Do you want to commit the compressed images?')
+      const shouldCommit = await consola.prompt('Do you want to commit the compressed images?', {
+        type: 'confirm',
+      })
 
       if (shouldCommit) {
         execCmd('git add .', { cwd: tSFull })
@@ -114,11 +117,12 @@ export class GenPkg extends Utils {
 
     // ℹ️ We might not need this in future if we correctly handle `postProcessGeneratedPkg` hook
     // Copy documentation.html file from root of the repo
-    fs.copyFileSync(
-      path.join(this.templateConfig.projectPath, 'documentation.html'),
-      path.join(tempPkgDir, 'documentation.html'),
-    )
-    consola.success('Documentation file copied successfully\n')
+    consola.info(colorize('cyanBright', 'We have disabled copying documentation in base script because we are copying it in post process hook. Let\'s check if we really need this in PI based templates?'))
+    // fs.copyFileSync(
+    //   path.join(this.templateConfig.projectPath, 'documentation.html'),
+    //   path.join(tempPkgDir, 'documentation.html'),
+    // )
+    // consola.success('Documentation file copied successfully\n')
 
     if (isInteractive || newPkgVersion) {
       const tempPkgTSFullPackageJsonPath = path.join(tempPkgTSFull, 'package.json')
@@ -133,7 +137,12 @@ export class GenPkg extends Utils {
 
     // Ask for running `postProcessGeneratedPkg` if pixinvent
     if (this.templateConfig.templateDomain === 'pi') {
-      if (await askBoolean('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
+      consola.info(colorize('cyanBright', 'We have disabled running post process hook for PI based template due to incomplete hook'))
+      const shouldInjectInPreviousPackage = false
+      // const shouldInjectInPreviousPackage = await consola.prompt('Vue package is ready to rock, Do you want me to inject it in last pkg?', {
+      //   type: 'confirm',
+      // })
+      if (shouldInjectInPreviousPackage)
         await this.hooks.postProcessGeneratedPkg(tempPkgDir)
     }
     else {

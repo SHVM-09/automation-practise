@@ -1,6 +1,6 @@
-import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'child_process'
-import { exec, execSync } from 'child_process'
-import readline from 'readline'
+import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
+import { exec, execSync } from 'node:child_process'
+import readline from 'node:readline'
 import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
@@ -90,12 +90,6 @@ export const ask = (que: string) => {
     rl.close()
     resolve(ans)
   }))
-}
-
-export const askBoolean = async (que: string) => {
-  const response = await ask(`${que} [y/n]: `)
-
-  return ['y', 'yes', 'true'].includes(response.toLowerCase())
 }
 
 export async function downloadFile(url: string, token: string) {

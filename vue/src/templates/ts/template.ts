@@ -1,4 +1,4 @@
-import path from 'path'
+import path from 'node:path'
 import type { TemplateBaseConfig } from '@templates/base'
 import { TemplateBase } from '@templates/base'
 import { consola } from 'consola'
@@ -14,15 +14,20 @@ export class ThemeSelectionTemplate<TemplateConfig extends TemplateBaseConfig> e
   }
 
   override async postProcessGeneratedPkg(tempPkgDir: string, isLaravel = false): Promise<void> {
-    // Copy files to the root of the package
-    ['documentation.html', 'hire-us.html'].forEach((fileName) => {
-      fs.copyFileSync(
-        path.join(this.config.projectPath, fileName),
-        path.join(tempPkgDir, fileName),
-      )
-      consola.success(`${fileName} file copied successfully`)
-    })
-    consola.log('\n')
+    const isMaster = this.config.templateName === 'master'
+
+    // ℹ️ Master don't have documentation & hire us file
+    if (!isMaster) {
+      // Copy files to the root of the package
+      ['documentation.html', 'hire-us.html'].forEach((fileName) => {
+        fs.copyFileSync(
+          path.join(this.config.projectPath, fileName),
+          path.join(tempPkgDir, fileName),
+        )
+        consola.success(`${fileName} file copied successfully`)
+      })
+      consola.log('\n')
+    }
 
     // Replace doc url in documentation.html file if it's laravel
     if (isLaravel) {
@@ -45,4 +50,3 @@ export class ThemeSelectionTemplate<TemplateConfig extends TemplateBaseConfig> e
     await new Promise(resolve => setTimeout(resolve, 1))
   }
 }
-
