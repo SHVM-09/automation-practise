@@ -17,7 +17,7 @@ const main = defineCommand({
       alias: 'n',
       type: 'boolean',
       description: 'Run script in non-interactive mode',
-      default: false,
+      default: true,
     },
   },
   async run({ args }) {
