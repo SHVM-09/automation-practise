@@ -31,7 +31,7 @@ export class Utils {
 
   protected removeBuyNow(projectDir: string) {
     filterFileByLine(
-      path.join(projectDir, 'src', 'components', 'BuyNow.vue'),
+      path.join(projectDir, 'src', '@core', 'components', 'BuyNow.vue'),
       line => !line.includes('BuyNow'),
     )
   }
