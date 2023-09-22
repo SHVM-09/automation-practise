@@ -1197,7 +1197,7 @@ import VueApexCharts from 'vue3-apexcharts'
     const { TSFull } = this.templateConfig.nuxt.paths
 
     // Gen Nuxt TS Full
-    // await this.genNuxt()
+    await this.genNuxt()
 
     // Report if any file is over 100KB
     /*
@@ -1216,7 +1216,7 @@ import VueApexCharts from 'vue3-apexcharts'
     // await this.genNuxt({ isSK: true })
 
     // Generate Nuxt JS Full
-    await this.genNuxt({ isJS: true })
+    // await this.genNuxt({ isJS: true })
 
     // // Generate Nuxt JS Starter
     // await this.genNuxt({
