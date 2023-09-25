@@ -23,4 +23,3 @@ const main = defineCommand({
 })
 
 await runMain(main)
-
