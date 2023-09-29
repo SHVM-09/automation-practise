@@ -1,8 +1,8 @@
-import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
+import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import type { GenPkgHooks } from '@types'
@@ -727,10 +727,8 @@ const handleError = () => clearError({ redirect: '/' })
         .mustReplace(
           '<RouterView />',
           `<NuxtLayout>
-            <div>
-              <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
-              <NuxtPage />
-            </div>
+            <NuxtPage />
+            <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
           </NuxtLayout>`,
         ),
     )
