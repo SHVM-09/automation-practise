@@ -140,6 +140,14 @@ export const config: VuexyConfig = {
   gtm: pixinventGTMConfig,
   nuxt: {
     pkgName: 'vuexy-nuxtjs-admin-template',
+    paths: {
+      TSFull: path.join(vuexyVuePath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(vuexyVuePath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(vuexyVuePath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(vuexyVuePath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(vuexyVueFreePath, 'javascript-version'),
+      freeTS: path.join(vuexyVueFreePath, 'typescript-version'),
+    },
   },
   laravel: {
     pkgName: 'vuexy-vuejs-laravel-admin-template',
