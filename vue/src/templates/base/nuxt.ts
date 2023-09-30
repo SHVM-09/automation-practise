@@ -754,7 +754,7 @@ const handleError = () => clearError({ redirect: '/' })
     // replaceDir(masterServerApiPath, serverDirPath)
 
     // Paths
-    const templateImgDir = path.join(masterServerApiRepoPath, 'templates', this.templateConfig.templateName, 'public', 'images')
+    const templateImgDir = path.join(masterServerApiRepoPath, 'public', 'images')
     const projectImgDir = path.join(this.projectPath, 'public', 'images')
 
     // If master template then replace images dir from public
