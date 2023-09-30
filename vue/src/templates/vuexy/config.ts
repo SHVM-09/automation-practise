@@ -13,6 +13,8 @@ const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
 const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
 const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace('vue', 'vue-laravel-free')
+const vuexyNuxtPath = path.join(getTemplatePath('vuexy', 'nuxt'))
+const vuexyNuxtFreePath = path.join(getTemplatePath('vuexy', 'nuxt-free'))
 
 export const config: VuexyConfig = {
   templateName: 'vuexy',
@@ -141,12 +143,12 @@ export const config: VuexyConfig = {
   nuxt: {
     pkgName: 'vuexy-nuxtjs-admin-template',
     paths: {
-      TSFull: path.join(vuexyVuePath, 'typescript-version', 'full-version'),
-      TSStarter: path.join(vuexyVuePath, 'typescript-version', 'starter-kit'),
-      JSFull: path.join(vuexyVuePath, 'javascript-version', 'full-version'),
-      JSStarter: path.join(vuexyVuePath, 'javascript-version', 'starter-kit'),
-      freeJS: path.join(vuexyVueFreePath, 'javascript-version'),
-      freeTS: path.join(vuexyVueFreePath, 'typescript-version'),
+      TSFull: path.join(vuexyNuxtPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(vuexyNuxtPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(vuexyNuxtPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(vuexyNuxtPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(vuexyNuxtFreePath, 'javascript-version'),
+      freeTS: path.join(vuexyNuxtFreePath, 'typescript-version'),
     },
   },
   laravel: {

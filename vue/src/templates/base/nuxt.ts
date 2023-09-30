@@ -1,8 +1,8 @@
+import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
-import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import type { GenPkgHooks } from '@types'
@@ -771,13 +771,14 @@ const handleError = () => clearError({ redirect: '/' })
     if (!fs.existsSync(templateImgDir))
       throw consola.error(new Error(`Unable to find images dir: ${templateImgDir}`))
 
+    // NOTE: We don't know ATM if we need to raise this error
     // Check number of files inside `templateImgDir` dir matches`projectImgDir` dir
-    const getNumberOfFiles = (dirPath: string) => globbySync(['*'], {
-      cwd: dirPath,
-      onlyFiles: true,
-    }).length
-    if (getNumberOfFiles(templateImgDir) !== getNumberOfFiles(projectImgDir))
-      throw consola.error(new Error(`Number of files in ${templateImgDir} doesn't match ${projectImgDir}`))
+    // const getNumberOfFiles = (dirPath: string) => globbySync(['*'], {
+    //   cwd: dirPath,
+    //   onlyFiles: true,
+    // }).length
+    // if (getNumberOfFiles(templateImgDir) !== getNumberOfFiles(projectImgDir))
+    //   throw consola.error(new Error(`Number of files in ${templateImgDir} doesn't match ${projectImgDir}`))
 
     // Replace images dir
     replaceDir(templateImgDir, projectImgDir)
