@@ -744,7 +744,7 @@ const handleError = () => clearError({ redirect: '/' })
 
   private copyServerApi() {
     // Paths
-    const masterServerApiRepoPath = getTemplatePath('master', 'nuxt-api')
+    const masterServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
     const masterServerApiPath = path.join(masterServerApiRepoPath, 'server')
 
     const serverDirPath = path.join(this.projectPath, 'server')
@@ -978,7 +978,7 @@ export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, option
       ),
     )
 
-    const masterServerApiRepoPath = getTemplatePath('master', 'nuxt-api')
+    const masterServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
 
     // Copy next-auth.d.ts
     fs.copyFileSync(
