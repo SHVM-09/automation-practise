@@ -14,7 +14,7 @@ const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
 const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
 const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace('vue', 'vue-laravel-free')
 const vuexyNuxtPath = path.join(getTemplatePath('vuexy', 'nuxt'))
-const vuexyNuxtFreePath = path.join(getTemplatePath('vuexy', 'nuxt-free'))
+const vuexyNuxtFreePath = path.join(getTemplatePath('nuxt', 'nuxt-free'))
 
 export const config: VuexyConfig = {
   templateName: 'vuexy',
