@@ -1,8 +1,8 @@
+import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
-import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import { consola } from 'consola'
@@ -359,7 +359,7 @@ export class Nuxt extends Utils {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { plugins: _, ...viteConfig } = getDefaultExportOptions(viteConfigMod)
-    
+
     // Replace relative path to "./src" dir with "../src" dir. Later src dir will be removed as prefix
     const vueTsConfigPaths = langConfig.compilerOptions?.paths || {}
     const nuxtTsConfigPaths: Exclude<TsConfigJson['compilerOptions'], undefined>['paths'] = {}
@@ -440,8 +440,8 @@ export class Nuxt extends Utils {
         server: false,
         client: false,
       },
-       vue: {
-         compilerOptions: {},
+      vue: {
+        compilerOptions: {},
       },
       vite: {
         ...viteConfig,
@@ -482,7 +482,7 @@ export class Nuxt extends Utils {
       trailingComma: true,
     })
 
-    updateFile( 
+    updateFile(
       nuxtConfigPath,
       (data) => {
         // Wrap single quotes where line starts with @. This was tricky but I'm magic baby!
@@ -514,7 +514,7 @@ export class Nuxt extends Utils {
             compilerOptions: {
               isCustomElement: tag => tag === 'swiper-container' || tag === 'swiper-slide',
             },
-          },`
+          },`,
         )
 
         // Add sourcemap comment
