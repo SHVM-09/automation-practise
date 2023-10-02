@@ -455,6 +455,10 @@ export class Nuxt extends Utils {
     // Add modules
     addNuxtModule(nuxtConfigMod, '@vueuse/nuxt')
 
+    // Device module
+    addNuxtModule(nuxtConfigMod, '@nuxtjs/device')
+    this.pkgsToInstall.devDependencies.push('@nuxtjs/device')
+
     if (!isSk)
       addNuxtModule(nuxtConfigMod, '@sidebase/nuxt-auth')
 
@@ -713,7 +717,7 @@ const handleError = () => clearError({ redirect: '/' })
     })
   }
 
-  private updateLayouts() {
+  private updateLayouts(lang: Lang) {
     const layoutsDirPath = path.join(this.projectPath, 'layouts')
     const layoutsPaths = [
       path.join(layoutsDirPath, 'blank.vue'),
@@ -731,7 +735,7 @@ const handleError = () => clearError({ redirect: '/' })
 
     layoutsPaths.forEach(modifyLayout)
 
-    // Replace RouterView with NuxtLayout, NuxtPage & Loading indicator
+    // Replace RouterView with NuxtLayout, NuxtPage & Loading indicator & SSR updates
     updateFile(
       path.join(this.projectPath, 'app.vue'),
       data => data
@@ -741,15 +745,64 @@ const handleError = () => clearError({ redirect: '/' })
             <NuxtPage />
             <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
           </NuxtLayout>`,
+        )
+
+        // Destructure appContentLayoutNav
+        .mustReplace(
+          '} = useThemeConfig()',
+          ', appContentLayoutNav } = useThemeConfig()',
+        )
+
+        // Get isMobile from $device for SSR
+        .mustReplace(
+          '</script>',
+          `const { isMobile } = useDevice()
+if (isMobile)
+  appContentLayoutNav.value = 'vertical'
+</script>`,
         ),
     )
 
     // Use slot in nuxt
     const defaultLayoutPath = path.join(layoutsDirPath, 'default.vue')
-    updateFile(defaultLayoutPath, data => data.mustReplace(
-      /(?<=<Component.*?)\/>/gms,
-      '>\n<slot />\n</Component>',
-    ),
+    updateFile(
+      defaultLayoutPath,
+      data => data.mustReplace(
+        /(?<=<Component.*?)\/>/gms,
+        '>\n<slot />\n</Component>',
+      ),
+    )
+
+    // Update `useLayout` composable
+    // src/@layouts/composable/useLayouts.ts
+    const useLayoutPath = path.join(this.projectPath, '@layouts', 'composable', `useLayouts.${lang}`)
+    updateFile(
+      useLayoutPath,
+      data => data.mustReplace(
+        /(?<=watch\(isLessThanOverlayNavBreakpoint.*?\n).*?(?=\n\s+}, { immediate: true }\))/gms,
+        `if (!val) {
+        appContentLayoutNav.value = lgAndUpNav.value
+      }
+      else {
+        if (!shouldChangeContentLayoutNav.value) {
+          setTimeout(() => {
+            appContentLayoutNav.value = AppContentLayoutNav.Vertical
+          }, 500)
+        }
+        else {
+          appContentLayoutNav.value = AppContentLayoutNav.Vertical
+        }
+      }`,
+      )
+        .mustReplace(
+          /watch\(isLessThanOverlayNavBreakpoint/gm,
+          `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
+
+    shouldChangeContentLayoutNav.value = false
+
+    watch(isLessThanOverlayNavBreakpoint`,
+        ),
+
     )
   }
 
@@ -1151,7 +1204,7 @@ export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, option
     if (!isSK)
       this.remove404PageNavLink(lang)
 
-    this.updateLayouts()
+    this.updateLayouts(lang)
 
     if (!isSK)
       this.copyServerApi()
