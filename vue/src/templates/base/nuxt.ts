@@ -960,9 +960,14 @@ export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, option
     writeFileSyncUTF8(
       path.join(this.projectPath, 'utils', `api.${lang}`),
       `export const $api = $fetch.create({
-  // ℹ️ We have to duplicate the \`nuxt.config.ts\`'s  \`runtimeConfig.public.apiBaseUrl\` here.
-  baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
-})`,
+
+  // Request interceptor
+  async onRequest({ options }) {
+    // Set baseUrl for all API calls
+    options.baseURL = useRuntimeConfig().public.apiBaseUrl || '/api'
+  },
+})
+`,
     )
   }
 
