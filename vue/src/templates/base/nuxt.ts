@@ -545,6 +545,11 @@ export class Nuxt extends Utils {
           )
         }
 
+        // Replace API paths in tsconfig aliases & Vite aliases
+        newData = newData
+          .replace('plugins/fake-api/utils/', 'server/utils/')
+          .replace('plugins/fake-api/handlers/', 'server/fake-db/')
+
         return removePathPrefix(newData, 'src')
       },
     )
