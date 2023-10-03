@@ -1,8 +1,8 @@
+import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
-import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import { consola } from 'consola'
@@ -259,6 +259,11 @@ export class Nuxt extends Utils {
           if (!updatedData.includes('nuxtApp.'))
             updatedData = updatedData.mustReplace(/nuxtApp/gm, '()')
 
+          if (filePath.includes('iconify')) {
+            // Remove icons.css import from entry file
+            updatedData = updatedData.mustReplace('import \'./icons.css\'', '')
+          }
+
           // If it's vuetify plugin then enable SSR
           if (filePath.includes('vuetify')) {
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
@@ -359,7 +364,7 @@ export class Nuxt extends Utils {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { plugins: _, ...viteConfig } = getDefaultExportOptions(viteConfigMod)
-    
+
     // Replace relative path to "./src" dir with "../src" dir. Later src dir will be removed as prefix
     const vueTsConfigPaths = langConfig.compilerOptions?.paths || {}
     const nuxtTsConfigPaths: Exclude<TsConfigJson['compilerOptions'], undefined>['paths'] = {}
@@ -371,6 +376,7 @@ export class Nuxt extends Utils {
       css: [
         '@core/scss/template/index.scss',
         '@styles/styles.scss',
+        '@/plugins/iconify/icons.css',
       ],
       components: {
         dirs: [
@@ -440,8 +446,8 @@ export class Nuxt extends Utils {
         server: false,
         client: false,
       },
-       vue: {
-         compilerOptions: {},
+      vue: {
+        compilerOptions: {},
       },
       vite: {
         ...viteConfig,
@@ -482,7 +488,7 @@ export class Nuxt extends Utils {
       trailingComma: true,
     })
 
-    updateFile( 
+    updateFile(
       nuxtConfigPath,
       (data) => {
         // Wrap single quotes where line starts with @. This was tricky but I'm magic baby!
@@ -514,7 +520,7 @@ export class Nuxt extends Utils {
             compilerOptions: {
               isCustomElement: tag => tag === 'swiper-container' || tag === 'swiper-slide',
             },
-          },`
+          },`,
         )
 
         // Add sourcemap comment
@@ -544,6 +550,11 @@ export class Nuxt extends Utils {
   components: {`,
           )
         }
+
+        // Replace API paths in tsconfig aliases & Vite aliases
+        newData = newData
+          .replace('plugins/fake-api/utils/', 'server/utils/')
+          .replace('plugins/fake-api/handlers/', 'server/fake-db/')
 
         return removePathPrefix(newData, 'src')
       },
@@ -593,11 +604,11 @@ export class Nuxt extends Utils {
         // https://regex101.com/r/xLPKPd/1
         (data) => {
           // Extract content from definePage macro
-          const definePagePattern = /definePage\({\n +(?<content>.*?)\n}\)/ms
+          const definePagePattern = /definePage\({\s+(?<content>.*?)}\)/gms
           const definePageContent = data.match(definePagePattern)?.groups?.content
 
           // Extract content from meta property and inject it in top level
-          const metaContentPattern = /meta: {\n +(?<content>.*?)\s+},?/ms
+          const metaContentPattern = /meta: {\s+(?<content>.*?)\s+},?/gms
           const definePageMetaContent = definePageContent?.replace(metaContentPattern, '$1') || ''
 
           // Replace definePage with definePageMeta
@@ -960,9 +971,14 @@ export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, option
     writeFileSyncUTF8(
       path.join(this.projectPath, 'utils', `api.${lang}`),
       `export const $api = $fetch.create({
-  // ℹ️ We have to duplicate the \`nuxt.config.ts\`'s  \`runtimeConfig.public.apiBaseUrl\` here.
-  baseURL: process.env.NUXT_PUBLIC_API_BASE_URL || '/api',
-})`,
+
+  // Request interceptor
+  async onRequest({ options }) {
+    // Set baseUrl for all API calls
+    options.baseURL = useRuntimeConfig().public.apiBaseUrl || '/api'
+  },
+})
+`,
     )
   }
 
