@@ -806,25 +806,25 @@ if (isMobile)
     )
   }
 
-  private copyServerApi() {
+  private copyServerApi(isJS: boolean) {
     // Paths
-    const masterServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
-    const masterServerApiPath = path.join(masterServerApiRepoPath, 'server')
+    const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, isJS ? 'nuxt-api-js':'nuxt-api')
+    const templateServerApiPath = path.join(templateServerApiRepoPath, 'server')
 
     const serverDirPath = path.join(this.projectPath, 'server')
 
     // Copy server dir
-    fs.copySync(masterServerApiPath, serverDirPath)
+    fs.copySync(templateServerApiPath, serverDirPath)
     // replaceDir(masterServerApiPath, serverDirPath)
 
     // Paths
-    const templateImgDir = path.join(masterServerApiRepoPath, 'public', 'images')
+    const templateImgDir = path.join(templateServerApiRepoPath, 'public', 'images')
     const projectImgDir = path.join(this.projectPath, 'public', 'images')
 
     // If master template then replace images dir from public
     if (this.templateConfig.templateName === 'master') {
       replaceDir(
-        path.join(masterServerApiRepoPath, 'public', 'images'),
+        path.join(templateServerApiRepoPath, 'public', 'images'),
         projectImgDir,
       )
 
@@ -1207,7 +1207,7 @@ export const useApi: typeof useFetch = <T>(url: MaybeRefOrGetter<string>, option
     this.updateLayouts(lang)
 
     if (!isSK)
-      this.copyServerApi()
+      this.copyServerApi(isJS)
 
     // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
     writeFileSyncUTF8(
@@ -1227,8 +1227,9 @@ import VueApexCharts from 'vue3-apexcharts'
 
     if (!isSK)
       this.useAuthModule(lang)
-
-    await this.updateCustomRouteMeta(sourcePath)
+    
+    if (!isJS)
+      await this.updateCustomRouteMeta(sourcePath)
 
     // Handle SSR issue with light/dark mode
     updateFile(
@@ -1256,11 +1257,41 @@ import VueApexCharts from 'vue3-apexcharts'
     consola.success('You are ready to rock baby!')
   }
 
+  private async genNuxtApiJs() {
+     // Paths
+    const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
+    const templateServerApiJsRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api-js')
+
+    if (fs.existsSync(templateServerApiJsRepoPath))
+      fs.removeSync(templateServerApiJsRepoPath)
+    
+    // Copy server dir
+    fs.copySync(templateServerApiRepoPath, templateServerApiJsRepoPath)
+    fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
+    
+   await execCmd('pnpm install && pnpm tsc --noEmit false', { cwd: templateServerApiJsRepoPath })
+     // Remove all TypeScript files
+    globbySync(
+      [
+        '**/*.ts',
+        '**/*.tsx',
+        '**/*.d.ts',
+        '.git/',
+        '!node_modules',
+      ],
+      {
+        cwd: templateServerApiJsRepoPath,
+        absolute: true,
+      },
+    )
+      .forEach(fs.removeSync)
+  }
+
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
     const { TSFull } = this.templateConfig.nuxt.paths
 
     // Gen Nuxt TS Full
-    await this.genNuxt()
+    // await this.genNuxt()
 
     // Report if any file is over 100KB
     /*
@@ -1278,8 +1309,10 @@ import VueApexCharts from 'vue3-apexcharts'
     // Generate Nuxt TS Starter
     // await this.genNuxt({ isSK: true })
 
+    await this.genNuxtApiJs()
+    
     // Generate Nuxt JS Full
-    // await this.genNuxt({ isJS: true })
+    await this.genNuxt({ isJS: true })
 
     // // Generate Nuxt JS Starter
     // await this.genNuxt({
