@@ -114,13 +114,18 @@ export class SFCCompiler {
         if (jsSfc[jsSfc.length - 1] === '')
           jsSfc.pop()
 
-        // If there's ending comment in SFC script block add it back 
+        // If there's ending comment in SFC script block add it back
         const endingComment = codeComments.find(cmt => cmt.nextLine.trim() === 'return (_ctx, _cache) => {')
+        const startingComment = codeComments.find(cmt => cmt.nextLine.trim() === 'export default /*#__PURE__*/ _defineComponent({')
 
         if (endingComment)
           jsSfc.push(endingComment.comment)
 
-        return ['<script setup>', ...jsSfc, '</script>'].join('\n')
+        let returnValue = ['<script setup>', ...jsSfc, '</script>'].join('\n')
+        if (startingComment)
+          returnValue = returnValue.mustReplace(/(<script.*?>\n(?:.*import .*?\n\s+)?)/gms, `$1${startingComment.comment}\n`)
+
+        return returnValue
       }
       else {
         return ['<script>', _compiledSfc.trim(), '</script>'].join('\n')
