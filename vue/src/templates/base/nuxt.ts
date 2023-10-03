@@ -1255,6 +1255,26 @@ import VueApexCharts from 'vue3-apexcharts'
         '// ❗ Don\'t define `defaultTheme` here. It will prevent switching to dark theme based on user preference due to SSR.',
       ),
     )
+    
+    // handle SSR issue with VWindow and make it client only
+    if (!isSK) {
+      [
+        path.join(this.projectPath, 'pages', 'pages', 'account-settings', '[tab].vue'),
+        path.join(this.projectPath, 'pages', 'pages', 'user-profile', '[tab].vue')
+      ].forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => {
+              if (!data.includes('ClientOnly')){
+                data = data.mustReplace(/<VWindow(?!Item)/gm, '<ClientOnly><VWindow')
+                data = data.mustReplace('</VWindow>', '</VWindow></ClientOnly>')
+                return data
+              }
+            return data
+          })
+       })
+    }
+      
 
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
