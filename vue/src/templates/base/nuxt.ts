@@ -259,6 +259,11 @@ export class Nuxt extends Utils {
           if (!updatedData.includes('nuxtApp.'))
             updatedData = updatedData.mustReplace(/nuxtApp/gm, '()')
 
+          if (filePath.includes('iconify')) {
+            // Remove icons.css import from entry file
+            updatedData = updatedData.mustReplace('import \'./icons.css\'', '')
+          }
+
           // If it's vuetify plugin then enable SSR
           if (filePath.includes('vuetify')) {
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
@@ -371,6 +376,7 @@ export class Nuxt extends Utils {
       css: [
         '@core/scss/template/index.scss',
         '@styles/styles.scss',
+        '@/plugins/iconify/icons.css',
       ],
       components: {
         dirs: [
