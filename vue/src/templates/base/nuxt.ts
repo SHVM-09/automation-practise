@@ -604,11 +604,11 @@ export class Nuxt extends Utils {
         // https://regex101.com/r/xLPKPd/1
         (data) => {
           // Extract content from definePage macro
-          const definePagePattern = /definePage\({\n +(?<content>.*?)\n}\)/ms
+          const definePagePattern = /definePage\({\s+(?<content>.*?)}\)/gms
           const definePageContent = data.match(definePagePattern)?.groups?.content
 
           // Extract content from meta property and inject it in top level
-          const metaContentPattern = /meta: {\n +(?<content>.*?)\s+},?/ms
+          const metaContentPattern = /meta: {\s+(?<content>.*?)\s+},?/gms
           const definePageMetaContent = definePageContent?.replace(metaContentPattern, '$1') || ''
 
           // Replace definePage with definePageMeta
