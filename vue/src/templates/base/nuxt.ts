@@ -1,8 +1,8 @@
-import path from 'node:path'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
+import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import { consola } from 'consola'
@@ -1285,14 +1285,14 @@ import VueApexCharts from 'vue3-apexcharts'
     fs.copySync(templateServerApiRepoPath, templateServerApiJsRepoPath)
     fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
     
-   await execCmd('pnpm install && pnpm tsc --noEmit false', { cwd: templateServerApiJsRepoPath })
+   await execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
      // Remove all TypeScript files
     globbySync(
       [
         '**/*.ts',
         '**/*.tsx',
         '**/*.d.ts',
-        '.git/',
+        '**/*/types.js',
         '!node_modules',
       ],
       {
