@@ -604,11 +604,11 @@ export class Nuxt extends Utils {
         // https://regex101.com/r/xLPKPd/1
         (data) => {
           // Extract content from definePage macro
-          const definePagePattern = /definePage\({\s+(?<content>.*?)}\)/gms
+          const definePagePattern = /definePage\({\s+(?<content>.*?)}\)/ms
           const definePageContent = data.match(definePagePattern)?.groups?.content
 
           // Extract content from meta property and inject it in top level
-          const metaContentPattern = /meta: {\s+(?<content>.*?)\s+},?/gms
+          const metaContentPattern = /meta: {\s+(?<content>.*?)\s+},?/ms
           const definePageMetaContent = definePageContent?.replace(metaContentPattern, '$1') || ''
 
           // Replace definePage with definePageMeta
@@ -819,7 +819,7 @@ if (isMobile)
 
   private copyServerApi(isJS: boolean) {
     // Paths
-    const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, isJS ? 'nuxt-api-js':'nuxt-api')
+    const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, isJS ? 'nuxt-api-js' : 'nuxt-api')
     const templateServerApiPath = path.join(templateServerApiRepoPath, 'server')
 
     const serverDirPath = path.join(this.projectPath, 'server')
@@ -1243,7 +1243,7 @@ import VueApexCharts from 'vue3-apexcharts'
 
     if (!isSK)
       this.useAuthModule(lang)
-    
+
     if (!isJS)
       await this.updateCustomRouteMeta(sourcePath)
 
@@ -1274,19 +1274,19 @@ import VueApexCharts from 'vue3-apexcharts'
   }
 
   private async genNuxtApiJs() {
-     // Paths
+    // Paths
     const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
     const templateServerApiJsRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api-js')
 
     if (fs.existsSync(templateServerApiJsRepoPath))
       fs.removeSync(templateServerApiJsRepoPath)
-    
+
     // Copy server dir
     fs.copySync(templateServerApiRepoPath, templateServerApiJsRepoPath)
     fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
-    
-   await execCmd('pnpm install && pnpm tsc --noEmit false', { cwd: templateServerApiJsRepoPath })
-     // Remove all TypeScript files
+
+    await execCmd('pnpm install && pnpm tsc --noEmit false', { cwd: templateServerApiJsRepoPath })
+    // Remove all TypeScript files
     globbySync(
       [
         '**/*.ts',
@@ -1307,7 +1307,7 @@ import VueApexCharts from 'vue3-apexcharts'
     const { TSFull } = this.templateConfig.nuxt.paths
 
     // Gen Nuxt TS Full
-    // await this.genNuxt()
+    await this.genNuxt()
 
     // Report if any file is over 100KB
     /*
@@ -1325,10 +1325,10 @@ import VueApexCharts from 'vue3-apexcharts'
     // Generate Nuxt TS Starter
     // await this.genNuxt({ isSK: true })
 
-    await this.genNuxtApiJs()
-    
+    // await this.genNuxtApiJs()
+
     // Generate Nuxt JS Full
-    await this.genNuxt({ isJS: true })
+    // await this.genNuxt({ isJS: true })
 
     // // Generate Nuxt JS Starter
     // await this.genNuxt({
