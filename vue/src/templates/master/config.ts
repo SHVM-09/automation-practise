@@ -35,6 +35,7 @@ export const config: MasterConfig = {
     // Files
     'LICENSE.md',
     'license.md',
+    '.env',
     '*.log',
     '*.zip',
 
