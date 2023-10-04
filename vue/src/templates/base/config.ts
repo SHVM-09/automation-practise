@@ -45,6 +45,8 @@ export interface TemplateBaseConfig {
   gtm: GTMConfig
   nuxt: {
     pkgName: string
+    buyNowLink: string
+    projectPath: string
     paths: {
       TSFull: string
       TSStarter: string

@@ -144,6 +144,8 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   nuxt: {
     pkgName: 'master-nuxtjs-admin-template',
+    buyNowLink: 'https://themeselection.com/item/master-vuetify-vuejs-admin-template/',
+    projectPath: masterNuxtPath,
     paths: {
       TSFull: path.join(masterNuxtPath, 'typescript-version', 'full-version'),
       TSStarter: path.join(masterNuxtPath, 'typescript-version', 'starter-kit'),
