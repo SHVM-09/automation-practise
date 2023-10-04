@@ -1,17 +1,17 @@
+import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
-import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
-import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { consola } from 'consola'
 import { globbySync } from 'globby'
 import { addNuxtModule, getDefaultExportOptions } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
+import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 
 import { addImport, addSfcImport, getPackagesVersions, mergeEnvFiles, pinPackagesVersions } from '@/utils/file'
 import '@/utils/injectMustMatch'
@@ -156,8 +156,8 @@ export class Nuxt extends Utils {
     fs.ensureDirSync(serverPluginsDir)
 
     const vuetifyServerPluginPath = path.join(serverPluginsDir, `vuetify.fix.${lang}`)
-    writeFileSyncUTF8(vuetifyServerPluginPath, `export default defineNitroPlugin((nitroApp${!isJS ? ': any':''}) => {
-  nitroApp.hooks.hook("render:response", (response${!isJS ? ': any':''}) => {
+    writeFileSyncUTF8(vuetifyServerPluginPath, `export default defineNitroPlugin((nitroApp${!isJS ? ': any' : ''}) => {
+  nitroApp.hooks.hook("render:response", (response${!isJS ? ': any' : ''}) => {
     response.body = response.body.replaceAll("/_nuxt/\\0", "/_nuxt/");
   });
 });`)
@@ -290,7 +290,7 @@ export class Nuxt extends Utils {
 
     const extendedRoutesStr = addImport(
       readFileSyncUTF8(additionalRoutesPath),
-      lang === 'ts' ? 'import type { RouterConfig } from \'@nuxt/schema\'}':'',
+      lang === 'ts' ? 'import type { RouterConfig } from \'@nuxt/schema\'}' : '',
     )
       // Replace vue-router/auto import with vue/router
       // ℹ️ We are importing type via vue-router/auto and this import might not be available in JS version so we are using `replace`
@@ -308,7 +308,7 @@ export class Nuxt extends Utils {
     const configContent = `${extendedRoutesStr}
 
       // https://router.vuejs.org/api/interfaces/routeroptions.html
-      export default ${lang === 'ts' ? '<RouterConfig>':'' }{
+      export default ${lang === 'ts' ? '<RouterConfig>' : ''}{
           routes: (scannedRoutes) => [
             ...redirects,
             ...routes,
@@ -370,7 +370,7 @@ export class Nuxt extends Utils {
     const vueTsConfigPaths = langConfig.compilerOptions?.paths || {}
     const nuxtTsConfigPaths: Exclude<TsConfigJson['compilerOptions'], undefined>['paths'] = {}
     for (const pathAlias in vueTsConfigPaths)
-      nuxtTsConfigPaths[pathAlias] = vueTsConfigPaths[pathAlias].map(path => path.replace('./', '../'))
+      nuxtTsConfigPaths[pathAlias] = vueTsConfigPaths[pathAlias].map((path: string) => path.replace('./', '../'))
 
     nuxtConfigMod.exports.default.$args[0] = {
       devtools: { enabled: true },
@@ -619,7 +619,7 @@ export class Nuxt extends Utils {
     })
   }
 
-  private update404Page(isJS:boolean) {
+  private update404Page(isJS: boolean) {
     const page404Path = path.join(this.projectPath, 'error.vue')
 
     updateFile(
@@ -635,7 +635,7 @@ export class Nuxt extends Utils {
           '',
         )
 
-        if(!isJS){
+        if (!isJS) {
           newData = newData.mustReplace(
             /(<script.*)/gm,
             '$1\nimport type { NuxtError } from \'nuxt/app\'',
@@ -667,12 +667,14 @@ export class Nuxt extends Utils {
 />`,
         )
 
-        const additionalSetupContent = `${isJS ? `const props = defineProps({
+        const additionalSetupContent = `${isJS
+? `const props = defineProps({
   error: {
     type: Object,
     required: true,
   },
-})`: `const props = defineProps<{
+})`
+ : `const props = defineProps<{
   error: NuxtError
 }>()`} 
 
@@ -930,7 +932,7 @@ export {}`,
     )
   }
 
-  private useNuxtFetch(isJS:boolean, lang: Lang) {
+  private useNuxtFetch(isJS: boolean, lang: Lang) {
     // pattern: createUrl\((.*?}\))\)
 
     // Remove `createUrl` usage from fetch hook using fd
@@ -957,12 +959,12 @@ export {}`,
     writeFileSyncUTF8(
       path.join(this.projectPath, 'composables', `useApi.${lang}`),
       `import { defu } from 'defu'
-${!isJS ? "import type { UseFetchOptions } from 'nuxt/app'":''}
+${!isJS ? 'import type { UseFetchOptions } from \'nuxt/app\'' : ''}
 
-export const useApi${!isJS ? ': typeof useFetch':''}= ${!isJS ? '<T>':''}(url${!isJS ? ': MaybeRefOrGetter<string>':''}, options${!isJS ? ': UseFetchOptions<T>':''} = {}) => {
+export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(url${!isJS ? ': MaybeRefOrGetter<string>' : ''}, options${!isJS ? ': UseFetchOptions<T>' : ''} = {}) => {
   const config = useRuntimeConfig()
 
-  const defaults${!isJS ? ': UseFetchOptions<T>':''} = {
+  const defaults${!isJS ? ': UseFetchOptions<T>' : ''} = {
     baseURL: config.public.apiBaseUrl,
     key: toValue(url),
   }
@@ -989,7 +991,7 @@ export const useApi${!isJS ? ': typeof useFetch':''}= ${!isJS ? '<T>':''}(url${!
     )
   }
 
-  private useAuthModule(isJS:boolean, lang: Lang) {
+  private useAuthModule(isJS: boolean, lang: Lang) {
     // Add sidebase nuxt auth module & next-auth
     this.pkgsToInstall.devDependencies.push('@sidebase/nuxt-auth')
     this.pkgsToInstall.dependencies.push('next-auth@4.21.1')
@@ -999,7 +1001,7 @@ export const useApi${!isJS ? ': typeof useFetch':''}= ${!isJS ? '<T>':''}(url${!
     updateFile(
       loginFilePath,
       (data) => {
-        const newData = addSfcImport(data, `${!isJS ? 'import type { NuxtError } from \'nuxt/app\'\n':''} import { User } from \'next-auth\'\n\nconst { signIn, data: sessionData } = useAuth()\n\n`)
+        const newData = addSfcImport(data, `${!isJS ? 'import type { NuxtError } from \'nuxt/app\'\n' : ''} import { User } from \'next-auth\'\n\nconst { signIn, data: sessionData } = useAuth()\n\n`)
         return newData.mustReplace(
           /const login.*?\n}/gms,
           `async function login() {
@@ -1012,7 +1014,7 @@ export const useApi${!isJS ? ': typeof useFetch':''}= ${!isJS ? '<T>':''}(url${!
   // If error is not null => Error is occurred
   if (response && response.error) {
     const apiStringifiedError = response.error
-    const apiError ${isJS ? '':': NuxtError'}= JSON.parse(apiStringifiedError)
+    const apiError ${isJS ? '' : ': NuxtError'}= JSON.parse(apiStringifiedError)
     errors.value = apiError.data
 
     // If err => Don't execute further
@@ -1023,12 +1025,12 @@ export const useApi${!isJS ? ': typeof useFetch':''}= ${!isJS ? '<T>':''}(url${!
   errors.value = {}
 
   // Update user abilities
-  const { user } = sessionData.value${!isJS ? '!':''}
+  const { user } = sessionData.value${!isJS ? '!' : ''}
 
-  useCookie${!isJS ? '<Partial<User>>':''}('userData').value = user
+  useCookie${!isJS ? '<Partial<User>>' : ''}('userData').value = user
 
   // Save user abilities in cookie so we can retrieve it back on refresh
-  useCookie${!isJS ? "<User['abilityRules']>":""}('userAbilityRules').value = user.abilityRules
+  useCookie${!isJS ? '<User[\'abilityRules\']>' : ''}('userAbilityRules').value = user.abilityRules
 
   ability.update(user.abilityRules ?? [])
 
@@ -1246,10 +1248,10 @@ import VueApexCharts from 'vue3-apexcharts'
 
     this.handleRouterChanges()
 
-    this.useNuxtFetch(isJS,lang)
+    this.useNuxtFetch(isJS, lang)
 
     if (!isSK)
-      this.useAuthModule(isJS,lang)
+      this.useAuthModule(isJS, lang)
 
     if (!isJS)
       await this.updateCustomRouteMeta(sourcePath)
@@ -1262,36 +1264,36 @@ import VueApexCharts from 'vue3-apexcharts'
         '// ❗ Don\'t define `defaultTheme` here. It will prevent switching to dark theme based on user preference due to SSR.',
       ),
     )
-    
+
     // handle SSR issue with VWindow and make it client only
     if (!isSK) {
       [
         path.join(this.projectPath, 'pages', 'pages', 'account-settings', '[tab].vue'),
-        path.join(this.projectPath, 'pages', 'pages', 'user-profile', '[tab].vue')
+        path.join(this.projectPath, 'pages', 'pages', 'user-profile', '[tab].vue'),
       ].forEach((filePath) => {
         updateFile(
           filePath,
-          data => {
-              if (!data.includes('ClientOnly')){
-                data = data.mustReplace(/<VWindow(?!Item)/gm, '<ClientOnly><VWindow')
-                data = data.mustReplace('</VWindow>', '</VWindow></ClientOnly>')
-                return data
-              }
+          (data) => {
+            if (!data.includes('ClientOnly')) {
+              data = data.mustReplace(/<VWindow(?!Item)/gm, '<ClientOnly><VWindow')
+              data = data.mustReplace('</VWindow>', '</VWindow></ClientOnly>')
+              return data
+            }
             return data
           })
-       })
+      })
     }
 
-    // update menu navigation links 
-   if (isSK) {
+    // update menu navigation links
+    if (isSK) {
       [
         path.join(this.projectPath, 'navigation', 'horizontal', `index.${lang}`),
-        path.join(this.projectPath, 'navigation', 'vertical', `index.${lang}`)
+        path.join(this.projectPath, 'navigation', 'vertical', `index.${lang}`),
       ].forEach((filePath) => {
         updateFile(
           filePath,
           data => data.mustReplace('root', 'index'))
-       })
+      })
     }
 
     // Install additional packages
@@ -1322,9 +1324,9 @@ import VueApexCharts from 'vue3-apexcharts'
     // Copy server dir
     fs.copySync(templateServerApiRepoPath, templateServerApiJsRepoPath)
     fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
-    
-   await execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
-     // Remove all TypeScript files
+
+    await execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
+    // Remove all TypeScript files
     globbySync(
       [
         '**/*.ts',
@@ -1342,11 +1344,9 @@ import VueApexCharts from 'vue3-apexcharts'
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
-    const { TSFull } = this.templateConfig.nuxt.paths
-
     // Gen Nuxt TS Full
     await this.genNuxt()
-    consola.success('Nuxt typescript version generated!');
+    consola.success('Nuxt typescript version generated!')
     // Report if any file is over 100KB
     /*
       ℹ️ We aren't compressing files like vue package because nuxt is generated from vue package
@@ -1362,26 +1362,25 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // Generate Nuxt TS Starter
     await this.genNuxt({ isSK: true })
-    consola.success('nuxt typescript Starter-kit generated!');
+    consola.success('nuxt typescript Starter-kit generated!')
 
     // Generate Nuxt-API JS version for Js Only
     await this.genNuxtApiJs()
-    consola.success('Nuxt JS API generated!');
+    consola.success('Nuxt JS API generated!')
 
     // Generate Nuxt JS Full
     await this.genNuxt({ isJS: true })
-    consola.success('Nuxt Javascript version generated!');
+    consola.success('Nuxt Javascript version generated!')
 
     // // Generate Nuxt JS Starter
     await this.genNuxt({
       isJS: true,
       isSK: true,
     })
-    consola.success('Nuxt Javascript Starter-kit version generated!');
+    consola.success('Nuxt Javascript Starter-kit version generated!')
 
+    consola.info('Nuxt Package Generation Start...')
 
-    consola.info('Nuxt Package Generation Start...');
-    
     // Create new temp dir for storing pkg
     const tempPkgDir = new TempLocation().tempDir
     const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
@@ -1407,7 +1406,7 @@ import VueApexCharts from 'vue3-apexcharts'
     this.copyProject(this.templateConfig.nuxt.paths.JSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.nuxt.paths.JSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
 
-     // update node package version in both full versions and starter kits package.json file (ts/js)
+    // update node package version in both full versions and starter kits package.json file (ts/js)
     const packageVersions = getPackagesVersions(this.templateConfig.nuxt.paths.TSFull)
     pinPackagesVersions(packageVersions, tempPkgTSFull)
     pinPackagesVersions(packageVersions, tempPkgTSStarter)
@@ -1416,7 +1415,7 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // Remove BuyNow from both full versions
     // TODO: removeBuyNow method is not generic
-    ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath, index) => {
+    ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath) => {
       filterFileByLine(
         path.join(projectPath, 'App.vue'),
         line => !line.includes('BuyNow'),
