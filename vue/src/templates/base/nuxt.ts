@@ -1001,7 +1001,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     updateFile(
       loginFilePath,
       (data) => {
-        const newData = addSfcImport(data, `${!isJS ? 'import type { NuxtError } from \'nuxt/app\'\n' : ''}import { User } from \'next-auth\'\n\nconst { signIn, data: sessionData } = useAuth()\n\n`)
+        const newData = addSfcImport(data, `${!isJS ? 'import type { NuxtError } from \'nuxt/app\'\nimport type { User } from \'next-auth\'\n\n' : ''}const { signIn, data: sessionData } = useAuth()\n\n`)
         return newData.mustReplace(
           /const login.*?\n}/gms,
           `async function login() {
@@ -1326,6 +1326,7 @@ import VueApexCharts from 'vue3-apexcharts'
     fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
 
     await execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
+
     // Remove all TypeScript files
     globbySync(
       [
@@ -1345,8 +1346,8 @@ import VueApexCharts from 'vue3-apexcharts'
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
     // Gen Nuxt TS Full
-    // await this.genNuxt()
-    // consola.success('Nuxt typescript version generated!')
+    await this.genNuxt()
+    consola.success('Nuxt typescript version generated!')
     // Report if any file is over 100KB
     /*
       ℹ️ We aren't compressing files like vue package because nuxt is generated from vue package
@@ -1361,8 +1362,8 @@ import VueApexCharts from 'vue3-apexcharts'
     // )
 
     // Generate Nuxt TS Starter
-    // await this.genNuxt({ isSK: true })
-    // consola.success('nuxt typescript Starter-kit generated!')
+    await this.genNuxt({ isSK: true })
+    consola.success('nuxt typescript Starter-kit generated!')
 
     // Generate Nuxt-API JS version for Js Only
     await this.genNuxtApiJs()
@@ -1371,12 +1372,13 @@ import VueApexCharts from 'vue3-apexcharts'
     // Generate Nuxt JS Full
     await this.genNuxt({ isJS: true })
     consola.success('Nuxt Javascript version generated!')
+
     // // Generate Nuxt JS Starter
-    // await this.genNuxt({
-    //   isJS: true,
-    //   isSK: true,
-    // })
-    // consola.success('Nuxt Javascript Starter-kit version generated!')
+    await this.genNuxt({
+      isJS: true,
+      isSK: true,
+    })
+    consola.success('Nuxt Javascript Starter-kit version generated!')
 
     consola.info('Nuxt Package Generation Start...')
 
