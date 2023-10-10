@@ -1282,6 +1282,20 @@ import VueApexCharts from 'vue3-apexcharts'
             return data
           })
       })
+
+      // make swiper components client only
+      globbySync('**/**/*.vue', { cwd: this.projectPath, absolute: true }).forEach((filePath) => {
+        updateFile(
+          filePath,
+          (data) => {
+            if (!data.includes('ClientOnly')) {
+              data = data.replaceAll(/<swiper-container/gm, '<ClientOnly><swiper-container')
+              data = data.replaceAll('</swiper-container>', '</swiper-container></ClientOnly>')
+              return data
+            }
+            return data
+          })
+      })
     }
 
     // update menu navigation links
