@@ -27,7 +27,7 @@ const main = defineCommand({
     await nuxt.genPkg(
       // Hooks
       { postProcessGeneratedPkg: (...args) => vuexy.postProcessGeneratedPkg(...args) },
-      !args.n,
+      args['non-interactive'],
       args.version,
     )
   },
