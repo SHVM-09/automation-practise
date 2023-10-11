@@ -142,6 +142,8 @@ export const config: VuexyConfig = {
   gtm: pixinventGTMConfig,
   nuxt: {
     pkgName: 'vuexy-nuxtjs-admin-template',
+    buyNowLink: 'https://1.envato.market/vuexy_admin',
+    projectPath: vuexyNuxtPath,
     paths: {
       TSFull: path.join(vuexyNuxtPath, 'typescript-version', 'full-version'),
       TSStarter: path.join(vuexyNuxtPath, 'typescript-version', 'starter-kit'),
