@@ -963,10 +963,12 @@ ${!isJS ? 'import type { UseFetchOptions } from \'nuxt/app\'' : ''}
 
 export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(url${!isJS ? ': MaybeRefOrGetter<string>' : ''}, options${!isJS ? ': UseFetchOptions<T>' : ''} = {}) => {
   const config = useRuntimeConfig()
+  const accessToken = useCookie('accessToken')
 
   const defaults${!isJS ? ': UseFetchOptions<T>' : ''} = {
     baseURL: config.public.apiBaseUrl,
     key: toValue(url),
+    headers: accessToken.value ? { Authorization: \`Bearer \${accessToken.value}\` } : {},
   }
 
   // for nice deep defaults, please use unjs/defu
@@ -985,6 +987,14 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
   async onRequest({ options }) {
     // Set baseUrl for all API calls
     options.baseURL = useRuntimeConfig().public.apiBaseUrl || '/api'
+
+    const accessToken = useCookie('accessToken').value
+    if (accessToken) {
+      options.headers = {
+        ...options.headers,
+        Authorization: \`Bearer \${accessToken}\`,
+      }
+    }
   },
 })
 `,
