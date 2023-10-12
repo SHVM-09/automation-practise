@@ -1327,7 +1327,7 @@ import VueApexCharts from 'vue3-apexcharts'
     consola.success('You are ready to rock baby!')
   }
 
-  private async genNuxtApiJs() {
+  private genNuxtApiJs() {
     // Paths
     const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
     const templateServerApiJsRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api-js')
@@ -1339,7 +1339,10 @@ import VueApexCharts from 'vue3-apexcharts'
     fs.copySync(templateServerApiRepoPath, templateServerApiJsRepoPath)
     fs.removeSync(path.join(templateServerApiJsRepoPath, '.git'))
 
-    await execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
+    // Remove node_modules amd pnpm-lock.yaml
+    execCmd('rm -rf node_modules pnpm-lock.yaml', { cwd: templateServerApiJsRepoPath })
+    // Install packages
+    execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
 
     // Remove all TypeScript files
     globbySync(
@@ -1380,7 +1383,7 @@ import VueApexCharts from 'vue3-apexcharts'
     consola.success('nuxt typescript Starter-kit generated!')
 
     // Generate Nuxt-API JS version for Js Only
-    await this.genNuxtApiJs()
+    this.genNuxtApiJs()
     consola.success('Nuxt JS API generated!')
 
     // Generate Nuxt JS Full
