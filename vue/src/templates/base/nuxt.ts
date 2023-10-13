@@ -13,6 +13,7 @@ import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
 import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 
+import { titleCase } from '@/utils/conversions'
 import { addImport, addSfcImport, getPackagesVersions, mergeEnvFiles, pinPackagesVersions } from '@/utils/file'
 import '@/utils/injectMustMatch'
 import { getTemplatePath, removePathPrefix } from '@/utils/paths'
@@ -373,6 +374,12 @@ export class Nuxt extends Utils {
       nuxtTsConfigPaths[pathAlias] = vueTsConfigPaths[pathAlias].map((path: string) => path.replace('./', '../'))
 
     nuxtConfigMod.exports.default.$args[0] = {
+      app: {
+        head: {
+          titleTemplate: '%s - NuxtJS Admin Template',
+          title: titleCase(this.templateConfig.templateName),
+        },
+      },
       devtools: { enabled: true },
       css: [
         '@core/scss/template/index.scss',
