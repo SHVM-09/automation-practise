@@ -208,7 +208,7 @@ export class Nuxt extends Utils {
     // Remove typecheck script because in nuxt we use nuxt.config to enable type checking
     delete vuePkgJSON.scripts.typecheck
 
-    // @ts-expect-error - `PackageJson` don't know about msw
+    // `PackageJson` don't know about msw
     delete vuePkgJSON.msw
 
     // Remove unwanted packages
@@ -267,14 +267,8 @@ export class Nuxt extends Utils {
           }
 
           // If it's vuetify plugin then enable SSR
-          if (filePath.includes('vuetify')) {
+          if (filePath.includes('vuetify'))
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
-
-            if (isSK)
-              // Remove i18n from vuetify if it's SK
-              updatedData = updatedData.mustReplace(/\n(\s+)locale: {.*?\n\1},/gms, '')
-          }
-
           return updatedData
         },
       )
@@ -432,7 +426,7 @@ export class Nuxt extends Utils {
       ],
       imports: {
         dirs: ['./@core/utils', './@core/composable/', './plugins/*/composables/*'],
-        presets: [...(isSk ? [] : ['vue-i18n']), 'pinia'],
+        presets: [...(isSk ? [] : ['vue-i18n'])],
       },
       hooks: {
         // We are adding hooks so that we can use them later for injecting code using easy regex
@@ -795,11 +789,13 @@ if (isMobile)
     )
 
     // src/@layouts/utils.ts
+    // https://regex101.com/r/awgAHv/1
     const useLayoutPath = path.join(this.projectPath, '@layouts', `utils.${lang}`)
     updateFile(
       useLayoutPath,
-      data => data.mustReplace(
-        /(?<=watch\(.*?isLessThanOverlayNavBreakpoint.*?val => {\s+).*?(?=\s+},\s+{ immediate: true },)/gms,
+      data => data
+        .mustReplace(
+          /(?<=watch.*?configStore\.isLessThanOverlayNavBreakpoint.*?\n).*?(?=\s+}, { immediate: true }\))/gm,
         `if (!val) {
         configStore.appContentLayoutNav = lgAndUpNav.value
       }
@@ -813,17 +809,15 @@ if (isMobile)
           configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
         }
       }`,
-      )
+        )
         .mustReplace(
-          /watch\(\s+\(\) => configStore.isLessThanOverlayNavBreakpoint/gm,
-          `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
+          /watch\(\(\) => configStore.isLessThanOverlayNavBreakpoint/gm,
+            `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
 
-    shouldChangeContentLayoutNav.value = false
+      shouldChangeContentLayoutNav.value = false
 
-    watch(
-      () => configStore.isLessThanOverlayNavBreakpoint`,
+      watch(() => configStore.isLessThanOverlayNavBreakpoint`,
         ),
-
     )
   }
 
