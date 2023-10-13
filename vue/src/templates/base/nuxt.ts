@@ -233,7 +233,7 @@ export class Nuxt extends Utils {
 
   private updatePlugins(isSK: boolean, lang: Lang) {
     // Remove pinia plugin because we are using pinia nuxt module
-    fs.removeSync(path.join(this.projectPath, 'plugins', `pinia.${lang}`))
+    fs.removeSync(path.join(this.projectPath, 'plugins', `2.pinia.${lang}`))
 
     const pluginFiles = globbySync([
       `plugins/*.${lang}`,
@@ -285,7 +285,7 @@ export class Nuxt extends Utils {
     const appDirPath = path.join(this.projectPath, 'app')
     fs.ensureDirSync(appDirPath)
 
-    const routerPluginPath = path.join(this.projectPath, 'plugins', 'router')
+    const routerPluginPath = path.join(this.projectPath, 'plugins', '1.router')
     const additionalRoutesPath = path.join(routerPluginPath, `additional-routes.${lang}`)
 
     const extendedRoutesStr = addImport(
@@ -563,7 +563,7 @@ export class Nuxt extends Utils {
   }
 
   private convertBeforeEachToMiddleware(sourcePath: string, lang: Lang) {
-    const routeGuardPath = path.join(sourcePath, 'src', 'plugins', 'router', `guards.${lang}`)
+    const routeGuardPath = path.join(sourcePath, 'src', 'plugins', '1.router', `guards.${lang}`)
 
     const middlewareContent = readFileSyncUTF8(routeGuardPath)
       // Replace `setupGuards` & `router.beforeEach` with `defineNuxtRouteMiddleware`
@@ -1197,7 +1197,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
       path.join(this.projectPath, '.eslintrc.cjs'),
       path.join(this.projectPath, '.gitignore'),
       path.join(this.projectPath, 'plugins', 'iconify', `build-icons.${lang}`),
-      path.join(this.projectPath, 'plugins', 'router', `index.${lang}`),
+      path.join(this.projectPath, 'plugins', '1.router', `index.${lang}`),
     ]
     filesToRemoveSrcPrefix.forEach((filePath) => {
       updateFile(
@@ -1223,7 +1223,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
 
     // Remove unwanted files
     await fs.remove(path.join(this.projectPath, `vite.config.${lang}`))
-    await fs.remove(path.join(this.projectPath, 'plugins', 'router'))
+    await fs.remove(path.join(this.projectPath, 'plugins', '1.router'))
 
     // Rename definePage to definePageMeta
     this.replaceDefinePageWithDefinePageMeta()
@@ -1261,13 +1261,13 @@ import VueApexCharts from 'vue3-apexcharts'
       await this.updateCustomRouteMeta(sourcePath)
 
     // Handle SSR issue with light/dark mode
-    updateFile(
-      path.join(this.projectPath, 'plugins', 'vuetify', `theme.${lang}`),
-      data => data.mustReplace(
-        /defaultTheme: resolveVuetifyTheme\(\),/g,
-        '// ❗ Don\'t define `defaultTheme` here. It will prevent switching to dark theme based on user preference due to SSR.',
-      ),
-    )
+    // updateFile(
+    //   path.join(this.projectPath, 'plugins', 'vuetify', `theme.${lang}`),
+    //   data => data.mustReplace(
+    //     /defaultTheme: resolveVuetifyTheme\(\),/g,
+    //     '// ❗ Don\'t define `defaultTheme` here. It will prevent switching to dark theme based on user preference due to SSR.',
+    //   ),
+    // )
 
     // handle SSR issue with VWindow and make it client only
     if (!isSK) {
