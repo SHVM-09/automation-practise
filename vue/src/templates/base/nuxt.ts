@@ -767,18 +767,12 @@ const handleError = () => clearError({ redirect: '/' })
           </NuxtLayout>`,
         )
 
-        // Destructure appContentLayoutNav
-        .mustReplace(
-          '} = useThemeConfig()',
-          ', appContentLayoutNav } = useThemeConfig()',
-        )
-
         // Get isMobile from $device for SSR
         .mustReplace(
           '</script>',
           `const { isMobile } = useDevice()
 if (isMobile)
-  appContentLayoutNav.value = 'vertical'
+  configStore.appContentLayoutNav = 'vertical'
 </script>`,
         ),
     )
@@ -793,34 +787,34 @@ if (isMobile)
       ),
     )
 
-    // Update `useLayout` composable
-    // src/@layouts/composable/useLayouts.ts
-    const useLayoutPath = path.join(this.projectPath, '@layouts', 'composable', `useLayouts.${lang}`)
+    // src/@layouts/utils.ts
+    const useLayoutPath = path.join(this.projectPath, '@layouts', `utils.${lang}`)
     updateFile(
       useLayoutPath,
       data => data.mustReplace(
-        /(?<=watch\(isLessThanOverlayNavBreakpoint.*?\n).*?(?=\n\s+}, { immediate: true }\))/gms,
+        /(?<=watch\(.*?isLessThanOverlayNavBreakpoint.*?val => {\s+).*?(?=\s+},\s+{ immediate: true },)/gms,
         `if (!val) {
-        appContentLayoutNav.value = lgAndUpNav.value
+        configStore.appContentLayoutNav = lgAndUpNav.value
       }
       else {
         if (!shouldChangeContentLayoutNav.value) {
           setTimeout(() => {
-            appContentLayoutNav.value = AppContentLayoutNav.Vertical
+            configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
           }, 500)
         }
         else {
-          appContentLayoutNav.value = AppContentLayoutNav.Vertical
+          configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
         }
       }`,
       )
         .mustReplace(
-          /watch\(isLessThanOverlayNavBreakpoint/gm,
+          /watch\(\s+\(\) => configStore.isLessThanOverlayNavBreakpoint/gm,
           `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
 
     shouldChangeContentLayoutNav.value = false
 
-    watch(isLessThanOverlayNavBreakpoint`,
+    watch(
+      () => configStore.isLessThanOverlayNavBreakpoint`,
         ),
 
     )
