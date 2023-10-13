@@ -152,6 +152,20 @@ export class GenSK extends Utils {
     )
   }
 
+  private updateVuetify() {
+    updateFile(
+      path.join(this.tempDir, 'src', 'plugins', 'vuetify', 'index.ts'),
+      (vuetifyData) => {
+        /*
+          Remove i18n implementation from vuetify index file
+          Regex: https://regex101.com/r/ynWoNz/1
+        */
+        vuetifyData = vuetifyData.mustReplace(/locale: {(\n|.)*},/gm, '')
+        return vuetifyData
+      },
+    )
+  }
+
   private replaceNavigationData() {
     const destPath = path.join(this.tempDir, 'src', 'navigation')
 
@@ -312,10 +326,13 @@ export class GenSK extends Utils {
 
     this.updateRouter()
 
+    this.updateVuetify()
+
     this.replaceNavigationData()
 
     // Remove fake-api  dir
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'fake-api'))
+    fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'i18n'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'casl'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', '1.router', 'additional-routes.ts'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', '1.router', 'guards.ts'))
