@@ -516,6 +516,10 @@ export class Nuxt extends Utils {
           ],`,
         )
 
+        // add ssr true for vue i18n
+        if (!isSk)
+          newData = newData.mustReplace('compositionOnly: true,', 'compositionOnly: true, ssr: true,')
+
         newData = newData.mustReplace(
           /vue:\s{\n\s+(.)compilerOptions:\s{},\n\s+},/gm,
           `vue: {
