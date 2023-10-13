@@ -902,7 +902,7 @@ export class Laravel extends Utils {
       )
 
       updateFile(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', 'router', 'index.ts'),
+        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', '1.router', 'index.ts'),
         data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
       )
 
