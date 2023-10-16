@@ -109,6 +109,11 @@ export class GenPkg extends Utils {
 
     execCmd(`rm -rf ${path.join(tempPkgTSFull, 'src', 'pages', 'pages', 'test')}`)
     execCmd(`rm -rf ${path.join(tempPkgJSFull, 'src', 'pages', 'pages', 'test')}`)
+    // remove icon.css file from all version
+    ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
+      fs.removeSync(path.join(projectPath, 'src', 'plugins', 'iconify', 'icons.css'))
+    })
+
     consola.success('Unwanted files removed successfully\n')
 
     // package version for package name

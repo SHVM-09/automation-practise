@@ -1453,6 +1453,12 @@ import VueApexCharts from 'vue3-apexcharts'
     execCmd(`rm -rf ${path.join(tempPkgTSFull, 'pages', 'pages', 'test')}`)
     execCmd(`rm -rf ${path.join(tempPkgJSFull, 'pages', 'pages', 'test')}`)
 
+    // remove icon.css file from all version
+    ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
+      fs.removeSync(path.join(projectPath, 'plugins', 'iconify', 'icons.css'))
+      fs.removeSync(path.join(projectPath, '.env'))
+    })
+
     // Copy documentation.html file from root of the repo
     fs.copyFileSync(
       path.join(this.templateConfig.projectPath, 'documentation.html'),
