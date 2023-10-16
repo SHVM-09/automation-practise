@@ -433,6 +433,7 @@ export class Nuxt extends Utils {
       },
       experimental: {
         typedPages: true,
+        inlineSSRStyles: false,
       },
       typescript: {
         // This gives type error in generated package so we are disabling it for now
