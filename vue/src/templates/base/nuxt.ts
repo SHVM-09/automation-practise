@@ -1128,8 +1128,6 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
         return isSK ? paths.TSStarter : paths.TSFull
     })()
 
-    consola.info('replaceDest :>> ', replaceDest)
-
     // TODO: For free we might have to update the links.
 
     // Make sure dest dir exist. This is useful if we are generating laravel for first time.
@@ -1327,7 +1325,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     execCmd('pnpm install', { cwd: this.projectPath })
 
     // Run lint to fix linting errors
-    consola.start('Linting the code...')
+    consola.start(`Linting code at ${this.projectPath}...`)
     execCmd('pnpm lint', { cwd: this.projectPath })
 
     this.moveToProjectsDir(isFree, isJS, isSK)
