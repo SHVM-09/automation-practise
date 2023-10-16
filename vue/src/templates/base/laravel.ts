@@ -888,6 +888,7 @@ export class Laravel extends Utils {
 
       // Run build
       execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
+      execCmd('pnpm msw:init', { cwd: this.templateConfig.laravel.paths.TSFull })
 
       // At the moment of this script execution, we will have "public" in root the TSFull
       // Duplicate public to demo-$demoNumber
