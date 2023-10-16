@@ -70,60 +70,60 @@ export const config: VuexyConfig = {
     ],
 
     // Demo 2
-    [
-      {
-        find: 'theme: \'system\'',
-        replace: 'theme: \'light\'',
-      },
-      {
-        find: 'skin: Skins.Default',
-        replace: 'skin: Skins.Bordered',
-      },
-    ],
+    // [
+    //   {
+    //     find: 'theme: \'system\'',
+    //     replace: 'theme: \'light\'',
+    //   },
+    //   {
+    //     find: 'skin: Skins.Default',
+    //     replace: 'skin: Skins.Bordered',
+    //   },
+    // ],
 
-    // Demo 3
-    [
-      {
-        find: 'theme: \'system\'',
-        replace: 'theme: \'light\'',
-      },
-      {
-        find: 'isVerticalNavSemiDark: false',
-        replace: 'isVerticalNavSemiDark: true',
-      },
-    ],
+    // // Demo 3
+    // [
+    //   {
+    //     find: 'theme: \'system\'',
+    //     replace: 'theme: \'light\'',
+    //   },
+    //   {
+    //     find: 'isVerticalNavSemiDark: false',
+    //     replace: 'isVerticalNavSemiDark: true',
+    //   },
+    // ],
 
-    // Demo 4
-    [
-      {
-        find: 'theme: \'system\'',
-        replace: 'theme: \'dark\'',
-      },
-    ],
+    // // Demo 4
+    // [
+    //   {
+    //     find: 'theme: \'system\'',
+    //     replace: 'theme: \'dark\'',
+    //   },
+    // ],
 
-    // Demo 5
-    [
-      {
-        find: 'theme: \'system\'',
-        replace: 'theme: \'light\'',
-      },
-      {
-        find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
-        replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
-      },
-    ],
+    // // Demo 5
+    // [
+    //   {
+    //     find: 'theme: \'system\'',
+    //     replace: 'theme: \'light\'',
+    //   },
+    //   {
+    //     find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
+    //     replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
+    //   },
+    // ],
 
-    // Demo 6
-    [
-      {
-        find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
-        replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
-      },
-      {
-        find: 'theme: \'system\'',
-        replace: 'theme: \'dark\'',
-      },
-    ],
+    // // Demo 6
+    // [
+    //   {
+    //     find: 'contentLayoutNav: AppContentLayoutNav.Vertical',
+    //     replace: 'contentLayoutNav: AppContentLayoutNav.Horizontal',
+    //   },
+    //   {
+    //     find: 'theme: \'system\'',
+    //     replace: 'theme: \'dark\'',
+    //   },
+    // ],
   ],
   demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
   documentation: {
