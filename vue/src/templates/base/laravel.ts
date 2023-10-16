@@ -13,7 +13,7 @@ import { Utils, injectGTM } from './helper'
 
 import { getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
-import { askBoolean, execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
+import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { updatePkgJsonVersion } from '@/utils/template'
@@ -243,15 +243,18 @@ export class Laravel extends Utils {
     })
 
     // Copy vue project's public files in laravel project's public dir
-    const publicFilesToCopy = globbySync('*', {
+    const publicFilesToCopy = globbySync('**/**', {
       cwd: path.join(sourcePath, 'public'),
       dot: true,
       absolute: true,
     })
     publicFilesToCopy.forEach((filePath) => {
+      // get file path after public
+      const pathDir = filePath.split('public/')[1]
+      fs.mkdirSync(`${this.projectPath}/public/images/avatars`, { recursive: true })
       fs.copyFileSync(
         filePath,
-        path.join(this.projectPath, 'public', path.basename(filePath)),
+        path.join(this.projectPath, 'public', pathDir),
       )
     })
   }
@@ -764,7 +767,7 @@ export class Laravel extends Utils {
 
     // Ask for running `postProcessGeneratedPkg` if pixinvent
     if (this.templateConfig.templateDomain === 'pi') {
-      if (await askBoolean('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
+      if (await consola.prompt('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
         await hooks.postProcessGeneratedPkg(tempPkgDir)
     }
     else {
