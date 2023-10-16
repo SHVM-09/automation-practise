@@ -1128,8 +1128,6 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
         return isSK ? paths.TSStarter : paths.TSFull
     })()
 
-    consola.info('replaceDest :>> ', replaceDest)
-
     // TODO: For free we might have to update the links.
 
     // Make sure dest dir exist. This is useful if we are generating laravel for first time.
