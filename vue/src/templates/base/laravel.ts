@@ -340,12 +340,8 @@ export class Laravel extends Utils {
    */
   private updateLocalStorageKeys(demoNumber: number, templateName: string) {
     // default values for demo 1
-    let sedFind = '(localStorage.(set|get|remove)Item\\(.*\\.title\\}-)'
-    let sedReplace = '\\1vue-laravel-demo-1-'
-
-    // ❗ In below regex we didn't used \w because mac sed can't recognize it hence we have to use [a-zA-Z]
-    const sedFindAuthKeys = '(localStorage.(set|get|remove)Item\\(\')([a-zA-Z]+)'
-    const sedReplaceAuthKeys = `\\1${this.templateConfig.templateName}-vue-laravel-\\3`
+    let nameSpaceFind = 'layoutConfig.app.title}'
+    let nameSpaceReplace = 'layoutConfig.app.title}-vue-demo-1'
 
     let indexHTMLFind = new RegExp(`(localStorage\.getItem\\('${templateName})`, 'g')
     let indexHTMLReplace = '$1-vue-laravel-demo-1'
@@ -355,36 +351,17 @@ export class Laravel extends Utils {
       const findStr = (() => `demo-${demoNumber - 1}`)()
       const replaceStr = `demo-${demoNumber}`
 
-      sedFind = findStr
-      sedReplace = replaceStr
+      nameSpaceFind = findStr
+      nameSpaceReplace = replaceStr
 
       indexHTMLFind = new RegExp(findStr, 'g')
       indexHTMLReplace = replaceStr
     }
-    else {
-      /*
-        As we want to update the auth keys just once, we will update only when generating first demo
-        ℹ️ Prefix auth keys with <template-name>-vue-
 
-        https://stackoverflow.com/a/39382621/10796681
-        https://unix.stackexchange.com/a/15309/528729
-
-        find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(')([a-zA-Z]+)/\1Materio-vue-\3/g" {} \;
-
-        ❗ As `sed` command work differently on mac & ubuntu we need to add empty quotes after -i on mac
-      */
-      execCmd(
-        `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFindAuthKeys}/${sedReplaceAuthKeys}/g" '{}' \\;`,
-        { cwd: this.templateConfig.laravel.paths.TSFull },
-      )
-    }
-
-    /*
-      Linux command => find ./src \( -iname \*.vue -o -iname \*.ts -o -iname \*.tsx -o -iname \*.js -o -iname \*.jsx \) -type f -exec sed -i "" -r -e "s/(localStorage.(set|get|remove)Item\(.*\.title\}-)/\1demo-1-/g" {} \;
-    */
-    execCmd(
-      `find ./resources \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/${sedFind}/${sedReplace}/g" '{}' \\;`,
-      { cwd: this.templateConfig.laravel.paths.TSFull },
+    // update nameSpace config in config.ts file
+    updateFile(
+      path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', '@layouts', 'stores', 'config.ts'),
+      data => data.mustReplace(nameSpaceFind, nameSpaceReplace),
     )
 
     // update index.html as well
