@@ -1325,7 +1325,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     execCmd('pnpm install', { cwd: this.projectPath })
 
     // Run lint to fix linting errors
-    consola.start('Linting the code...')
+    consola.start(`Linting code at ${this.projectPath}...`)
     execCmd('pnpm lint', { cwd: this.projectPath })
 
     this.moveToProjectsDir(isFree, isJS, isSK)
