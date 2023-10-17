@@ -493,10 +493,17 @@ export class Laravel extends Utils {
 
     // Exclude build dir from base URL in msw worker URL
     if (!isSK) {
-      updateFile(
-        path.join(this.resourcesPath, lang, 'plugins', 'fake-api', `index.${lang}`),
-        data => data.mustReplace(/BASE_URL/g, 'BASE_URL.replace(/build\/$/g, \'\')'),
-      )
+      const fakeApiDirPath = path.join(this.resourcesPath, lang, 'plugins', 'fake-api')
+      const filesToUpdateBaseUrl = [
+        path.join(fakeApiDirPath, `index.${lang}`),
+        path.join(fakeApiDirPath, 'handlers', 'auth', `db.${lang}`),
+      ]
+      filesToUpdateBaseUrl.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(/BASE_URL/g, 'BASE_URL.replace(/build\/$/g, \'\')'),
+        )
+      })
     }
 
     // add core-scss alias in  eslint-import-resolver-custom-alias in eslint
