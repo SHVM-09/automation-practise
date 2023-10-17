@@ -84,13 +84,22 @@ jobs:
             # Remove existing backup zip
             rm -rf bak-${{ env.LARAVEL_CORE_DIR_NAME }}-*.zip
 
-            # if prod => remove staging data & zip existing laravel core & remove existing laravel core
+            # Remove existing laravel core dir
+            rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}
+
+            # if prod => zip existing laravel core
             DEMO_ZIP_NAME="bak-${{ env.LARAVEL_CORE_DIR_NAME }}-$(date +"%Y-%m-%d-%H-%M-%S").zip"
-            [[ "${{ inputs.is_production }}" == "true" ]] && zip -r $DEMO_ZIP_NAME ${{ env.LARAVEL_CORE_DIR_NAME }} -x "*.zip" && rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}
+            [[ "${{ inputs.is_production }}" == "true" ]] && zip -r $DEMO_ZIP_NAME ${{ env.LARAVEL_CORE_DIR_NAME }} -x "*.zip"
 
             # remove existing staging laravel core & staging demos
             # ℹ️ Previously we were only performing this removal if `inputs.is_production` is true but doing this for staging as well might remove permission issue in future
-            rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}-staging && rm -rf ${{ env.STAG_DIR }}/demo-*
+            rm -rf ${{ env.STAG_DIR }}/demo-*
+
+            # Remove staging laravel core dir
+            # ℹ️ This is tricky because if it's staging then `env.LARAVEL_CORE_DIR_NAME` will have `-staging` already suffixed and work perfectly without below command.
+            # Additionally, below command will result in something like this (that won't do anything) in staging env: `rm -rf <brand>-vuejs-laravel-admin-template-staging-staging`
+            # However, in production it will allow us to remove staging laravel core dir
+            rm -rf ${{ env.LARAVEL_CORE_DIR_NAME }}-staging
             
             # remove existing demos
             rm -rf ${{ env.DEPLOY_DIR }}/demo-*
