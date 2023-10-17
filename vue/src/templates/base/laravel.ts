@@ -501,7 +501,7 @@ export class Laravel extends Utils {
       filesToUpdateBaseUrl.forEach((filePath) => {
         updateFile(
           filePath,
-          data => data.mustReplace(/BASE_URL/g, 'BASE_URL.replace(/build\/$/g, \'\')'),
+          data => data.mustReplace(/BASE_URL/g, 'BASE_URL.replace(/build\\/$/g, \'\')'),
         )
       })
     }
