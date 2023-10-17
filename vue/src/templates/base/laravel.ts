@@ -491,6 +491,14 @@ export class Laravel extends Utils {
       filesToRemove.forEach(filePath => fs.removeSync(filePath))
     }
 
+    // Exclude build dir from base URL in msw worker URL
+    if (!isSK) {
+      updateFile(
+        path.join(this.resourcesPath, lang, 'plugins', 'fake-api', `index.${lang}`),
+        data => data.mustReplace(/BASE_URL/g, 'BASE_URL.replace(/build\/$/g, \'\')'),
+      )
+    }
+
     // add core-scss alias in  eslint-import-resolver-custom-alias in eslint
     // https://regex101.com/r/GXptyF/1
     if (isJS) {
