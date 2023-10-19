@@ -595,6 +595,12 @@ export class Laravel extends Utils {
       }
     })
 
+    // update front page footer links
+    updateFile(
+      path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-pages-footer.vue'),
+      data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
+    )
+
     // Update vite config
     await this.updateViteConfig(lang)
 
