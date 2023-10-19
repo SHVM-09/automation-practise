@@ -433,6 +433,7 @@ export class Nuxt extends Utils {
       },
       experimental: {
         typedPages: true,
+        inlineSSRStyles: false,
       },
       typescript: {
         // This gives type error in generated package so we are disabling it for now
@@ -1127,8 +1128,6 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
         return isSK ? paths.TSStarter : paths.TSFull
     })()
 
-    consola.info('replaceDest :>> ', replaceDest)
-
     // TODO: For free we might have to update the links.
 
     // Make sure dest dir exist. This is useful if we are generating laravel for first time.
@@ -1246,7 +1245,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
     writeFileSyncUTF8(
       path.join(this.projectPath, 'components', 'VueApexCharts.client.vue'),
-      `<script setup lang="ts">
+       `<script setup lang="ts">
 import VueApexCharts from 'vue3-apexcharts'
 </script>
 
@@ -1329,7 +1328,7 @@ import VueApexCharts from 'vue3-apexcharts'
     execCmd('pnpm install', { cwd: this.projectPath })
 
     // Run lint to fix linting errors
-    consola.start('Linting the code...')
+    consola.start(`Linting code at ${this.projectPath}...`)
     execCmd('pnpm lint', { cwd: this.projectPath })
 
     this.moveToProjectsDir(isFree, isJS, isSK)

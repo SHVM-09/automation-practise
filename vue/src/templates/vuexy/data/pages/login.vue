@@ -87,7 +87,7 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
               <!-- create account -->
               <VCol cols="12" class="text-center text-base">
                 <span>New on our platform?</span>
-                
+
                 <a class="text-primary ms-2" href="#">
                   Create an account
                 </a>
@@ -116,8 +116,3 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 <style lang="scss">
 @use "@core/scss/template/pages/page-auth.scss";
 </style>
-
-<route lang="yaml">
-meta:
-  layout: blank
-</route>
