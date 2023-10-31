@@ -372,6 +372,13 @@ export class Nuxt extends Utils {
         head: {
           titleTemplate: '%s - NuxtJS Admin Template',
           title: titleCase(this.templateConfig.templateName),
+          link: [
+            {
+              rel: 'icon',
+              type: 'image/x-icon',
+              href: '/favicon.ico',
+            },
+          ],
         },
       },
       devtools: { enabled: true },
