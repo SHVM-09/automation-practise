@@ -167,7 +167,7 @@ export class GenJS extends Utils {
     const sFCCompiler = new SFCCompiler()
 
     // Collect all the SFCs
-    const sFCPaths = globbySync('**/*.vue', { cwd: this.tempDir, absolute: true })
+    const sFCPaths = globbySync(['**/*.vue', '!node_modules'], { cwd: this.tempDir, absolute: true })
 
     // Compile all SFCs
     await Promise.all(
