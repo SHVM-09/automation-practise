@@ -1252,7 +1252,11 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
     writeFileSyncUTF8(
       path.join(this.projectPath, 'components', 'VueApexCharts.client.vue'),
-       `
+       `<script setup lang="ts">
+// eslint-disable-next-line no-restricted-imports
+import VueApexCharts from 'vue3-apexcharts'
+</script>
+
 <template>
   <VueApexCharts />
 </template>`,
