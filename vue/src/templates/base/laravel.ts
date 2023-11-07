@@ -590,11 +590,15 @@ export class Laravel extends Utils {
       }
     })
 
-    // update front page footer links
-    updateFile(
-      path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-pages-footer.vue'),
-      data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
-    )
+    // SK won't have footer
+    if (!isSK) {
+      // update front page footer links
+      const uiFrameworkStr = this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''
+      updateFile(
+        path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-page-footer.vue'),
+        data => data.mustReplace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
+      )
+    }
 
     // Update vite config
     await this.updateViteConfig(lang)
