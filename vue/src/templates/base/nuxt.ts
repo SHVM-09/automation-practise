@@ -1339,6 +1339,9 @@ import VueApexCharts from 'vue3-apexcharts'
     consola.start(`Linting code at ${this.projectPath}...`)
     execCmd('pnpm lint', { cwd: this.projectPath })
 
+    // Remove ".nuxt" dir after installing packages. We don't want to ship this dir in package
+    fs.removeSync(path.join(this.projectPath, '.nuxt'))
+
     this.moveToProjectsDir(isFree, isJS, isSK)
     consola.success('You are ready to rock baby!')
   }
