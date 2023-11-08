@@ -161,7 +161,7 @@ export class GenPkg extends Utils {
       this.templateConfig.projectPath,
       `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
-    execCmd(`zip -r ${zipPath} .`, { cwd: tempPkgDir })
+    execCmd(`zip -r ${zipPath} . -x ".DS_Store" -x "__MACOSX"`, { cwd: tempPkgDir })
     consola.success(`Package generated at: ${this.templateConfig.projectPath}\n`)
   }
 }

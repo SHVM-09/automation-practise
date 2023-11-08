@@ -164,6 +164,9 @@ export class GenDemo {
       // Add demo for zipping in zip command
       zipCommand += ` demo-${demoNumber}`
 
+      // Remove mac specific files
+      zipCommand += ' -x ".DS_Store" -x "__MACOSX"'
+
       // Reset the themeConfig
       fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
 
