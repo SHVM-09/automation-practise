@@ -782,7 +782,7 @@ export class Laravel extends Utils {
       `${this.templateConfig.laravel.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
 
-    execCmd(`zip -rq ${zipPath} . -x ".DS_Store" -x "__MACOSX"`, { cwd: tempPkgDir })
+    execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
     consola.success(`Package generated at: ${zipPath}`)
   }
 
@@ -957,7 +957,7 @@ export class Laravel extends Utils {
     )
 
     // Generate zip of ts full including demo & laravel
-    execCmd(`zip -rq ${zipPath} . -x ".*" -x "__MACOSX"`, { cwd: zipWrapperDirParent })
+    execCmd(`zip -rq ${zipPath} . -x ".*" -x "*__MACOSX"`, { cwd: zipWrapperDirParent })
 
     // Reset changes in .env file
     writeFileSyncUTF8(envPath, envContent)

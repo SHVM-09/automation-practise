@@ -1495,7 +1495,7 @@ import VueApexCharts from 'vue3-apexcharts'
       `${this.templateConfig.nuxt.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
     )
 
-    execCmd(`zip -rq ${zipPath} . -x ".DS_Store" -x "__MACOSX"`, { cwd: tempPkgDir })
+    execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
     consola.success(`Package generated at: ${zipPath}`)
   }
 }
