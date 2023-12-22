@@ -123,10 +123,10 @@ export class GenPkg extends Utils {
     // ℹ️ We might not need this in future if we correctly handle `postProcessGeneratedPkg` hook
     // Copy documentation.html file from root of the repo
     consola.info(colorize('cyanBright', 'We have disabled copying documentation in base script because we are copying it in post process hook. Let\'s check if we really need this in PI based templates?'))
-    fs.copyFileSync(
-      path.join(this.templateConfig.projectPath, 'documentation.html'),
-      path.join(tempPkgDir, 'documentation.html'),
-    )
+    // fs.copyFileSync(
+    //   path.join(this.templateConfig.projectPath, 'documentation.html'),
+    //   path.join(tempPkgDir, 'documentation.html'),
+    // )
     consola.success('Documentation file copied successfully\n')
 
     if (isInteractive || newPkgVersion) {

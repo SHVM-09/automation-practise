@@ -46,6 +46,7 @@ export const config: MasterConfig = {
     '**/*',
     '!logo.svg',
     '!svg',
+    '!cards',
     '!pages',
     '!avatars',
     '!misc',
@@ -145,7 +146,7 @@ export const config: MasterConfig = {
   gtm: themeselectionGTMConfig,
   nuxt: {
     pkgName: 'master-nuxtjs-admin-template',
-    buyNowLink: 'https://themeselection.com/item/master-vuetify-vuejs-admin-template/',
+    buyNowLink: 'https://themeselection.com/item/master-vuetify-nuxtjs-admin-template/',
     projectPath: masterNuxtPath,
     paths: {
       TSFull: path.join(masterNuxtPath, 'typescript-version', 'full-version'),

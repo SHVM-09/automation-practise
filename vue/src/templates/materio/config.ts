@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
@@ -13,6 +13,9 @@ const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
 const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
 const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
 const materioVueLaravelFreePath = materioVuePath.mustReplace('vue', 'vue-laravel-free')
+
+const materioNuxtPath = path.join(getTemplatePath('materio', 'nuxt'))
+const materioNuxtFreePath = materioNuxtPath.mustReplace('nuxt', 'nuxt-free')
 
 export const config: MaterioConfig = {
   templateName: 'materio',
@@ -135,6 +138,19 @@ export const config: MaterioConfig = {
     branch: 'dev',
   },
   gtm: themeselectionGTMConfig,
+  nuxt: {
+    pkgName: 'materio-nuxtjs-admin-template',
+    buyNowLink: 'https://themeselection.com/item/materio-vuetify-nuxtjs-admin-template/',
+    projectPath: materioNuxtPath,
+    paths: {
+      TSFull: path.join(materioNuxtPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(materioNuxtPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(materioNuxtPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(materioNuxtPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(materioNuxtFreePath, 'javascript-version'),
+      freeTS: path.join(materioNuxtFreePath, 'typescript-version'),
+    },
+  },
   laravel: {
     pkgName: 'materio-vuetify-vuejs-laravel-admin-template',
     buyNowLink: 'https://themeselection.com/item/materio-vuetify-vuejs-laravel-admin-template/',
