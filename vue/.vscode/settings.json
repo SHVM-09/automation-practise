@@ -1,117 +1,117 @@
 {
-    "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
-    "editor.formatOnType": true,
-    // JS
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    // JSON
-    "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  // JS
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  // JSON
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.autoClosingBrackets": "always"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "markdown.validate.enabled": true,
+    "markdown.occurrencesHighlight.enabled": true,
+  },
+  // Extension: Prettier
+  "prettier.requireConfig": true,
+  // Extension: ESLint
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "eslint.format.enable": true,
+  // Extension: Comment Anchors
+  "commentAnchors.tags.displayLineNumber": false,
+  "commentAnchors.workspace.enabled": false,
+  "commentAnchors.tags.displayTagName": false,
+  "commentAnchors.epic.provideAutoCompletion": false,
+  "commentAnchors.tags.list": [
+    {
+      "tag": "ℹ️",
+      "scope": "hidden",
+      // This color is taken from "Better Comments" Extension (?)
+      "highlightColor": "#3498DB",
+      "styleComment": true,
+      "isItalic": false,
     },
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
+    {
+      "tag": "👉",
+      "scope": "file",
+      // This color is taken from "Better Comments" Extension (*)
+      "highlightColor": "#98C379",
+      "styleComment": true,
+      "isItalic": false
     },
-    "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    {
+      "tag": "❗",
+      "scope": "hidden",
+      // This color is taken from "Better Comments" Extension (*)
+      "highlightColor": "#FF2D00",
+      "styleComment": true,
+      "isItalic": false,
     },
-    "[javascript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-        "editor.autoClosingBrackets": "always"
-    },
-    "[markdown]": {
-        "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
-        "markdown.validate.enabled": true,
-        "markdown.occurrencesHighlight.enabled": true,
-    },
-    // Extension: Prettier
-    "prettier.requireConfig": true,
-    // Extension: ESLint
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.fixAll.stylelint": "explicit",
-        "source.organizeImports": "explicit"
-    },
-    "eslint.format.enable": true,
-    // Extension: Comment Anchors
-    "commentAnchors.tags.displayLineNumber": false,
-    "commentAnchors.workspace.enabled": false,
-    "commentAnchors.tags.displayTagName": false,
-    "commentAnchors.epic.provideAutoCompletion": false,
-    "commentAnchors.tags.list": [
-        {
-            "tag": "ℹ️",
-            "scope": "hidden",
-            // This color is taken from "Better Comments" Extension (?)
-            "highlightColor": "#3498DB",
-            "styleComment": true,
-            "isItalic": false,
-        },
-        {
-            "tag": "👉",
-            "scope": "file",
-            // This color is taken from "Better Comments" Extension (*)
-            "highlightColor": "#98C379",
-            "styleComment": true,
-            "isItalic": false
-        },
-        {
-            "tag": "❗",
-            "scope": "hidden",
-            // This color is taken from "Better Comments" Extension (*)
-            "highlightColor": "#FF2D00",
-            "styleComment": true,
-            "isItalic": false,
-        },
-    ],
-    "commentAnchors.showCursor": true,
-    // Extension: Template String Converter
-    "template-string-converter.validLanguages": [
-        "svelte",
-        "typescript",
-        "javascript",
-        "typescriptreact",
-        "javascriptreact",
-        "vue"
-    ],
-    // Extension: SpellChecker
-    "cSpell.words": [
-        "antfu",
-        "Cmds",
-        "commiting",
-        "consola",
-        "customizer",
-        "globby",
-        "iconify",
-        "Laravel",
-        "Materialize",
-        "Materio",
-        "Nuxt",
-        "pinia",
-        "pixinvent",
-        "rulesdir",
-        "sneat",
-        "themeselection",
-        "tinify",
-        "typecheck",
-        "Vuetify",
-        "Webfontloader"
-    ],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true,
-        "source.fixAll.stylelint": true,
-        "source.organizeImports": true
-    },
-    "eslint.alwaysShowStatus": true,
-    "eslint.format.enable": true,
-    "eslint.packageManager": "pnpm",
-    "[javascript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-        "editor.autoClosingBrackets": "always"
-    },
+  ],
+  "commentAnchors.showCursor": true,
+  // Extension: Template String Converter
+  "template-string-converter.validLanguages": [
+    "svelte",
+    "typescript",
+    "javascript",
+    "typescriptreact",
+    "javascriptreact",
+    "vue"
+  ],
+  // Extension: SpellChecker
+  "cSpell.words": [
+    "antfu",
+    "Cmds",
+    "commiting",
+    "consola",
+    "customizer",
+    "globby",
+    "iconify",
+    "Laravel",
+    "Materialize",
+    "Materio",
+    "Nuxt",
+    "pinia",
+    "pixinvent",
+    "rulesdir",
+    "sneat",
+    "themeselection",
+    "tinify",
+    "typecheck",
+    "Vuetify",
+    "Webfontloader"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll.stylelint": true,
+    "source.organizeImports": true
+  },
+  "eslint.alwaysShowStatus": true,
+  "eslint.format.enable": true,
+  "eslint.packageManager": "pnpm",
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.autoClosingBrackets": "always"
+  },
 }
