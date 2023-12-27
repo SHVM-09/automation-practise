@@ -590,14 +590,23 @@ export class Laravel extends Utils {
       }
     })
 
-    // SK won't have footer
+    // SK won't have front pages
     if (!isSK) {
-      // update front page footer links
-      const uiFrameworkStr = this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''
-      updateFile(
-        path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-page-navbar.vue'),
+      const frontPagesDir = path.join(this.resourcesPath, lang, 'views', 'front-pages')
+      const filesToUpdate = [
+        path.join(frontPagesDir, 'front-page-navbar.vue'),
+        path.join(frontPagesDir, 'front-page-footer.vue'),
+      ]
 
-        data => data.mustReplace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
+      // update front page footer &navbar links
+      const uiFrameworkStr = this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''
+
+      // Async updateFile
+      await Promise.all(
+        filesToUpdate.map(filePath => updateFile(
+          filePath,
+          data => data.replace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
+        )),
       )
     }
 
