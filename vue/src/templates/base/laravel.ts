@@ -595,7 +595,8 @@ export class Laravel extends Utils {
       // update front page footer links
       const uiFrameworkStr = this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''
       updateFile(
-        path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-page-footer.vue'),
+        path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-page-navbar.vue'),
+
         data => data.mustReplace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
       )
     }

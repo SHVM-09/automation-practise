@@ -29,6 +29,12 @@ const form = ref({
 })
 
 const isPasswordVisible = ref(false)
+
+definePage({
+  meta: {
+    layout: 'blank',
+  },
+})
 </script>
 
 <template>
