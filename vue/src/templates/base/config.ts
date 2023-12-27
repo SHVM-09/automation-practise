@@ -16,6 +16,7 @@ export interface TemplateBaseConfig {
   projectPath: string
   packageCopyIgnorePatterns: string[]
   sKImagesRemovePatterns: string[]
+  ignoreCompressionPatterns: string[]
   // TODO: Align naming with laravel version paths
   paths: {
     tSFull: string

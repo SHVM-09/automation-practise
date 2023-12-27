@@ -61,7 +61,6 @@ export class SFCCompiler {
 
         const jsSfcScriptSetup: string[] = []
 
-        // @ts-expect-error This returns the program AST
         const { body } = parse(_compiledSfc, {
           ecmaVersion: 'latest',
           sourceType: 'module',

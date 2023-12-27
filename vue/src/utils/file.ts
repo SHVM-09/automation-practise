@@ -1,14 +1,14 @@
 import '@/utils/injectMustReplace'
-import path from 'node:path'
+import { execCmd, readFileSyncUTF8, updateFile } from '@/utils/node'
 import type { OversizedFileStats } from '@types'
 import { consola } from 'consola'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+import path from 'node:path'
 import tinify from 'tinify'
 import type { PackageJson } from 'type-fest'
 import { TempLocation } from './temp'
-import { execCmd, readFileSyncUTF8, updateFile } from '@/utils/node'
 
 /**
  * Adds received import string as last import statement
@@ -40,8 +40,8 @@ export const addSfcImport = (data: string, importStatement: string): string => {
 export const removeAllImports = (data: string) => data.replace(/import .*\n\n?/gm, '')
 
 // check file size and return array of files that are over the limit
-export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100) => {
-  const assets = globbySync(globPattern, { expandDirectories: true })
+export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100, ignorePatterns: string[] =[]) => {
+  const assets = globbySync(globPattern, { expandDirectories: true, ignore: ignorePatterns })
 
   const overSizedFiles: OversizedFileStats[] = []
 
@@ -66,9 +66,9 @@ const getFilesStrList = (files: { filePath: string; size: number }[], reportPath
   }).join('')
 }
 
-export const reportOversizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}) => {
-  const { reportPathRelativeTo, maxSizeInKb = 100 } = options
-  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb)
+export const reportOversizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number, ignorePatterns?: string[] } = {}) => {
+  const { reportPathRelativeTo, maxSizeInKb = 100, ignorePatterns } = options
+  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb, ignorePatterns)
 
   if (overSizedFiles.length) {
     const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
@@ -94,11 +94,11 @@ export const reportOversizedFiles = async (globPattern: string, isInteractive: b
   }
 }
 
-export const compressOverSizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number } = {}): Promise<OversizedFileStats[]> => {
+export const compressOverSizedFiles = async (globPattern: string, isInteractive: boolean, options: { reportPathRelativeTo?: string; maxSizeInKb?: number, ignorePatterns?: string[] } = {}): Promise<OversizedFileStats[]> => {
   dotenv.config()
 
-  const { reportPathRelativeTo, maxSizeInKb = 100 } = options
-  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb)
+  const { reportPathRelativeTo, maxSizeInKb = 100, ignorePatterns } = options
+  const overSizedFiles = getOverSizedFiles(globPattern, maxSizeInKb, ignorePatterns)
 
   if (!overSizedFiles.length)
     return []

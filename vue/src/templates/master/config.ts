@@ -54,6 +54,10 @@ export const config: MasterConfig = {
     '!iconify-svg',
     '!customizer-icons',
   ],
+  ignoreCompressionPatterns: [
+    '**/hero-*',
+    '**/front-pages/**/product-image.*'
+  ],
   paths: {
     tSFull: path.join(masterVuePath, 'typescript-version', 'full-version'),
     tSStarter: path.join(masterVuePath, 'typescript-version', 'starter-kit'),

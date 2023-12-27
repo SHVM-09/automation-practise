@@ -50,6 +50,10 @@ export const config: MaterioConfig = {
     '!icons/payments',
     '!icons/brands',
   ],
+  ignoreCompressionPatterns: [
+    '**/hero-*',
+    '**/front-pages/**/product-image.*'
+  ],
   paths: {
     tSFull: path.join(materioVuePath, 'typescript-version', 'full-version'),
     tSStarter: path.join(materioVuePath, 'typescript-version', 'starter-kit'),
