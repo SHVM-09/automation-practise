@@ -7,12 +7,12 @@ const main = defineCommand({
     name: 'fillSnippets.ts',
     description: 'Fill Snippets',
   },
-  run() {
+  async run() {
     const master = new Master(config)
 
     const { tSFull, jSFull } = master.config.paths
 
-    new FillSnippets(tSFull, jSFull).fillSnippet()
+    await new FillSnippets(tSFull, jSFull).fillSnippet()
   },
 })
 

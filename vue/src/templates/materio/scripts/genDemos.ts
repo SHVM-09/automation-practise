@@ -15,11 +15,11 @@ const main = defineCommand({
       default: false,
     },
   },
-  run({ args }) {
+  async run({ args }) {
     const materio = new Materio(config)
 
     const demoGenerator = new GenDemo(materio.config)
-    demoGenerator.generate(args.staging)
+    await demoGenerator.generate(args.staging)
   },
 })
 

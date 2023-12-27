@@ -15,11 +15,11 @@ const main = defineCommand({
       default: false,
     },
   },
-  run({ args }) {
+  async run({ args }) {
     const sneat = new Sneat(config)
 
     const demoGenerator = new GenDemo(sneat.config)
-    demoGenerator.generate(args.staging)
+    await demoGenerator.generate(args.staging)
   },
 })
 

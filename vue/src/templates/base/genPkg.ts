@@ -62,7 +62,7 @@ export class GenPkg extends Utils {
 
     // Fill snippets
     consola.start('Filling snippets')
-    new FillSnippets(tSFull, jSFull).fillSnippet()
+    await new FillSnippets(tSFull, jSFull).fillSnippet()
     consola.success('Snippets updated successfully\n')
 
     // Create new temp dir for storing pkg

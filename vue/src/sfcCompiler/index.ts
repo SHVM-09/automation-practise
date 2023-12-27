@@ -53,6 +53,9 @@ export class SFCCompiler {
         _compiledSfc = _compiledSfc.mustReplace(/let __temp, __restore;\n/gm, '')
       }
 
+      // Remove duplicate emit
+      _compiledSfc = _compiledSfc.replace("const emit = __emit;", "")
+
       // handle defineExpose => __expose
       _compiledSfc = _compiledSfc.replaceAll('__expose', 'defineExpose')
 

@@ -1,32 +1,33 @@
-import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
-import { exec, execSync } from 'node:child_process'
-import readline from 'node:readline'
 import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
+import { exec, execSync } from 'node:child_process'
+import readline from 'node:readline'
 
-export function execCmd(command: string): Buffer | undefined
-export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string | undefined
-export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): Buffer | undefined
-export function execCmd(command: string, options?: ExecSyncOptions): string | Buffer | undefined
-export function execCmd(command: string, options?: ExecSyncOptions): string | Buffer | undefined {
+export const execCmd = (...args: Parameters<typeof execSync>) => {
   try {
-    return execSync(command, options)
+    return execSync(...args)
   }
   catch (err) {
     consola.error(err)
 
     // @ts-expect-error I know what I'm doing
     console.log(colorize('red', String(err.stdout)))
+
+    // Stop execution
+    process.exit(1)
   }
 }
 
-export function execCmdAsync(command: string, callback?: (error: ExecException | null, stdout: string, stderr: string) => void): ChildProcess | undefined {
+export const execCmdAsync = (...args: Parameters<typeof exec>) => {
   try {
-    return exec(command, callback)
+    return exec(...args)
   }
   catch (err) {
     consola.error(err)
+
+    // Stop execution
+    process.exit(1)
   }
 }
 

@@ -14,11 +14,11 @@ const main = defineCommand({
       default: false,
     },
   },
-  run({ args }) {
+  async run({ args }) {
     const materialize = new Materialize(config)
 
     const demoGenerator = new GenDemo(materialize.config)
-    demoGenerator.generate(args.staging)
+    await demoGenerator.generate(args.staging)
   },
 })
 
