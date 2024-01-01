@@ -52,7 +52,8 @@ export const config: MaterioConfig = {
   ],
   ignoreCompressionPatterns: [
     '**/hero-*',
-    '**/front-pages/**/product-image.*'
+    '**/front-pages/**/product-image.*',
+    '**/front-pages/**/footer-bg*',
   ],
   paths: {
     tSFull: path.join(materioVuePath, 'typescript-version', 'full-version'),

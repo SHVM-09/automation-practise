@@ -1,8 +1,9 @@
+import { exec, execSync } from 'node:child_process'
+import process from 'node:process'
+import readline from 'node:readline'
 import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
-import { exec, execSync } from 'node:child_process'
-import readline from 'node:readline'
 
 export const execCmd = (...args: Parameters<typeof execSync>) => {
   try {

@@ -1,7 +1,7 @@
+import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
-import path from 'path'
 
 import { toCamelCase } from '@/utils/conversions'
 import '@/utils/injectMustReplace'
@@ -96,16 +96,16 @@ export class FillSnippets {
       // update snippet file for TS
       const updatedSnippet = this.getUpdatedSnippet(snippetFilePath)
 
-      // Write updated snippet to file - TS Full
-      fs.writeFile(snippetFilePath, updatedSnippet, { encoding: 'utf-8' })
-
       // Write updated snippet to file JS Full
       const jSSnippetFilePath = snippetFilePath
         .mustReplace('typescript-version', 'javascript-version')
         .mustReplace('.ts', '.js')
 
-      // Write updated snippet to file - JS Full
-      fs.writeFile(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' })
+      // Write updated snippet to file - TS Full & JS Full
+      await Promise.all([
+        fs.writeFile(snippetFilePath, updatedSnippet, { encoding: 'utf-8' }),
+        fs.writeFile(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' }),
+      ])
     }))
 
     // ℹ️ Let's not lint the code for now and check if other scripts does the job
