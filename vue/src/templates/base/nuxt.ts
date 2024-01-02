@@ -316,6 +316,7 @@ export class Nuxt extends Utils {
             ...routes,
             ...scannedRoutes,
         ],
+        scrollBehaviorType: 'smooth',
       }`
 
     const routerOptionsFilePath = path.join(appDirPath, `router.options.${lang}`)
