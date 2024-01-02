@@ -102,6 +102,12 @@ export class Nuxt extends Utils {
       'auto-imports.d.ts',
       'components.d.ts',
       'typed-router.d.ts',
+      '.dockerignore',
+      'dev.Dockerfile',
+      'docker-compose.dev.yml',
+      'docker-compose.prod.yml',
+      'nginx.conf',
+      'prod.Dockerfile',
     ]
     const rootFilesToCopy = globbySync(
       ['*', ...rootFilesToIgnoreForCopy.map(f => `!${f}`)],
