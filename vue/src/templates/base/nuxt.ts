@@ -812,8 +812,7 @@ const handleError = () => clearError({ redirect: '/' })
       data => data
         .mustReplace(
           '<RouterView />',
-          `<NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
-          <NuxtLayout>
+          `<NuxtLayout>
             <NuxtPage />
           </NuxtLayout>`,
         )
