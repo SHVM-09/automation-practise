@@ -206,6 +206,10 @@ export class Nuxt extends Utils {
     vuePkgJSON.scripts = vuePkgJSON.scripts || {}
     vuePkgJSON.scripts.build = 'node --max-old-space-size=4096 node_modules/nuxt/bin/nuxt.mjs build'
 
+    // TODO: Remove this after nuxt fix the 3.4.0 version issue now using vue 3.3.13
+    vuePkgJSON.resolutions.vue = '3.3.13'
+    vuePkgJSON.overrides.vue = '3.3.13'
+
     // Remove typecheck script because in nuxt we use nuxt.config to enable type checking
     delete vuePkgJSON.scripts.typecheck
 
