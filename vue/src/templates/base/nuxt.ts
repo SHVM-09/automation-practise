@@ -216,6 +216,7 @@ export class Nuxt extends Utils {
     vuePkgJSON.resolutions.vue = '3.3.13'
     vuePkgJSON.overrides.vue = '3.3.13'
     vuePkgJSON.devDependencies.vue = '3.3.13'
+    delete vuePkgJSON.dependencies.vue
 
     // Remove typecheck script because in nuxt we use nuxt.config to enable type checking
     delete vuePkgJSON.scripts.typecheck
