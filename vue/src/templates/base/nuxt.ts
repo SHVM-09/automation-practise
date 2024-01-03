@@ -1564,6 +1564,9 @@ defineOptions({
     if (isInteractive || newPkgVersion)
       pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
 
+    // Run post process hooks
+    await hooks.postProcessGeneratedPkg(tempPkgDir)
+
     const zipPath = path.join(
       this.templateConfig.nuxt.projectPath,
       `${this.templateConfig.nuxt.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
