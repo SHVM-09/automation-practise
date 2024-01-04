@@ -361,7 +361,8 @@ export class GenJS extends Utils {
     this.updateEslintConfig()
 
     // Remove eslintInternal rules
-    this.removeEslintInternalRules(this.tempDir)
+    if (!this.isFree)
+      this.removeEslintInternalRules(this.tempDir)
 
     /*
       ℹ️ Now we will generate the js & jsx files from ts & tsx files

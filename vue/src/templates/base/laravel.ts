@@ -104,7 +104,7 @@ export class Laravel extends Utils {
     )
   }
 
-  private updatePkgJson(sourcePath: string, lang: Lang) {
+  private updatePkgJson(sourcePath: string, lang: Lang, isFree: boolean) {
     const pkgJSONFileName = 'package.json'
     const pkgJSONPath = path.join(this.projectPath, pkgJSONFileName)
 
@@ -117,7 +117,7 @@ export class Laravel extends Utils {
     vuePkgJSON.version = this.currentLaravelVersion
 
     // Update package name
-    vuePkgJSON.name = this.templateConfig.laravel.pkgName
+    vuePkgJSON.name = this.templateConfig.laravel.pkgName + (isFree ? '-free' : '')
 
     // Add laravel-vite-plugin in devDependencies
     if (!vuePkgJSON.devDependencies) {
@@ -207,7 +207,7 @@ export class Laravel extends Utils {
     })
   }
 
-  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean) {
+  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean, isFree: boolean) {
     // copy vue project src directory in ts/js dir
     this.copyProject(
       path.join(sourcePath, 'src'),
@@ -235,7 +235,7 @@ export class Laravel extends Utils {
     })
 
     // copy .vscode & eslint-internal-rules dir
-    ;['.vscode', ...(isJS ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
+    ;['.vscode', ...(isJS || isFree ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
       fs.copySync(
         path.join(sourcePath, dirName),
         path.join(this.projectPath, dirName),
@@ -476,7 +476,7 @@ export class Laravel extends Utils {
     // create new laravel project
     this.bootstrapLaravelInTempDir(lang, sourcePath)
 
-    this.copyVueProjectFiles(lang, sourcePath, isJS)
+    this.copyVueProjectFiles(lang, sourcePath, isJS, isFree)
 
     // Remove generated js files from iconify dir
     if (!isJS) {
@@ -492,7 +492,7 @@ export class Laravel extends Utils {
     }
 
     // Exclude build dir from base URL in msw worker URL
-    if (!isSK) {
+    if (!isSK && !isFree) {
       const fakeApiDirPath = path.join(this.resourcesPath, lang, 'plugins', 'fake-api')
       const filesToUpdateBaseUrl = [
         path.join(fakeApiDirPath, `index.${lang}`),
@@ -538,7 +538,7 @@ export class Laravel extends Utils {
     }
 
     // update package.json
-    this.updatePkgJson(sourcePath, lang)
+    this.updatePkgJson(sourcePath, lang, isFree)
 
     // handle gitignore file merge
     updateFile(
@@ -591,7 +591,7 @@ export class Laravel extends Utils {
     })
 
     // SK won't have front pages
-    if (!isSK) {
+    if (!isSK && !isFree) {
       const frontPagesDir = path.join(this.resourcesPath, lang, 'views', 'front-pages')
       const filesToUpdate = [
         path.join(frontPagesDir, 'front-page-navbar.vue'),
@@ -642,12 +642,23 @@ export class Laravel extends Utils {
 
     // Update links in laravel free
     if (isFree) {
-      const filesToUpdateLinksIn = [
+      const filesToUpdateFreeLinksIn = [
         path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
-        path.join(this.projectPath, 'package.json'),
       ]
 
-      filesToUpdateLinksIn.forEach((filePath) => {
+      filesToUpdateFreeLinksIn.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template-free`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template-free`),
+        )
+      })
+
+      // update pro links in laravel free
+      const filesToUpdateProLinksIn = [
+        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'NavItems.vue'),
+      ]
+
+      filesToUpdateProLinksIn.forEach((filePath) => {
         updateFile(
           filePath,
           data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
