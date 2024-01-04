@@ -799,8 +799,8 @@ const handleError = () => clearError({ redirect: '/' })
     const modifyLayout = (layoutFilePath: string) => {
       updateFile(layoutFilePath, (data) => {
         // Handle both definition of <RouterView>
-        const findRegex = this.isFree ? /<RouterView \/>/gms : /<RouterView.*?<\/RouterView>/gms
-        let newData = data.mustReplace(findRegex, '<slot />')
+        let newData = data.replace(/<RouterView.*?<\/RouterView>/gms, '<slot />')
+        newData = newData.replace(/<RouterView \/>/gms, '<slot />')
 
         if (!isFree) {
           newData = newData
