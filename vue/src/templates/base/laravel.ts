@@ -642,14 +642,26 @@ export class Laravel extends Utils {
 
     // Update links in laravel free
     if (isFree) {
-      const filesToUpdateLinksIn = [
+      const filesToUpdateFreeLinksIn = [
         path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
       ]
 
-      filesToUpdateLinksIn.forEach((filePath) => {
+      filesToUpdateFreeLinksIn.forEach((filePath) => {
         updateFile(
           filePath,
           data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template-free`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template-free`),
+        )
+      })
+
+      // update pro links in laravel free
+      const filesToUpdateProLinksIn = [
+        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'NavItems.vue'),
+      ]
+
+      filesToUpdateProLinksIn.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
         )
       })
     }
