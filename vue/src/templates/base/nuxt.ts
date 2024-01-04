@@ -799,8 +799,8 @@ const handleError = () => clearError({ redirect: '/' })
     const modifyLayout = (layoutFilePath: string) => {
       updateFile(layoutFilePath, (data) => {
         // Handle both definition of <RouterView>
-        let newData = data.mustReplace(/<RouterView.*?<\/RouterView>/gms, '<slot />')
-        // newData = data.replace(/<RouterView \/>/gms, '<slot />')
+        const findRegex = this.isFree ? /<RouterView \/>/gms : /<RouterView.*?<\/RouterView>/gms
+        let newData = data.mustReplace(findRegex, '<slot />')
 
         if (!isFree) {
           newData = newData
@@ -1290,8 +1290,10 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     // ℹ️ We've different dir name in free version
     await fs.remove(path.join(this.projectPath, 'plugins', isFree ? 'router' : '1.router'))
 
-    // Rename definePage to definePageMeta
-    this.replaceDefinePageWithDefinePageMeta()
+    // Rename definePage to definePageMeta.
+    // There's no definePage in free pages to don't run it there
+    if (!isFree)
+      this.replaceDefinePageWithDefinePageMeta()
 
     this.update404Page(isJS)
 
