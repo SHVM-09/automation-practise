@@ -13,12 +13,17 @@ const main = defineCommand({
       description: 'Generate demos for staging environment',
       default: false,
     },
+    isFree: {
+      type: 'boolean',
+      description: 'Generate demos for free environment',
+      default: false,
+    },
   },
   run({ args }) {
     const materialize = new Materialize(config)
     const laravel = new Laravel(materialize.config)
 
-    laravel.genDemos(args.staging)
+    laravel.genDemos(args.staging, args.isFree)
   },
 })
 

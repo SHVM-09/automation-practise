@@ -836,10 +836,11 @@ export class Laravel extends Utils {
     )
   }
 
-  genDemos(isStaging: boolean) {
+  genDemos(isStaging: boolean, isFree: boolean) {
     consola.info('isStaging: ', isStaging.toString())
+    consola.info('isFree: ', isFree.toString())
 
-    const { TSFull } = this.templateConfig.laravel.paths
+    const TSFull = isFree ? this.templateConfig.laravel.paths.freeTS : this.templateConfig.laravel.paths.TSFull
 
     const envPath = path.join(TSFull, '.env')
 
@@ -850,7 +851,8 @@ export class Laravel extends Utils {
       )
     }
 
-    execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
+    if (!isFree)
+      execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
 
     // Generate application key
     execCmd('php artisan key:generate', { cwd: TSFull })
@@ -858,13 +860,15 @@ export class Laravel extends Utils {
     const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
-    injectGTM(
-      path.join(TSFull, 'resources', 'views', 'application.blade.php'),
-      this.templateConfig.gtm,
-    )
+    if (!isFree) {
+      injectGTM(
+        path.join(TSFull, 'resources', 'views', 'application.blade.php'),
+        this.templateConfig.gtm,
+      )
+    }
 
     // update index.php file
-    const indexPhpPath = path.join(this.templateConfig.laravel.paths.TSFull, 'public', 'index.php')
+    const indexPhpPath = path.join(this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'], 'public', 'index.php')
 
     // TODO: Do something on repetition of `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`
 
@@ -879,7 +883,7 @@ export class Laravel extends Utils {
       const numOfDirsToTraverseUpwards = 4 + (isStaging ? 1 : 0)
 
       // '/' + '../'.repeat(3) => '/../../../'
-      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}/`
+      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}/`
     })()
 
     updateFile(indexPhpPath, (data) => {
@@ -891,34 +895,69 @@ export class Laravel extends Utils {
         .mustReplace(/(?<=^\$app.*\n)/gm, '\napp()->usePublicPath(__DIR__);\n')
     })
 
-    const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
-    const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
+    if (!isFree) {
+      const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
+      const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
+      this.templateConfig.demosConfig.forEach((demoConfig, demoIndex) => {
+        // Generate demo number
+        const demoNumber = demoIndex + 1
 
-    this.templateConfig.demosConfig.forEach((demoConfig, demoIndex) => {
-      // Generate demo number
-      const demoNumber = demoIndex + 1
+        consola.info(`Generating demo ${demoNumber}`)
 
-      consola.info(`Generating demo ${demoNumber}`)
+        consola.info('Updating localStorage keys...')
+        this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
 
-      consola.info('Updating localStorage keys...')
-      this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
+        // ℹ️ Demo config can be null if there's no changes in themeConfig
+        if (demoConfig) {
+          // clone themeConfig
+          let demoThemeConfig = themeConfig
 
-      // ℹ️ Demo config can be null if there's no changes in themeConfig
-      if (demoConfig) {
-        // clone themeConfig
-        let demoThemeConfig = themeConfig
+          // Loop over demo config and make changes in cloned themeConfig
+          demoConfig.forEach((changes) => {
+            demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
+          })
 
-        // Loop over demo config and make changes in cloned themeConfig
-        demoConfig.forEach((changes) => {
-          demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
-        })
+          // Update themeConfig file
+          fs.writeFileSync(themeConfigPath, demoThemeConfig, { encoding: 'utf-8' })
+        }
 
-        // Update themeConfig file
-        fs.writeFileSync(themeConfigPath, demoThemeConfig, { encoding: 'utf-8' })
-      }
+        // Create base path based on demoNumber and env (staging|production)
+        const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging, isFree)
 
+        // Update .env file
+        updateFile(
+          envPath,
+          data => data
+            .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/g, `$1\nASSET_URL=${demoDeploymentBase}`),
+        )
+
+        updateFile(
+          path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', '1.router', 'index.ts'),
+          data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
+        )
+
+        // Run build
+        execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
+        execCmd('pnpm msw:init', { cwd: this.templateConfig.laravel.paths.TSFull })
+
+        // At the moment of this script execution, we will have "public" in root the TSFull
+        // Duplicate public to demo-$demoNumber
+        fs.copySync(
+          path.join(this.templateConfig.laravel.paths.TSFull, 'public'),
+          path.join(this.templateConfig.laravel.paths.TSFull, `demo-${demoNumber}`),
+        )
+
+        // Reset the themeConfig
+        fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
+
+        consola.success(`Demo ${demoNumber} generation completed`)
+      })
+    }
+
+    if (isFree) {
       // Create base path based on demoNumber and env (staging|production)
-      const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging)
+      const demoNumber = 0
+      const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging, isFree)
 
       // Update .env file
       updateFile(
@@ -927,27 +966,12 @@ export class Laravel extends Utils {
           .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/g, `$1\nASSET_URL=${demoDeploymentBase}`),
       )
 
-      updateFile(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', '1.router', 'index.ts'),
-        data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
-      )
-
-      // Run build
-      execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
-      execCmd('pnpm msw:init', { cwd: this.templateConfig.laravel.paths.TSFull })
-
-      // At the moment of this script execution, we will have "public" in root the TSFull
-      // Duplicate public to demo-$demoNumber
+      execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.freeTS })
       fs.copySync(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'public'),
-        path.join(this.templateConfig.laravel.paths.TSFull, `demo-${demoNumber}`),
+        path.join(this.templateConfig.laravel.paths.freeTS, 'public'),
+        path.join(this.templateConfig.laravel.paths.freeTS, 'demo'),
       )
-
-      // Reset the themeConfig
-      fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
-
-      consola.success(`Demo ${demoNumber} generation completed`)
-    })
+    }
 
     // Remove node_modules & public dir
     // ;['node_modules', 'public'].forEach((dirName) => {
@@ -961,20 +985,20 @@ export class Laravel extends Utils {
 
     // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
     const zipWrapperDirParent = new TempLocation().tempDir
-    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`)
+    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}`)
 
     // Make sure this dir exist so we copy the content
     fs.ensureDirSync(zipWrapperDir)
 
     // Copy everything from TS Full except node_modules & public dir
-    fs.copySync(this.templateConfig.laravel.paths.TSFull, zipWrapperDir, {
+    fs.copySync(this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'], zipWrapperDir, {
       // ℹ️ Exclude node_modules & public dir from being copied
       filter: src => !/\b(node_modules|public)\b/.test(src),
     })
 
     const zipPath = path.join(
-      this.templateConfig.laravel.paths.TSFull,
-      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip`,
+      this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'],
+      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}.zip`,
     )
 
     // Generate zip of ts full including demo & laravel
@@ -985,6 +1009,6 @@ export class Laravel extends Utils {
 
     // Reset changes we done via git checkout
     // Thanks: https://stackoverflow.com/a/21213235/10796681
-    execCmd('git status >/dev/null 2>&1 && git checkout .', { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd('git status >/dev/null 2>&1 && git checkout .', { cwd: this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'] })
   }
 }
