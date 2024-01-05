@@ -883,7 +883,7 @@ export class Laravel extends Utils {
       const numOfDirsToTraverseUpwards = 4 + (isStaging ? 1 : 0)
 
       // '/' + '../'.repeat(3) => '/../../../'
-      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}/`
+      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}/`
     })()
 
     updateFile(indexPhpPath, (data) => {
