@@ -966,6 +966,11 @@ export class Laravel extends Utils {
           .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/g, `$1\nASSET_URL=${demoDeploymentBase}`),
       )
 
+      updateFile(
+        path.join(this.templateConfig.laravel.paths.freeTS, 'resources', 'ts', 'plugins', 'router', 'index.ts'),
+        data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
+      )
+
       execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.freeTS })
       fs.copySync(
         path.join(this.templateConfig.laravel.paths.freeTS, 'public'),
