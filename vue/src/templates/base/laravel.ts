@@ -985,7 +985,7 @@ export class Laravel extends Utils {
 
     // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
     const zipWrapperDirParent = new TempLocation().tempDir
-    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}`)
+    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}`)
 
     // Make sure this dir exist so we copy the content
     fs.ensureDirSync(zipWrapperDir)
@@ -998,7 +998,7 @@ export class Laravel extends Utils {
 
     const zipPath = path.join(
       this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'],
-      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}${isFree ? '-free' : ''}.zip`,
+      `${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}.zip`,
     )
 
     // Generate zip of ts full including demo & laravel
