@@ -11,8 +11,8 @@ export type VuexyConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
 const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
-const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
-const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace('vue', 'vue-laravel-free')
+const vuexyVueFreePath = vuexyVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 const vuexyNuxtPath = path.join(getTemplatePath('vuexy', 'nuxt'))
 const vuexyNuxtFreePath = path.join(getTemplatePath('nuxt', 'nuxt-free'))
 

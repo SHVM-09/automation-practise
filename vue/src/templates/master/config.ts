@@ -14,10 +14,10 @@ const masterVueFreeInternalPath = masterVuePath.mustReplace('vue', 'vue-free-int
 const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
 
 const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
-const masterVueLaravelFreePath = masterVuePath.mustReplace('vue', 'vue-laravel-free')
+const masterVueLaravelFreePath = masterVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 
 const masterNuxtPath = path.join(getTemplatePath('master', 'nuxt'))
-const masterNuxtFreePath = masterNuxtPath.mustReplace('nuxt', 'nuxt-free')
+const masterNuxtFreePath = masterNuxtPath.mustReplace(/\bnuxt\b/g, 'nuxt-free')
 
 export const config: MasterConfig = {
   templateName: 'master',

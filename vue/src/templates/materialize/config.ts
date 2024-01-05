@@ -11,7 +11,7 @@ export type MaterializeConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materializeVuePath = path.join(getTemplatePath('materialize', 'vue'))
 const materializeVueLaravelPath = path.join(getTemplatePath('materialize', 'vue-laravel'))
-const materializeVueFreePath = materializeVuePath.mustReplace('vue', 'vue-free')
+const materializeVueFreePath = materializeVuePath.mustReplace(/\bvue\b/g, 'vue-free')
 
 export const config: MaterializeConfig = {
   templateName: 'materialize',

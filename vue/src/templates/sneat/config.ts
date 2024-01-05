@@ -11,8 +11,8 @@ export type SneatConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const sneatVuePath = path.join(getTemplatePath('sneat', 'vue'))
 const sneatVueLaravelPath = path.join(getTemplatePath('sneat', 'vue-laravel'))
-const sneatVueFreePath = sneatVuePath.mustReplace('vue', 'vue-free')
-const sneatVueLaravelFreePath = sneatVuePath.mustReplace('vue', 'vue-laravel-free')
+const sneatVueFreePath = sneatVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const sneatVueLaravelFreePath = sneatVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 
 export const config: SneatConfig = {
   templateName: 'sneat',
