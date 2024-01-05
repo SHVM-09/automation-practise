@@ -821,6 +821,20 @@ export class Laravel extends Utils {
     console.log(execCmd(`ls -la ${vueRepoRoot}`, { encoding: 'utf-8' }))
     console.log(execCmd('pwd', { encoding: 'utf-8', cwd: vueRepoRoot }))
 
+    // copy deploy-laravel-demo-free.yml file to root of laravel repo so that it can be used in release workflow
+    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+    const baseDataDirPath = path.join(__dirname, 'data')
+    const vueLaravelRootPath = this.templateConfig.laravel.projectPath.mustReplace(/\bvue-laravel\b/g, 'vue-laravel-free')
+    const ghWorkflowsDir = path.join(vueLaravelRootPath, '.github', 'workflows')
+    const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demo-free.yml')
+    const deployLaravelDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
+
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      deployLaravelDemosWorkflowSourceFilePath,
+      deployLaravelDemosWorkflowFilePath,
+    )
+
     const filesToCopy = [
       'package.json',
       'pnpm-lock.yaml',
