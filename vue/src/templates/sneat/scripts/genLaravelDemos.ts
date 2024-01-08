@@ -14,14 +14,18 @@ const main = defineCommand({
       description: 'Generate demos for staging environment',
       default: false,
     },
+    isFree: {
+      type: 'boolean',
+      description: 'Generate demos for free environment',
+      default: false,
+    },
   },
   run({ args }) {
     const sneat = new Sneat(config)
     const laravel = new Laravel(sneat.config)
 
-    laravel.genDemos(args.staging)
+    laravel.genDemos(args.staging, args.isFree)
   },
 })
 
 await runMain(main)
-

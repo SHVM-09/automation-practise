@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 
 import type { TemplateBaseConfig } from '@/templates/base'
 import { pixinvent as pixinventGTMConfig } from '@/templates/base/gtmConfig'
@@ -11,7 +11,7 @@ export type MaterializeConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materializeVuePath = path.join(getTemplatePath('materialize', 'vue'))
 const materializeVueLaravelPath = path.join(getTemplatePath('materialize', 'vue-laravel'))
-const materializeVueFreePath = materializeVuePath.mustReplace('vue', 'vue-free')
+const materializeVueFreePath = materializeVuePath.mustReplace(/\bvue\b/g, 'vue-free')
 
 export const config: MaterializeConfig = {
   templateName: 'materialize',
@@ -44,6 +44,7 @@ export const config: MaterializeConfig = {
     '!avatars',
     '!misc',
   ],
+  ignoreCompressionPatterns: [],
   paths: {
     tSFull: path.join(materializeVuePath, 'typescript-version', 'full-version'),
     tSStarter: path.join(materializeVuePath, 'typescript-version', 'starter-kit'),
@@ -125,6 +126,10 @@ export const config: MaterializeConfig = {
     pageTitle: 'Materialize - Vuejs Admin Template',
     docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/',
   },
+  changelog: {
+    pageTitle: 'Materialize - Vuejs Admin Template Changelog',
+    url: 'https://demos.pixinvent.com/materialize/changelog.html',
+  },
   gh: {
     ownerName: 'pixinvent',
     repoName: 'materialize-vuejs-admin-template',
@@ -140,11 +145,17 @@ export const config: MaterializeConfig = {
       TSStarter: path.join(materializeVueLaravelPath, 'typescript-version', 'starter-kit'),
       JSFull: path.join(materializeVueLaravelPath, 'javascript-version', 'full-version'),
       JSStarter: path.join(materializeVueLaravelPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(materializeVueFreePath, 'javascript-version'),
+      freeTS: path.join(materializeVueFreePath, 'typescript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materialize-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/materialize-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Materialize - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/materialize-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
+    },
+    changelog: {
+      pageTitle: 'Materialize - Vuejs Laravel Admin Template Changelog',
+      url: 'https://demos.pixinvent.com/materialize/changelog.html',
     },
   },
 }

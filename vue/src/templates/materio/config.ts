@@ -11,11 +11,11 @@ export type MaterioConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
 const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
-const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
-const materioVueLaravelFreePath = materioVuePath.mustReplace('vue', 'vue-laravel-free')
+const materioVueFreePath = materioVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const materioVueLaravelFreePath = materioVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 
 const materioNuxtPath = path.join(getTemplatePath('materio', 'nuxt'))
-const materioNuxtFreePath = materioNuxtPath.mustReplace('nuxt', 'nuxt-free')
+const materioNuxtFreePath = materioNuxtPath.mustReplace(/\bnuxt\b/g, 'nuxt-free')
 
 export const config: MaterioConfig = {
   templateName: 'materio',
@@ -170,7 +170,7 @@ export const config: MaterioConfig = {
       freeJS: path.join(materioVueLaravelFreePath, 'javascript-version'),
       freeTS: path.join(materioVueLaravelFreePath, 'typescript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',

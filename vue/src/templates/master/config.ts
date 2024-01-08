@@ -14,10 +14,10 @@ const masterVueFreeInternalPath = masterVuePath.mustReplace('vue', 'vue-free-int
 const masterVueFreePath = masterVuePath.mustReplace('vue', 'vue-free')
 
 const masterVueLaravelPath = path.join(getTemplatePath('master', 'vue-laravel'))
-const masterVueLaravelFreePath = masterVuePath.mustReplace('vue', 'vue-laravel-free')
+const masterVueLaravelFreePath = masterVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 
 const masterNuxtPath = path.join(getTemplatePath('master', 'nuxt'))
-const masterNuxtFreePath = masterNuxtPath.mustReplace('nuxt', 'nuxt-free')
+const masterNuxtFreePath = masterNuxtPath.mustReplace(/\bnuxt\b/g, 'nuxt-free')
 
 export const config: MasterConfig = {
   templateName: 'master',
@@ -56,7 +56,7 @@ export const config: MasterConfig = {
   ],
   ignoreCompressionPatterns: [
     '**/hero-*',
-    '**/front-pages/**/product-image.*'
+    '**/front-pages/**/product-image.*',
   ],
   paths: {
     tSFull: path.join(masterVuePath, 'typescript-version', 'full-version'),
@@ -173,7 +173,7 @@ export const config: MasterConfig = {
       freeJS: path.join(masterVueLaravelFreePath, 'javascript-version'),
       freeTS: path.join(masterVueLaravelFreePath, 'typescript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/master-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/master-vuetify-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Master - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/master-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
