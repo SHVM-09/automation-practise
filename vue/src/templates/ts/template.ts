@@ -13,7 +13,7 @@ export class ThemeSelectionTemplate<TemplateConfig extends TemplateBaseConfig> e
     super(config)
   }
 
-  override async postProcessGeneratedPkg(tempPkgDir: string, isLaravel = false): Promise<void> {
+  override async postProcessGeneratedPkg(tempPkgDir: string, isLaravel = false, isFree = false): Promise<void> {
     const isMaster = this.config.templateName === 'master'
 
     // ℹ️ Master don't have documentation & hire us file
@@ -38,13 +38,15 @@ export class ThemeSelectionTemplate<TemplateConfig extends TemplateBaseConfig> e
     }
 
     // Generate changelog.html file
-    genRedirectionHtmlFile(
-      path.join(tempPkgDir, 'changelog.html'),
-      {
-        templateFullName: isLaravel ? this.config.laravel.changelog.pageTitle : this.config.changelog.pageTitle,
-        url: isLaravel ? this.config.laravel.changelog.url : this.config.changelog.url,
-      },
-    )
+    if (!isFree) {
+      genRedirectionHtmlFile(
+        path.join(tempPkgDir, 'changelog.html'),
+        {
+          templateFullName: isLaravel ? this.config.laravel.changelog.pageTitle : this.config.changelog.pageTitle,
+          url: isLaravel ? this.config.laravel.changelog.url : this.config.changelog.url,
+        },
+      )
+    }
 
     // Fake sleep
     await new Promise(resolve => setTimeout(resolve, 1))

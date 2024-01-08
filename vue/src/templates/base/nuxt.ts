@@ -252,7 +252,7 @@ export class Nuxt extends Utils {
 
   private updatePlugins(isSK: boolean, lang: Lang) {
     // Remove pinia plugin because we are using pinia nuxt module
-    const piniaFileName = (this.isFree ? 'pinia' : '2.pinia.') + lang
+    const piniaFileName = (this.isFree ? 'pinia.' : '2.pinia.') + lang
     fs.removeSync(path.join(this.projectPath, 'plugins', piniaFileName))
 
     const pluginFiles = globbySync([
@@ -506,8 +506,11 @@ export class Nuxt extends Utils {
       { from: 'node:url', imported: 'fileURLToPath' },
       { from: 'vite-plugin-vuetify', imported: 'default', local: 'vuetify' },
       { from: 'vite-svg-loader', imported: 'default', local: 'svgLoader' },
-      { from: '@intlify/unplugin-vue-i18n/vite', imported: 'default', local: 'VueI18nPlugin' },
     ]
+
+    // Don't include vue-i18n in imports if it's free version
+    if (!isFree)
+      importsToAdd.push({ from: '@intlify/unplugin-vue-i18n/vite', imported: 'default', local: 'VueI18nPlugin' })
 
     importsToAdd.forEach((importItem) => {
       nuxtConfigMod.imports.$add(importItem)
@@ -1278,10 +1281,40 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     if (!(isSK || isFree))
       this.updateAdditionalRoutes(sourcePath, lang)
 
-    if (isSK || isFree)
-      // We don't want additional routes in SK/Free
+    if (isFree) {
+      let freeConfigContent = `import type { RouterConfig } from '@nuxt/schema'
+
+// https://router.vuejs.org/api/interfaces/routeroptions.html
+export default <RouterConfig> {
+  routes: scannedRoutes => [
+    ...scannedRoutes,
+    {
+      path: '/',
+      name: 'index',
+      component: h('div'),
+    },
+  ],
+}`
+
+      // Remove types from above snippet in JS version
+      if (isJS) {
+        freeConfigContent = freeConfigContent
+          .mustReplace(/import type.*/gm, '')
+          .mustReplace('<RouterConfig>', '')
+      }
+
+      const appDirPath = path.join(this.projectPath, 'app')
+      fs.ensureDirSync(appDirPath)
+
+      const routerOptionsFilePath = path.join(appDirPath, `router.options.${lang}`)
+      writeFileSyncUTF8(routerOptionsFilePath, freeConfigContent)
+    }
+
+    if (isSK)
+      // We don't want additional routes in SK
       await fs.remove(path.join(this.projectPath, 'app'))
-    else
+
+    if (!(isSK || isFree))
       this.convertBeforeEachToMiddleware(sourcePath, lang)
 
     // Remove unwanted files
@@ -1463,7 +1496,8 @@ defineOptions({
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
-    consola.box('🛠️ Generating Nuxt')
+    // eslint-disable-next-line prefer-template
+    consola.box('🛠️ Generating Nuxt' + (this.isFree && ' Free'))
 
     // TS Full
     consola.start('Generating Nuxt TS Full')
@@ -1472,29 +1506,66 @@ defineOptions({
 
     // TS SK
     // ℹ️ We do not provide starters for free version
-    consola.start('Generating Nuxt TS SK')
-    await this.genNuxt({ isSK: true })
-    consola.success('Nuxt TS SK generated\n')
+    if (!this.isFree) {
+      consola.start('Generating Nuxt TS SK')
+      await this.genNuxt({ isSK: true })
+      consola.success('Nuxt TS SK generated\n')
 
-    // Nuxt-API JS version for Js Only
-    consola.start('Generating Nuxt JS API')
-    this.genNuxtApiJs()
-    consola.success('Nuxt JS API generated\n')
+      // Nuxt-API JS version for Js Only
+      consola.start('Generating Nuxt JS API')
+      this.genNuxtApiJs()
+      consola.success('Nuxt JS API generated\n')
+    }
 
     // JS Full
     consola.start('Generating Nuxt JS Full')
     await this.genNuxt({ isJS: true, isFree: this.isFree })
     consola.success('Nuxt JS Full generated\n')
 
-    // Nuxt JS SK
-    // ℹ️ We do not provide starters for free version
-    consola.start('Generating Nuxt JS SK')
-    await this.genNuxt({ isJS: true, isSK: true })
-    consola.success('Nuxt JS SK generated\n')
+    if (!this.isFree) {
+      // Nuxt JS SK
+      // ℹ️ We do not provide starters for free version
+      consola.start('Generating Nuxt JS SK')
+      await this.genNuxt({ isJS: true, isSK: true })
+      consola.success('Nuxt JS SK generated\n')
+    }
 
     consola.box('📦 Working on Nuxt Package')
 
     // Create new temp dir for storing pkg
+    const { pkgJsonPaths, tempPkgTSSource, tempPkgDir } = this.isFree ? this.genFreePkg() : this.genProPkg()
+
+    // update package name in package.json
+    pkgJsonPaths.forEach((pkgJSONPath) => {
+      updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.nuxt.pkgName + (this.isFree ? '-free' : ''))
+    })
+
+    // package version for package name
+    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
+    let pkgVersionForZip: string | null = null
+
+    if (isInteractive || newPkgVersion)
+      pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSSource, 'package.json'), newPkgVersion)
+
+    // Run post process hooks
+    await hooks.postProcessGeneratedPkg(tempPkgDir)
+
+    if (!this.isFree) {
+      const zipDirPath = this.isFree ? this.templateConfig.nuxt.paths.freeTS : this.templateConfig.nuxt.projectPath
+      const zipPath = path.join(
+        zipDirPath,
+        `${this.templateConfig.nuxt.pkgName}${this.isFree ? '-free' : ''}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+      )
+
+      execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
+      consola.success(`Package generated at: ${zipPath}`)
+    }
+    else {
+      consola.success('Nuxt Free Generated 🎉')
+    }
+  }
+
+  private genProPkg() {
     const tempPkgDir = new TempLocation().tempDir
     const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
     const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
@@ -1526,8 +1597,6 @@ defineOptions({
     pinPackagesVersions(packageVersions, tempPkgJSFull)
     pinPackagesVersions(packageVersions, tempPkgJSStarter)
 
-    // Remove BuyNow from both full versions
-    // TODO: removeBuyNow method is not generic
     ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath) => {
       filterFileByLine(
         path.join(projectPath, 'App.vue'),
@@ -1539,7 +1608,6 @@ defineOptions({
     execCmd(`rm -rf ${path.join(tempPkgTSFull, 'pages', 'pages', 'test')}`)
     execCmd(`rm -rf ${path.join(tempPkgJSFull, 'pages', 'pages', 'test')}`)
 
-    // remove icon.css file from all version
     ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
       fs.removeSync(path.join(projectPath, 'plugins', 'iconify', 'icons.css'))
       fs.removeSync(path.join(projectPath, '.env'))
@@ -1553,28 +1621,52 @@ defineOptions({
 
     // package.json files paths in all four versions
     const pkgJsonPaths = [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json'))
+    consola.info('TODO: We have this package.json path, Ensure version & name is getting updated:', pkgJsonPaths)
+    return { pkgJsonPaths, tempPkgTSSource: tempPkgTSFull, tempPkgDir }
+  }
 
-    // update package name in package.json
-    pkgJsonPaths.forEach((pkgJSONPath) => {
-      updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.nuxt.pkgName)
+  private genFreePkg() {
+    const tempPkgDir = new TempLocation().tempDir
+    const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
+    const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
+
+    // Create dirs
+    fs.ensureDirSync(tempPkgTS)
+    fs.ensureDirSync(tempPkgJS)
+
+    // Copy from free version
+    this.copyProject(this.templateConfig.nuxt.paths.freeTS, tempPkgTS, this.templateConfig.packageCopyIgnorePatterns)
+    this.copyProject(this.templateConfig.nuxt.paths.freeJS, tempPkgJS, this.templateConfig.packageCopyIgnorePatterns)
+
+    // update node package version
+    const packageVersions = getPackagesVersions(this.templateConfig.nuxt.paths.TSFull)
+    pinPackagesVersions(packageVersions, tempPkgTS)
+    pinPackagesVersions(packageVersions, tempPkgJS)
+
+    ;[tempPkgTS, tempPkgJS].forEach((projectPath) => {
+      filterFileByLine(
+        path.join(projectPath, 'App.vue'),
+        line => !line.includes('BuyNow'),
+      )
     })
 
-    // package version for package name
-    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
-    let pkgVersionForZip: string | null = null
+    // Remove test pages from both full versions
+    execCmd(`rm -rf ${path.join(tempPkgTS, 'pages', 'pages', 'test')}`)
+    execCmd(`rm -rf ${path.join(tempPkgJS, 'pages', 'pages', 'test')}`)
 
-    if (isInteractive || newPkgVersion)
-      pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
+    ;[tempPkgTS, tempPkgJS].forEach((projectPath) => {
+      fs.removeSync(path.join(projectPath, 'plugins', 'iconify', 'icons.css'))
+      fs.removeSync(path.join(projectPath, '.env'))
+    })
 
-    // Run post process hooks
-    await hooks.postProcessGeneratedPkg(tempPkgDir)
-
-    const zipPath = path.join(
-      this.templateConfig.nuxt.projectPath,
-      `${this.templateConfig.nuxt.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+    // Copy documentation.html file from root of the repo
+    fs.copyFileSync(
+      path.join(this.templateConfig.projectPath, 'documentation.html'),
+      path.join(tempPkgDir, 'documentation.html'),
     )
 
-    execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
-    consola.success(`Package generated at: ${zipPath}`)
+    // package.json files paths in all four versions
+    const pkgJsonPaths = [this.templateConfig.nuxt.paths.freeTS, this.templateConfig.nuxt.paths.freeJS].map(p => path.join(p, 'package.json'))
+    return { pkgJsonPaths, tempPkgTSSource: tempPkgTS, tempPkgDir }
   }
 }
