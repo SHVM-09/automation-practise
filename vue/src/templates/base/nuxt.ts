@@ -406,6 +406,7 @@ export class Nuxt extends Utils {
         '@core/scss/template/index.scss',
         '@styles/styles.scss',
         '@/plugins/iconify/icons.css',
+        ...(isFree ? ['@layouts/styles/index.scss'] : []),
       ],
       components: {
         dirs: [
@@ -783,6 +784,7 @@ const handleError = () => clearError({ redirect: '/' })
 
   private updateLayouts(lang: Lang, isFree: boolean) {
     const layoutsDirPath = path.join(this.projectPath, 'layouts')
+    const defaultLayoutWithVerticalNavPath = path.join(layoutsDirPath, 'components', 'DefaultLayoutWithVerticalNav.vue')
     const layoutsPaths = [
       path.join(layoutsDirPath, 'blank.vue'),
     ]
@@ -794,7 +796,7 @@ const handleError = () => clearError({ redirect: '/' })
     }
     else {
       layoutsPaths.push(
-        path.join(layoutsDirPath, 'components', 'DefaultLayoutWithVerticalNav.vue'),
+        defaultLayoutWithVerticalNavPath,
         path.join(layoutsDirPath, 'components', 'DefaultLayoutWithHorizontalNav.vue'),
       )
     }
@@ -816,6 +818,36 @@ const handleError = () => clearError({ redirect: '/' })
     }
 
     layoutsPaths.forEach(modifyLayout)
+
+    if (isFree) {
+      // ℹ️ Update GitHub repo URL in navbar in Free
+      updateFile(
+        defaultLayoutWithVerticalNavPath,
+        data => data.mustReplace(
+          'https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free',
+          'https://github.com/themeselection/materio-vuetify-nuxtjs-admin-template-free',
+        ),
+      )
+
+      // Update pro links
+      ;[
+        path.join(layoutsDirPath, 'components', 'NavItems.vue'),
+        path.join(this.projectPath, 'components', 'UpgradeToPro.vue'),
+      ].forEach((filePath) => {
+        updateFile(
+          filePath,
+
+          // Update URLs and revert back docs URL
+          data => data.mustReplace(
+            'materio-vuetify-vuejs-admin-template',
+            'materio-vuetify-nuxtjs-admin-template',
+          ).replace(
+            'materio-vuetify-nuxtjs-admin-template/documentation',
+            'materio-vuetify-vuejs-admin-template/documentation',
+          ),
+        )
+      })
+    }
 
     // Replace RouterView with NuxtLayout, NuxtPage & Loading indicator & SSR updates
     updateFile(
@@ -1291,7 +1323,7 @@ export default <RouterConfig> {
     {
       path: '/',
       name: 'index',
-      component: h('div'),
+      redirect: '/dashboard',
     },
   ],
 }`
@@ -1420,6 +1452,41 @@ defineOptions({
 
     // ℹ️ We should run this in last to make replacement of router
     this.handleRouterChanges()
+
+    // [Free] Define blank layout in certain files and add no-existence file
+    if (this.isFree) {
+      const pagesDir = path.join(this.projectPath, 'pages')
+      const blankLayoutPages = [
+        path.join(pagesDir, 'login.vue'),
+        path.join(pagesDir, 'register.vue'),
+      ]
+
+      blankLayoutPages.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(
+            '</script>',
+            `definePageMeta({ layout: 'blank' })
+            </script>`,
+          ),
+        )
+      })
+
+      writeFileSyncUTF8(
+        path.join(pagesDir, 'no-existence.vue'),
+        `<script lang="ts" setup>
+throw createError({
+  statusCode: 404,
+  statusMessage: 'Error Page! Just for demo!',
+  fatal: true,
+})
+</script>
+
+<template>
+  <p>This is just demo page to avoid console error and show you error.</p>
+</template>`,
+      )
+    }
 
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
