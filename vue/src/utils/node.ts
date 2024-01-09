@@ -1,13 +1,19 @@
+import type { Buffer } from 'node:buffer'
+import type { ExecOptions, ExecSyncOptions, ExecSyncOptionsWithBufferEncoding, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
 import { exec, execSync } from 'node:child_process'
 import process from 'node:process'
 import readline from 'node:readline'
-import { consola } from 'consola'
-import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
+import { colorize } from 'consola/utils'
+import { consola } from 'consola'
 
-export const execCmd = (...args: Parameters<typeof execSync>) => {
+export function execCmd(command: string): Buffer
+export function execCmd(command: string, options: ExecSyncOptionsWithBufferEncoding): Buffer
+export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string
+export function execCmd(command: string, options?: ExecSyncOptions): void
+export function execCmd(command: string, options?: ExecSyncOptions | ExecSyncOptionsWithStringEncoding | ExecSyncOptionsWithBufferEncoding) {
   try {
-    return execSync(...args)
+    return execSync(command, options)
   }
   catch (err) {
     consola.error(err)
@@ -20,16 +26,22 @@ export const execCmd = (...args: Parameters<typeof execSync>) => {
   }
 }
 
-export const execCmdAsync = (...args: Parameters<typeof exec>) => {
-  try {
-    return exec(...args)
-  }
-  catch (err) {
-    consola.error(err)
+export function execCmdAsync(command: string): Promise<{ stdout: string; stderr: string }>
+export function execCmdAsync(command: string, options: ExecOptions): Promise<{ stdout: string; stderr: string }>
+export function execCmdAsync(command: string, options?: ExecOptions) {
+  return new Promise((resolve) => {
+    exec(command, options, (error, stdout, stderr) => {
+      if (error) {
+        consola.error(error)
+        // Stop execution
+        process.exit(1)
+      }
+      if (stderr)
+        consola.warn(stderr)
 
-    // Stop execution
-    process.exit(1)
-  }
+      resolve({ stdout, stderr })
+    })
+  })
 }
 
 export type UpdateFileModifier = (data: string) => string
