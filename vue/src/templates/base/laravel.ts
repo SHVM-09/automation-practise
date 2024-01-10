@@ -610,6 +610,9 @@ export class Laravel extends Utils {
       )
     }
 
+    // Remove eslint internal rules
+    this.removeEslintInternalRules(this.projectPath)
+
     // Update vite config
     await this.updateViteConfig(lang)
 
