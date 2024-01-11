@@ -19,7 +19,6 @@ export const sfcToJs = (sfc: string): SfcToJSReturnType => {
     isProd: false,
     inlineTemplate: true,
     babelParserPlugins: ['typescript'],
-    reactivityTransform: false,
     sourceMap: false,
     templateOptions: {
       id: Date.now().toString(),
