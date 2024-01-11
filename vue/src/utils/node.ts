@@ -1,11 +1,11 @@
+import { consola } from 'consola'
+import { colorize } from 'consola/utils'
+import fs from 'fs-extra'
 import type { Buffer } from 'node:buffer'
 import type { ExecOptions, ExecSyncOptions, ExecSyncOptionsWithBufferEncoding, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
 import { exec, execSync } from 'node:child_process'
 import process from 'node:process'
 import readline from 'node:readline'
-import fs from 'fs-extra'
-import { colorize } from 'consola/utils'
-import { consola } from 'consola'
 
 export function execCmd(command: string): Buffer
 export function execCmd(command: string, options: ExecSyncOptionsWithBufferEncoding): Buffer

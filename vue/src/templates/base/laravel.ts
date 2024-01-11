@@ -280,10 +280,7 @@ export class Laravel extends Utils {
     )
 
     // replace @core/scss with @core-scss
-    execCmd(
-      `find ${lang} \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx -o -iname \\*.scss \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/@core\\/scss/@core-scss/g" '{}' \\;`,
-      { cwd: this.resourcesPath },
-    )
+    execCmd(`fd '\\.(vue|ts|tsx|js|jsx|scss)$' ${lang} -t f -x sd '@core/scss' '@core-scss' '{}'`, { cwd: this.resourcesPath })
 
     const stylesDirPath = path.join(this.resourcesPath, 'styles')
     fs.moveSync(
@@ -609,9 +606,6 @@ export class Laravel extends Utils {
         )),
       )
     }
-
-    // Remove eslint internal rules
-    this.removeEslintInternalRules(this.projectPath)
 
     // Update vite config
     await this.updateViteConfig(lang)
