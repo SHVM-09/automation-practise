@@ -361,7 +361,7 @@ export class GenJS extends Utils {
     this.updateEslintConfig()
 
     // Remove eslintInternal rules
-    if (!this.isFree)
+    if (!this.isFree && !this.isSK)
       this.removeEslintInternalRules(this.tempDir)
 
     /*

@@ -1,17 +1,17 @@
-import { Utils } from '@/templates/base/helper'
-import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
-import { execCmd } from '@/utils/node'
-import { TempLocation } from '@/utils/temp'
-import { updatePkgJsonVersion } from '@/utils/template'
+import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
-import path from 'node:path'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { GenJS } from './genJS'
 import { GenSK } from './genSK'
+import { updatePkgJsonVersion } from '@/utils/template'
+import { TempLocation } from '@/utils/temp'
+import { execCmd } from '@/utils/node'
+import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
+import { Utils } from '@/templates/base/helper'
 
 export class GenPkg extends Utils {
   constructor(private templateConfig: TemplateBaseConfig, private hooks: GenPkgHooks) {

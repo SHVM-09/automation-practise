@@ -207,7 +207,7 @@ export class Laravel extends Utils {
     })
   }
 
-  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean, isFree: boolean) {
+  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean, isFree: boolean, isSk: boolean) {
     // copy vue project src directory in ts/js dir
     this.copyProject(
       path.join(sourcePath, 'src'),
@@ -235,7 +235,7 @@ export class Laravel extends Utils {
     })
 
     // copy .vscode & eslint-internal-rules dir
-    ;['.vscode', ...(isJS || isFree ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
+    ;['.vscode', ...(isJS || isFree || isSk ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
       fs.copySync(
         path.join(sourcePath, dirName),
         path.join(this.projectPath, dirName),
@@ -473,7 +473,7 @@ export class Laravel extends Utils {
     // create new laravel project
     this.bootstrapLaravelInTempDir(lang, sourcePath)
 
-    this.copyVueProjectFiles(lang, sourcePath, isJS, isFree)
+    this.copyVueProjectFiles(lang, sourcePath, isJS, isFree, isSK)
 
     // Remove generated js files from iconify dir
     if (!isJS) {
@@ -688,6 +688,7 @@ export class Laravel extends Utils {
     }
 
     // Generate Laravel TS Full
+    consola.info('Generating Laravel TS Full')
     await this.genLaravel()
 
     // Report if any file is over 100KB
@@ -702,12 +703,15 @@ export class Laravel extends Utils {
     )
 
     // Generate Laravel TS Starter
+    consola.info('Generating Laravel TS Starter')
     await this.genLaravel({ isSK: true })
 
     // Generate Laravel JS Full
+    consola.info('Generating Laravel JS Full')
     await this.genLaravel({ isJS: true })
 
     // Generate Laravel JS Starter
+    consola.info('Generating Laravel JS Starter')
     await this.genLaravel({
       isJS: true,
       isSK: true,

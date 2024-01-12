@@ -336,6 +336,10 @@ export class GenSK extends Utils {
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', 'casl'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', '1.router', 'additional-routes.ts'))
     fs.removeSync(path.join(this.tempDir, 'src', 'plugins', '1.router', 'guards.ts'))
+
+    // Remove Eslint external rules
+    this.removeEslintInternalRules(this.tempDir)
+
     this.updateLayouts()
 
     this.removeBuyNowButton()

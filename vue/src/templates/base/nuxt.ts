@@ -1,17 +1,17 @@
+import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
-import path from 'node:path'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
-import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { consola } from 'consola'
 import { globbySync } from 'globby'
 import { addNuxtModule, getDefaultExportOptions } from 'magicast/helpers'
 import type { TemplateBaseConfig } from './config'
 import { Utils } from './helper'
+import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 
 import { titleCase } from '@/utils/conversions'
 import { addImport, addSfcImport, getPackagesVersions, mergeEnvFiles, pinPackagesVersions } from '@/utils/file'
@@ -19,6 +19,7 @@ import '@/utils/injectMustMatch'
 import { getTemplatePath, removePathPrefix } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
 import { updatePkgJsonVersion } from '@/utils/template'
+
 type Lang = 'ts' | 'js'
 type LangConfigFile = 'tsconfig.json' | 'jsconfig.json'
 
@@ -630,12 +631,11 @@ export class Nuxt extends Utils {
   }
 
   private replaceDefinePageWithDefinePageMeta() {
-    const pagesDir = path.join(this.projectPath, 'pages')
-    const findOutput = execCmd('fd -e vue -t f -X grep -l "definePage"', { encoding: 'utf-8', cwd: this.projectPath });
-  
+    const findOutput = execCmd('fd -e vue -t f -X grep -l "definePage"', { encoding: 'utf-8', cwd: this.projectPath })
+
     const files = [
       ...(findOutput?.split('\n').filter(Boolean) || ''),
-       'error.vue',
+      'error.vue',
     ]
 
     files?.forEach((filePath) => {
@@ -1271,7 +1271,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
 
     this.updatePkgJson(sourcePath)
 
-    if (!(isJS || isFree))
+    if (!isJS && !isFree && !isSK)
       this.removeEslintInternalRules(this.projectPath)
 
     // Update eslint config to use .nuxt tsconfig
