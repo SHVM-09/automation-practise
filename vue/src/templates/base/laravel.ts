@@ -252,6 +252,7 @@ export class Laravel extends Utils {
       // get file path after public
       const pathDir = filePath.split('public/')[1]
       fs.mkdirSync(`${this.projectPath}/public/images/avatars`, { recursive: true })
+      fs.mkdirSync(`${this.projectPath}/public/images/svg`, { recursive: true })
       fs.copyFileSync(
         filePath,
         path.join(this.projectPath, 'public', pathDir),

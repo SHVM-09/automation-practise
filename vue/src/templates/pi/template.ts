@@ -1,5 +1,5 @@
 import '@/utils/injectMustReplace'
-import path from 'path'
+import path from 'node:path'
 import * as dotenv from 'dotenv'
 import fs from 'fs-extra'
 import { Octokit } from 'octokit'
@@ -65,4 +65,3 @@ export class PixInventTemplate<TemplateConfig extends TemplateBaseConfig> extend
     consola.info('Assuming readme, changelog, hire-us in the root of the package is already updated.')
   }
 }
-
