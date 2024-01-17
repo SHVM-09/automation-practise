@@ -13,15 +13,19 @@ import removeTypeFilesFolders from './ts-to-js/removeTypeFilesFolders';
 import removeEslintTypeComments from './ts-to-js/removeEslintTypeComments';
 import convertTsConfigToJsConfig from './ts-to-js/convertTsConfigToJsConfig';
 import { getJsVersionPath, getTsVersionPath } from './utils/templatePathUtils';
+import getTemplateName from './utils/getTemplateName';
+import getTemplateVersion from './utils/getTemplateVersion';
 
 const exec = promisify(execCallback);
 
 
 async function main() {
-  const template = await getTemplateAndVersion();
+  // const template = await getTemplateAndVersion();
 
-  const templateName = template?.templateName;
-  const templateVersion = template?.version;
+  // const templateName = template?.templateName;
+  // const templateVersion = template?.version;
+  const templateName = await getTemplateName();
+  const templateVersion = await getTemplateVersion(templateName);
 
   if (!templateName || !templateVersion) {
     consola.error("Template repo or version folder does not exist.");
@@ -39,7 +43,7 @@ async function main() {
 
   // ────────────── TypeScript to JavaScript ──────────────
 
-  // Compile Typescript files to React JS files in a new directory javascript-version in the new folder
+  // Compile Typescript files to JavaScript files in a newly created javascript-version directory
   await compileTsToJs(templateName, templateVersion);
 
   // ────────────── Reset tsconfig to remove excluded folders ──────────────
@@ -85,7 +89,7 @@ async function main() {
 
   // ────────────── Install Node Modules ──────────────
 
-  consola.start("Install node modules in javascript-version's full-version folder");
+  consola.start(`Install node modules in javascript-version's ${templateVersion} folder`);
 
   // Change to the JavaScript full-version folder
   process.chdir(jsDir);
