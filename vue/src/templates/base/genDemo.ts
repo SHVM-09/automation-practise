@@ -1,12 +1,12 @@
 import '@/utils/injectMustReplace'
-import path from 'node:path'
+import { execCmd, updateFile } from '@/utils/node'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
+import path from 'node:path'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { injectGTM } from './helper'
-import { execCmd, updateFile } from '@/utils/node'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) { }
@@ -78,7 +78,7 @@ export class GenDemo {
     )
   }
 
-  generate(isStaging: boolean) {
+  async generate(isStaging: boolean) {
     consola.info('isStaging: ', isStaging.toString())
 
     const { tSFull, jSFull } = this.templateConfig.paths
@@ -88,7 +88,7 @@ export class GenDemo {
     execCmd(`rm -rf ${path.join(jSFull, 'src', 'pages', 'pages', 'test')}`)
 
     // Fill snippets
-    new FillSnippets(tSFull, jSFull).fillSnippet()
+    await new FillSnippets(tSFull, jSFull).fillSnippet()
 
     // Remove existing build files & dirs
     this.removeExistingBuildData()

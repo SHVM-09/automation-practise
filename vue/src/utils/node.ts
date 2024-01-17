@@ -1,15 +1,17 @@
-import type { ChildProcess, ExecException, ExecSyncOptions, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
-import { exec, execSync } from 'node:child_process'
-import readline from 'node:readline'
 import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
+import type { Buffer } from 'node:buffer'
+import type { ExecOptions, ExecSyncOptions, ExecSyncOptionsWithBufferEncoding, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
+import { exec, execSync } from 'node:child_process'
+import process from 'node:process'
+import readline from 'node:readline'
 
-export function execCmd(command: string): Buffer | undefined
-export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string | undefined
-export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): Buffer | undefined
-export function execCmd(command: string, options?: ExecSyncOptions): string | Buffer | undefined
-export function execCmd(command: string, options?: ExecSyncOptions): string | Buffer | undefined {
+export function execCmd(command: string): Buffer
+export function execCmd(command: string, options: ExecSyncOptionsWithBufferEncoding): Buffer
+export function execCmd(command: string, options: ExecSyncOptionsWithStringEncoding): string
+export function execCmd(command: string, options?: ExecSyncOptions): void
+export function execCmd(command: string, options?: ExecSyncOptions | ExecSyncOptionsWithStringEncoding | ExecSyncOptionsWithBufferEncoding) {
   try {
     return execSync(command, options)
   }
@@ -18,16 +20,28 @@ export function execCmd(command: string, options?: ExecSyncOptions): string | Bu
 
     // @ts-expect-error I know what I'm doing
     console.log(colorize('red', String(err.stdout)))
+
+    // Stop execution
+    process.exit(1)
   }
 }
 
-export function execCmdAsync(command: string, callback?: (error: ExecException | null, stdout: string, stderr: string) => void): ChildProcess | undefined {
-  try {
-    return exec(command, callback)
-  }
-  catch (err) {
-    consola.error(err)
-  }
+export function execCmdAsync(command: string): Promise<{ stdout: string; stderr: string }>
+export function execCmdAsync(command: string, options: ExecOptions): Promise<{ stdout: string; stderr: string }>
+export function execCmdAsync(command: string, options?: ExecOptions) {
+  return new Promise((resolve) => {
+    exec(command, options, (error, stdout, stderr) => {
+      if (error) {
+        consola.error(error)
+        // Stop execution
+        process.exit(1)
+      }
+      if (stderr)
+        consola.warn(stderr)
+
+      resolve({ stdout, stderr })
+    })
+  })
 }
 
 export type UpdateFileModifier = (data: string) => string

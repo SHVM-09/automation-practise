@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
@@ -11,8 +11,8 @@ export type SneatConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const sneatVuePath = path.join(getTemplatePath('sneat', 'vue'))
 const sneatVueLaravelPath = path.join(getTemplatePath('sneat', 'vue-laravel'))
-const sneatVueFreePath = sneatVuePath.mustReplace('vue', 'vue-free')
-const sneatVueLaravelFreePath = sneatVuePath.mustReplace('vue', 'vue-laravel-free')
+const sneatVueFreePath = sneatVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const sneatVueLaravelFreePath = sneatVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 
 export const config: SneatConfig = {
   templateName: 'sneat',
@@ -148,7 +148,7 @@ export const config: SneatConfig = {
       freeTS: path.join(sneatVueLaravelFreePath, 'typescript-version'),
       freeJS: path.join(sneatVueLaravelFreePath, 'javascript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/sneat-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/sneat-vuetify-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Sneat - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/sneat-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',

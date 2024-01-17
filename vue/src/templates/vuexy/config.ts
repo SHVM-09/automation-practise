@@ -11,8 +11,8 @@ export type VuexyConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const vuexyVuePath = path.join(getTemplatePath('vuexy', 'vue'))
 const vuexyVueLaravelPath = path.join(getTemplatePath('vuexy', 'vue-laravel'))
-const vuexyVueFreePath = vuexyVuePath.mustReplace('vue', 'vue-free')
-const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace('vue', 'vue-laravel-free')
+const vuexyVueFreePath = vuexyVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const vuexyVueLaravelFreePath = vuexyVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
 const vuexyNuxtPath = path.join(getTemplatePath('vuexy', 'nuxt'))
 const vuexyNuxtFreePath = path.join(getTemplatePath('nuxt', 'nuxt-free'))
 
@@ -165,7 +165,7 @@ export const config: VuexyConfig = {
       freeJS: path.join(vuexyVueLaravelFreePath, 'javascript-version'),
       freeTS: path.join(vuexyVueLaravelFreePath, 'typescript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/vuexy-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/vuexy-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Vuexy - Vuejs Laravel Admin Template',
       docUrl: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',

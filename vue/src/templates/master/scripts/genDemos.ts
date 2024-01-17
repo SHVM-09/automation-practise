@@ -14,12 +14,12 @@ const main = defineCommand({
       default: false,
     },
   },
-  run({ args }) {
+  async run({ args }) {
     const master = new Master(config)
 
     const demoGenerator = new GenDemo(master.config)
 
-    demoGenerator.generate(args.staging)
+    await demoGenerator.generate(args.staging)
   },
 })
 

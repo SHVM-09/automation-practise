@@ -104,7 +104,7 @@ export class Laravel extends Utils {
     )
   }
 
-  private updatePkgJson(sourcePath: string, lang: Lang) {
+  private updatePkgJson(sourcePath: string, lang: Lang, isFree: boolean) {
     const pkgJSONFileName = 'package.json'
     const pkgJSONPath = path.join(this.projectPath, pkgJSONFileName)
 
@@ -117,7 +117,7 @@ export class Laravel extends Utils {
     vuePkgJSON.version = this.currentLaravelVersion
 
     // Update package name
-    vuePkgJSON.name = this.templateConfig.laravel.pkgName
+    vuePkgJSON.name = this.templateConfig.laravel.pkgName + (isFree ? '-free' : '')
 
     // Add laravel-vite-plugin in devDependencies
     if (!vuePkgJSON.devDependencies) {
@@ -207,7 +207,7 @@ export class Laravel extends Utils {
     })
   }
 
-  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean) {
+  private copyVueProjectFiles(lang: Lang, sourcePath: string, isJS: boolean, isFree: boolean, isSk: boolean) {
     // copy vue project src directory in ts/js dir
     this.copyProject(
       path.join(sourcePath, 'src'),
@@ -235,7 +235,7 @@ export class Laravel extends Utils {
     })
 
     // copy .vscode & eslint-internal-rules dir
-    ;['.vscode', ...(isJS ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
+    ;['.vscode', ...(isJS || isFree || isSk ? [] : ['eslint-internal-rules'])].forEach((dirName) => {
       fs.copySync(
         path.join(sourcePath, dirName),
         path.join(this.projectPath, dirName),
@@ -252,6 +252,7 @@ export class Laravel extends Utils {
       // get file path after public
       const pathDir = filePath.split('public/')[1]
       fs.mkdirSync(`${this.projectPath}/public/images/avatars`, { recursive: true })
+      fs.mkdirSync(`${this.projectPath}/public/images/svg`, { recursive: true })
       fs.copyFileSync(
         filePath,
         path.join(this.projectPath, 'public', pathDir),
@@ -280,10 +281,7 @@ export class Laravel extends Utils {
     )
 
     // replace @core/scss with @core-scss
-    execCmd(
-      `find ${lang} \\( -iname \\*.vue -o -iname \\*.ts -o -iname \\*.tsx -o -iname \\*.js -o -iname \\*.jsx -o -iname \\*.scss \\) -type f -exec sed -i ${process.platform === 'darwin' ? '""' : ''} -r -e "s/@core\\/scss/@core-scss/g" '{}' \\;`,
-      { cwd: this.resourcesPath },
-    )
+    execCmd(`fd '\\.(vue|ts|tsx|js|jsx|scss)$' ${lang} -t f -x sd '@core/scss' '@core-scss' '{}'`, { cwd: this.resourcesPath })
 
     const stylesDirPath = path.join(this.resourcesPath, 'styles')
     fs.moveSync(
@@ -476,7 +474,7 @@ export class Laravel extends Utils {
     // create new laravel project
     this.bootstrapLaravelInTempDir(lang, sourcePath)
 
-    this.copyVueProjectFiles(lang, sourcePath, isJS)
+    this.copyVueProjectFiles(lang, sourcePath, isJS, isFree, isSK)
 
     // Remove generated js files from iconify dir
     if (!isJS) {
@@ -492,7 +490,7 @@ export class Laravel extends Utils {
     }
 
     // Exclude build dir from base URL in msw worker URL
-    if (!isSK) {
+    if (!isSK && !isFree) {
       const fakeApiDirPath = path.join(this.resourcesPath, lang, 'plugins', 'fake-api')
       const filesToUpdateBaseUrl = [
         path.join(fakeApiDirPath, `index.${lang}`),
@@ -538,7 +536,7 @@ export class Laravel extends Utils {
     }
 
     // update package.json
-    this.updatePkgJson(sourcePath, lang)
+    this.updatePkgJson(sourcePath, lang, isFree)
 
     // handle gitignore file merge
     updateFile(
@@ -590,13 +588,23 @@ export class Laravel extends Utils {
       }
     })
 
-    // SK won't have footer
-    if (!isSK) {
-      // update front page footer links
+    // SK won't have front pages
+    if (!isSK && !isFree) {
+      const frontPagesDir = path.join(this.resourcesPath, lang, 'views', 'front-pages')
+      const filesToUpdate = [
+        path.join(frontPagesDir, 'front-page-navbar.vue'),
+        path.join(frontPagesDir, 'front-page-footer.vue'),
+      ]
+
+      // update front page footer &navbar links
       const uiFrameworkStr = this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''
-      updateFile(
-        path.join(this.resourcesPath, lang, 'views', 'front-pages', 'front-page-footer.vue'),
-        data => data.mustReplace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
+
+      // Async updateFile
+      await Promise.all(
+        filesToUpdate.map(filePath => updateFile(
+          filePath,
+          data => data.replace(`${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-admin-template`, `${this.templateConfig.templateName}${uiFrameworkStr}-vuejs-laravel-admin-template`),
+        )),
       )
     }
 
@@ -632,12 +640,23 @@ export class Laravel extends Utils {
 
     // Update links in laravel free
     if (isFree) {
-      const filesToUpdateLinksIn = [
+      const filesToUpdateFreeLinksIn = [
         path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'DefaultLayoutWithVerticalNav.vue'),
-        path.join(this.projectPath, 'package.json'),
       ]
 
-      filesToUpdateLinksIn.forEach((filePath) => {
+      filesToUpdateFreeLinksIn.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template-free`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template-free`),
+        )
+      })
+
+      // update pro links in laravel free
+      const filesToUpdateProLinksIn = [
+        path.join(this.projectPath, 'resources', lang, 'layouts', 'components', 'NavItems.vue'),
+      ]
+
+      filesToUpdateProLinksIn.forEach((filePath) => {
         updateFile(
           filePath,
           data => data.mustReplace(`${this.templateConfig.templateName}-vuetify-vuejs-admin-template`, `${this.templateConfig.templateName}-vuetify-vuejs-laravel-admin-template`),
@@ -670,6 +689,7 @@ export class Laravel extends Utils {
     }
 
     // Generate Laravel TS Full
+    consola.info('Generating Laravel TS Full')
     await this.genLaravel()
 
     // Report if any file is over 100KB
@@ -684,12 +704,15 @@ export class Laravel extends Utils {
     )
 
     // Generate Laravel TS Starter
+    consola.info('Generating Laravel TS Starter')
     await this.genLaravel({ isSK: true })
 
     // Generate Laravel JS Full
+    consola.info('Generating Laravel JS Full')
     await this.genLaravel({ isJS: true })
 
     // Generate Laravel JS Starter
+    consola.info('Generating Laravel JS Starter')
     await this.genLaravel({
       isJS: true,
       isSK: true,
@@ -800,6 +823,20 @@ export class Laravel extends Utils {
     console.log(execCmd(`ls -la ${vueRepoRoot}`, { encoding: 'utf-8' }))
     console.log(execCmd('pwd', { encoding: 'utf-8', cwd: vueRepoRoot }))
 
+    // copy deploy-laravel-demo-free.yml file to root of laravel repo so that it can be used in release workflow
+    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+    const baseDataDirPath = path.join(__dirname, 'data')
+    const vueLaravelRootPath = this.templateConfig.laravel.projectPath.mustReplace(/\bvue-laravel\b/g, 'vue-laravel-free')
+    const ghWorkflowsDir = path.join(vueLaravelRootPath, '.github', 'workflows')
+    const deployLaravelDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-laravel-demo-free.yml')
+    const deployLaravelDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployLaravelDemosWorkflowSourceFilePath))
+
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      deployLaravelDemosWorkflowSourceFilePath,
+      deployLaravelDemosWorkflowFilePath,
+    )
+
     const filesToCopy = [
       'package.json',
       'pnpm-lock.yaml',
@@ -815,10 +852,11 @@ export class Laravel extends Utils {
     )
   }
 
-  genDemos(isStaging: boolean) {
+  genDemos(isStaging: boolean, isFree: boolean) {
     consola.info('isStaging: ', isStaging.toString())
+    consola.info('isFree: ', isFree.toString())
 
-    const { TSFull } = this.templateConfig.laravel.paths
+    const TSFull = isFree ? this.templateConfig.laravel.paths.freeTS : this.templateConfig.laravel.paths.TSFull
 
     const envPath = path.join(TSFull, '.env')
 
@@ -829,7 +867,8 @@ export class Laravel extends Utils {
       )
     }
 
-    execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
+    if (!isFree)
+      execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
 
     // Generate application key
     execCmd('php artisan key:generate', { cwd: TSFull })
@@ -837,13 +876,15 @@ export class Laravel extends Utils {
     const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
-    injectGTM(
-      path.join(TSFull, 'resources', 'views', 'application.blade.php'),
-      this.templateConfig.gtm,
-    )
+    if (!isFree) {
+      injectGTM(
+        path.join(TSFull, 'resources', 'views', 'application.blade.php'),
+        this.templateConfig.gtm,
+      )
+    }
 
     // update index.php file
-    const indexPhpPath = path.join(this.templateConfig.laravel.paths.TSFull, 'public', 'index.php')
+    const indexPhpPath = path.join(this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'], 'public', 'index.php')
 
     // TODO: Do something on repetition of `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`
 
@@ -858,7 +899,7 @@ export class Laravel extends Utils {
       const numOfDirsToTraverseUpwards = 4 + (isStaging ? 1 : 0)
 
       // '/' + '../'.repeat(3) => '/../../../'
-      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}/`
+      return `/${'../'.repeat(numOfDirsToTraverseUpwards)}laravel-core-container/${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}/`
     })()
 
     updateFile(indexPhpPath, (data) => {
@@ -870,34 +911,69 @@ export class Laravel extends Utils {
         .mustReplace(/(?<=^\$app.*\n)/gm, '\napp()->usePublicPath(__DIR__);\n')
     })
 
-    const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
-    const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
+    if (!isFree) {
+      const themeConfigPath = path.join(TSFull, 'themeConfig.ts')
+      const themeConfig = fs.readFileSync(themeConfigPath, { encoding: 'utf-8' })
+      this.templateConfig.demosConfig.forEach((demoConfig, demoIndex) => {
+        // Generate demo number
+        const demoNumber = demoIndex + 1
 
-    this.templateConfig.demosConfig.forEach((demoConfig, demoIndex) => {
-      // Generate demo number
-      const demoNumber = demoIndex + 1
+        consola.info(`Generating demo ${demoNumber}`)
 
-      consola.info(`Generating demo ${demoNumber}`)
+        consola.info('Updating localStorage keys...')
+        this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
 
-      consola.info('Updating localStorage keys...')
-      this.updateLocalStorageKeys(demoNumber, this.templateConfig.templateName)
+        // ℹ️ Demo config can be null if there's no changes in themeConfig
+        if (demoConfig) {
+          // clone themeConfig
+          let demoThemeConfig = themeConfig
 
-      // ℹ️ Demo config can be null if there's no changes in themeConfig
-      if (demoConfig) {
-        // clone themeConfig
-        let demoThemeConfig = themeConfig
+          // Loop over demo config and make changes in cloned themeConfig
+          demoConfig.forEach((changes) => {
+            demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
+          })
 
-        // Loop over demo config and make changes in cloned themeConfig
-        demoConfig.forEach((changes) => {
-          demoThemeConfig = demoThemeConfig.mustReplace(changes.find, changes.replace)
-        })
+          // Update themeConfig file
+          fs.writeFileSync(themeConfigPath, demoThemeConfig, { encoding: 'utf-8' })
+        }
 
-        // Update themeConfig file
-        fs.writeFileSync(themeConfigPath, demoThemeConfig, { encoding: 'utf-8' })
-      }
+        // Create base path based on demoNumber and env (staging|production)
+        const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging, isFree)
 
+        // Update .env file
+        updateFile(
+          envPath,
+          data => data
+            .mustReplace(/(APP_URL=.*)(\nASSET_URL=.*)?/g, `$1\nASSET_URL=${demoDeploymentBase}`),
+        )
+
+        updateFile(
+          path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', '1.router', 'index.ts'),
+          data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
+        )
+
+        // Run build
+        execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
+        execCmd('pnpm msw:init', { cwd: this.templateConfig.laravel.paths.TSFull })
+
+        // At the moment of this script execution, we will have "public" in root the TSFull
+        // Duplicate public to demo-$demoNumber
+        fs.copySync(
+          path.join(this.templateConfig.laravel.paths.TSFull, 'public'),
+          path.join(this.templateConfig.laravel.paths.TSFull, `demo-${demoNumber}`),
+        )
+
+        // Reset the themeConfig
+        fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
+
+        consola.success(`Demo ${demoNumber} generation completed`)
+      })
+    }
+
+    if (isFree) {
       // Create base path based on demoNumber and env (staging|production)
-      const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging)
+      const demoNumber = 0
+      const demoDeploymentBase = this.templateConfig.laravel.demoDeploymentBase(demoNumber, isStaging, isFree)
 
       // Update .env file
       updateFile(
@@ -907,26 +983,16 @@ export class Laravel extends Utils {
       )
 
       updateFile(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'resources', 'ts', 'plugins', '1.router', 'index.ts'),
+        path.join(this.templateConfig.laravel.paths.freeTS, 'resources', 'ts', 'plugins', 'router', 'index.ts'),
         data => data.mustReplace(/(?<=createWebHistory\()(.*)(?=\))/g, `'${demoDeploymentBase}'`),
       )
 
-      // Run build
-      execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.TSFull })
-      execCmd('pnpm msw:init', { cwd: this.templateConfig.laravel.paths.TSFull })
-
-      // At the moment of this script execution, we will have "public" in root the TSFull
-      // Duplicate public to demo-$demoNumber
+      execCmd('pnpm build', { cwd: this.templateConfig.laravel.paths.freeTS })
       fs.copySync(
-        path.join(this.templateConfig.laravel.paths.TSFull, 'public'),
-        path.join(this.templateConfig.laravel.paths.TSFull, `demo-${demoNumber}`),
+        path.join(this.templateConfig.laravel.paths.freeTS, 'public'),
+        path.join(this.templateConfig.laravel.paths.freeTS, 'demo'),
       )
-
-      // Reset the themeConfig
-      fs.writeFileSync(themeConfigPath, themeConfig, { encoding: 'utf-8' })
-
-      consola.success(`Demo ${demoNumber} generation completed`)
-    })
+    }
 
     // Remove node_modules & public dir
     // ;['node_modules', 'public'].forEach((dirName) => {
@@ -940,20 +1006,20 @@ export class Laravel extends Utils {
 
     // ℹ️ We are only creating this dir to wrap the content in dir `this.templateConfig.laravel.pkgName`
     const zipWrapperDirParent = new TempLocation().tempDir
-    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}`)
+    const zipWrapperDir = path.join(zipWrapperDirParent, `${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}`)
 
     // Make sure this dir exist so we copy the content
     fs.ensureDirSync(zipWrapperDir)
 
     // Copy everything from TS Full except node_modules & public dir
-    fs.copySync(this.templateConfig.laravel.paths.TSFull, zipWrapperDir, {
+    fs.copySync(this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'], zipWrapperDir, {
       // ℹ️ Exclude node_modules & public dir from being copied
       filter: src => !/\b(node_modules|public)\b/.test(src),
     })
 
     const zipPath = path.join(
-      this.templateConfig.laravel.paths.TSFull,
-      `${this.templateConfig.laravel.pkgName}${isStaging ? '-staging' : ''}.zip`,
+      this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'],
+      `${this.templateConfig.laravel.pkgName}${isFree ? '-free' : ''}${isStaging ? '-staging' : ''}.zip`,
     )
 
     // Generate zip of ts full including demo & laravel
@@ -964,6 +1030,6 @@ export class Laravel extends Utils {
 
     // Reset changes we done via git checkout
     // Thanks: https://stackoverflow.com/a/21213235/10796681
-    execCmd('git status >/dev/null 2>&1 && git checkout .', { cwd: this.templateConfig.laravel.paths.TSFull })
+    execCmd('git status >/dev/null 2>&1 && git checkout .', { cwd: this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'] })
   }
 }

@@ -36,6 +36,7 @@ export class Utils {
     )
   }
 
+  // TODO: Make this async
   protected removeEslintInternalRules(projectDir: string) {
     // Remove eslint internal rules dir
     fs.removeSync(

@@ -1,15 +1,14 @@
-import path from 'path'
+import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
 
 import { toCamelCase } from '@/utils/conversions'
 import '@/utils/injectMustReplace'
-import { execCmd } from '@/utils/node'
 
 export class FillSnippets {
   constructor(private tSFull: string, private jSFull: string) {
-    console.log(consola.info(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`))
+    consola.info(`Assuming you have installed 'node_modules' in '${tSFull}' & '${jSFull}'`)
   }
 
   /**
@@ -84,8 +83,8 @@ export class FillSnippets {
   /**
    * Fill the code snippets for current project instance
    */
-  fillSnippet() {
-    console.log(consola.info('Filling snippets...'))
+  async fillSnippet() {
+    consola.info('Filling snippets...')
 
     // Find snippet all files for TS Full
     const tSSnippetsFilesPaths = globbySync('**/demoCode*', {
@@ -93,24 +92,27 @@ export class FillSnippets {
       absolute: true,
     })
 
-    tSSnippetsFilesPaths.forEach((snippetFilePath) => {
+    await Promise.all(tSSnippetsFilesPaths.map(async (snippetFilePath) => {
       // update snippet file for TS
       const updatedSnippet = this.getUpdatedSnippet(snippetFilePath)
-
-      // Write updated snippet to file - TS Full
-      fs.writeFileSync(snippetFilePath, updatedSnippet, { encoding: 'utf-8' })
 
       // Write updated snippet to file JS Full
       const jSSnippetFilePath = snippetFilePath
         .mustReplace('typescript-version', 'javascript-version')
         .mustReplace('.ts', '.js')
 
-      // Write updated snippet to file - JS Full
-      fs.writeFileSync(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' })
-    })
+      // Write updated snippet to file - TS Full & JS Full
+      await Promise.all([
+        fs.writeFile(snippetFilePath, updatedSnippet, { encoding: 'utf-8' }),
+        fs.writeFile(jSSnippetFilePath, updatedSnippet, { encoding: 'utf-8' }),
+      ])
+    }))
 
+    // ℹ️ Let's not lint the code for now and check if other scripts does the job
     // Lint both versions
-    execCmd('pnpm lint', { cwd: this.tSFull })
-    execCmd('pnpm lint', { cwd: this.jSFull })
+    // Promise.all([
+    //   execCmdAsync('pnpm lint', { cwd: this.tSFull }),
+    //   execCmdAsync('pnpm lint', { cwd: this.jSFull }),
+    // ])
   }
 }

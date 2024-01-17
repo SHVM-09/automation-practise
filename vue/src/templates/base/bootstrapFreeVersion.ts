@@ -54,5 +54,11 @@ export class BootstrapFreeVersion {
   bootstrap() {
     this.copyStylesFromPro()
     this.copyPluginsFromPro()
+
+    const todos = [
+      'Update Icons from pro version',
+      'Review the content change'
+    ]
+    todos.forEach(todo => consola.info(todo))
   }
 }

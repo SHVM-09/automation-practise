@@ -16,6 +16,7 @@ export interface TemplateBaseConfig {
   projectPath: string
   packageCopyIgnorePatterns: string[]
   sKImagesRemovePatterns: string[]
+  ignoreCompressionPatterns: string[]
   // TODO: Align naming with laravel version paths
   paths: {
     tSFull: string
@@ -68,7 +69,7 @@ export interface TemplateBaseConfig {
       freeJS: string
       freeTS: string
     }
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => string
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => string
     documentation: {
       pageTitle: string
       docUrl: string

@@ -15,11 +15,11 @@ const main = defineCommand({
       default: false,
     },
   },
-  run({ args }) {
+  async run({ args }) {
     const vuexy = new Vuexy(config)
 
     const demoGenerator = new GenDemo(vuexy.config)
-    demoGenerator.generate(args.staging)
+    await demoGenerator.generate(args.staging)
   },
 })
 

@@ -32,7 +32,7 @@ export class Nuxt extends Utils {
   private projectPath: string
   private pkgsToInstall: Pkgs
 
-  constructor(private templateConfig: TemplateBaseConfig) {
+  constructor(private templateConfig: TemplateBaseConfig, private isFree: boolean = false) {
     super()
 
     this.projectPath = path.join(this.tempDir, this.templateConfig.nuxt.pkgName)
@@ -102,6 +102,12 @@ export class Nuxt extends Utils {
       'auto-imports.d.ts',
       'components.d.ts',
       'typed-router.d.ts',
+      '.dockerignore',
+      'dev.Dockerfile',
+      'docker-compose.dev.yml',
+      'docker-compose.prod.yml',
+      'nginx.conf',
+      'prod.Dockerfile',
     ]
     const rootFilesToCopy = globbySync(
       ['*', ...rootFilesToIgnoreForCopy.map(f => `!${f}`)],
@@ -191,7 +197,8 @@ export class Nuxt extends Utils {
     // Override vue's package.json with nuxt's package.json & save content in nuxt package.json
     const defuNuxtPkgJson = createDefu((obj, key, value) => {
       if (key === 'postinstall') {
-        obj[key] = `${value as string} && ${obj[key] as string}` as typeof obj[keyof typeof obj]
+        // Append vue's postinstall script in nuxt's postinstall script and remove msw initialization
+        obj[key] = `${value as string} && ${(obj[key] as string).replace('&& npm run msw:init', '')}` as typeof obj[keyof typeof obj]
 
         return true
       }
@@ -205,11 +212,17 @@ export class Nuxt extends Utils {
     vuePkgJSON.scripts = vuePkgJSON.scripts || {}
     vuePkgJSON.scripts.build = 'node --max-old-space-size=4096 node_modules/nuxt/bin/nuxt.mjs build'
 
+    // TODO: Remove this after nuxt fix the 3.4.0 version issue now using vue 3.3.13
+    vuePkgJSON.resolutions.vue = '3.3.13'
+    vuePkgJSON.overrides.vue = '3.3.13'
+    vuePkgJSON.devDependencies.vue = '3.3.13'
+    delete vuePkgJSON.dependencies.vue
+
     // Remove typecheck script because in nuxt we use nuxt.config to enable type checking
     delete vuePkgJSON.scripts.typecheck
 
-    // `PackageJson` don't know about msw
-    delete vuePkgJSON.msw
+    // Remove preview script as this is not needed in nuxt
+    delete vuePkgJSON.scripts.preview
 
     // Remove unwanted packages
     delete vuePkgJSON.dependencies?.['vue-router']
@@ -225,6 +238,11 @@ export class Nuxt extends Utils {
     delete vuePkgJSON.devDependencies?.['unplugin-auto-import']
     delete vuePkgJSON.devDependencies?.['unplugin-vue-components']
 
+    // Remove msw
+    delete vuePkgJSON.scripts['msw:init']
+    delete vuePkgJSON.msw
+    delete vuePkgJSON.devDependencies?.['msw']
+
     fs.writeJSONSync(nuxtPkgJSONPath, vuePkgJSON, {
       spaces: 2,
     })
@@ -234,7 +252,8 @@ export class Nuxt extends Utils {
 
   private updatePlugins(isSK: boolean, lang: Lang) {
     // Remove pinia plugin because we are using pinia nuxt module
-    fs.removeSync(path.join(this.projectPath, 'plugins', `2.pinia.${lang}`))
+    const piniaFileName = (this.isFree ? 'pinia.' : '2.pinia.') + lang
+    fs.removeSync(path.join(this.projectPath, 'plugins', piniaFileName))
 
     const pluginFiles = globbySync([
       `plugins/*.${lang}`,
@@ -309,6 +328,7 @@ export class Nuxt extends Utils {
             ...routes,
             ...scannedRoutes,
         ],
+        scrollBehaviorType: 'smooth',
       }`
 
     const routerOptionsFilePath = path.join(appDirPath, `router.options.${lang}`)
@@ -347,7 +367,7 @@ export class Nuxt extends Utils {
     // })
   }
 
-  private async updateNuxtConfig(sourcePath: string, lang: Lang, langConfigFile: LangConfigFile, isSk: boolean) {
+  private async updateNuxtConfig(sourcePath: string, lang: Lang, langConfigFile: LangConfigFile, isSk: boolean, isFree: boolean) {
     const nuxtConfigPath = path.join(this.projectPath, 'nuxt.config.ts')
     const nuxtConfigMod = await loadFile(nuxtConfigPath)
 
@@ -386,6 +406,7 @@ export class Nuxt extends Utils {
         '@core/scss/template/index.scss',
         '@styles/styles.scss',
         '@/plugins/iconify/icons.css',
+        ...(isFree ? ['@layouts/styles/index.scss'] : []),
       ],
       components: {
         dirs: [
@@ -394,7 +415,7 @@ export class Nuxt extends Utils {
             pathPrefix: false,
           },
           ...(
-            isSk
+            (isSk || isFree)
               ? []
               : [{
                   path: '@/views/demos',
@@ -414,7 +435,7 @@ export class Nuxt extends Utils {
         ],
       },
       ...(
-        isSk
+        (isSk || isFree)
           ? {}
           : {
               auth: {
@@ -426,21 +447,20 @@ export class Nuxt extends Utils {
             }
       ),
       plugins: [
-        ...(isSk ? [] : [`@/plugins/casl/index.${lang}`]),
+        ...((isSk || isFree) ? [] : [`@/plugins/casl/index.${lang}`]),
         `@/plugins/vuetify/index.${lang}`,
-        ...(isSk ? [] : [`@/plugins/i18n/index.${lang}`]),
+        ...((isSk || isFree) ? [] : [`@/plugins/i18n/index.${lang}`]),
         `@/plugins/iconify/index.${lang}`,
       ],
       imports: {
         dirs: ['./@core/utils', './@core/composable/', './plugins/*/composables/*'],
-        presets: [...(isSk ? [] : ['vue-i18n'])],
+        presets: [...((isSk || isFree) ? [] : ['vue-i18n'])],
       },
       hooks: {
         // We are adding hooks so that we can use them later for injecting code using easy regex
       },
       experimental: {
         typedPages: true,
-        inlineSSRStyles: false,
       },
       typescript: {
         // This gives type error in generated package so we are disabling it for now
@@ -475,7 +495,7 @@ export class Nuxt extends Utils {
     addNuxtModule(nuxtConfigMod, '@nuxtjs/device')
     this.pkgsToInstall.devDependencies.push('@nuxtjs/device')
 
-    if (!isSk)
+    if (!(isSk || isFree))
       addNuxtModule(nuxtConfigMod, '@sidebase/nuxt-auth')
 
     // Add pinia
@@ -486,8 +506,12 @@ export class Nuxt extends Utils {
     const importsToAdd: ImportItemInput[] = [
       { from: 'node:url', imported: 'fileURLToPath' },
       { from: 'vite-plugin-vuetify', imported: 'default', local: 'vuetify' },
-      { from: '@intlify/unplugin-vue-i18n/vite', imported: 'default', local: 'VueI18nPlugin' },
+      { from: 'vite-svg-loader', imported: 'default', local: 'svgLoader' },
     ]
+
+    // Don't include vue-i18n in imports if it's free version
+    if (!isFree)
+      importsToAdd.push({ from: '@intlify/unplugin-vue-i18n/vite', imported: 'default', local: 'VueI18nPlugin' })
 
     importsToAdd.forEach((importItem) => {
       nuxtConfigMod.imports.$add(importItem)
@@ -513,19 +537,20 @@ export class Nuxt extends Utils {
         if (!vuetifyPluginStr)
           throw consola.error(new Error('Unable to find vuetify plugin in vite config'))
 
-        if (!isSk && !i18nPluginStr)
+        if (!(isSk || isFree) && !i18nPluginStr)
           throw consola.error(new Error('Unable to find i18n in vite config'))
 
         newData = newData.mustReplace(
           /plugins: \[],/gm,
           `plugins: [
+            svgLoader(),
             ${vuetifyPluginStr}
-            ${isSk ? null : i18nPluginStr}
+            ${(isSk || isFree) ? null : i18nPluginStr}
           ],`,
         )
 
         // add ssr true for vue i18n
-        if (!isSk)
+        if (!(isSk || isFree))
           newData = newData.mustReplace('compositionOnly: true,', 'compositionOnly: true, ssr: true,')
 
         newData = newData.mustReplace(
@@ -544,7 +569,7 @@ export class Nuxt extends Utils {
         )
 
         // Add runtimeConfig for baseUrl
-        if (!isSk) {
+        if (!(isSk || isFree)) {
           newData = newData.mustReplace(
             'components: {',
           `/*
@@ -565,10 +590,13 @@ export class Nuxt extends Utils {
           )
         }
 
-        // Replace API paths in tsconfig aliases & Vite aliases
-        newData = newData
-          .mustReplace('plugins/fake-api/utils/', 'server/utils/')
-          .mustReplace('plugins/fake-api/handlers/', 'server/fake-db/')
+        // We don't have server in Free version
+        if (!isFree) {
+          // Replace API paths in tsconfig aliases & Vite aliases
+          newData = newData
+            .mustReplace('plugins/fake-api/utils/', 'server/utils/')
+            .mustReplace('plugins/fake-api/handlers/', 'server/fake-db/')
+        }
 
         return removePathPrefix(newData, 'src')
       },
@@ -603,18 +631,16 @@ export class Nuxt extends Utils {
   }
 
   private replaceDefinePageWithDefinePageMeta() {
-    // TODO: Use `sed` command instead of updating files via node
-    const pagesDir = path.join(this.projectPath, 'pages')
+    const findOutput = execCmd('fd -e vue -t f -X grep -l "definePage"', { encoding: 'utf-8', cwd: this.projectPath })
 
-    const findOutput = execCmd(`find ${pagesDir} -type f -exec grep -l "definePage({" {} +`, { encoding: 'utf-8' })
     const files = [
       ...(findOutput?.split('\n').filter(Boolean) || ''),
-      path.join(this.projectPath, 'error.vue'),
+      'error.vue',
     ]
 
     files?.forEach((filePath) => {
       updateFile(
-        filePath,
+        path.join(this.projectPath, filePath),
         // https://regex101.com/r/xLPKPd/1
         (data) => {
           // Extract content from definePage macro
@@ -643,10 +669,12 @@ export class Nuxt extends Utils {
           '<template>\n<NuxtLayout name="blank">$1</NuxtLayout>\n</template>',
         )
 
-        newData = newData.mustReplace(
-          /definePage.*?}\)/gms,
-          '',
-        )
+        if (!this.isFree) {
+          newData = newData.mustReplace(
+            /definePage.*?}\)/gms,
+            '',
+          )
+        }
 
         if (!isJS) {
           newData = newData.mustReplace(
@@ -672,12 +700,14 @@ export class Nuxt extends Utils {
         newData = newData.mustReplace(
           /(<ErrorHeader.*?\/>)/gms,
           `$1
-          
+
+<!-- eslint-disable vue/no-v-html -->
 <div
   v-if="isDev"
   style="max-inline-size: 80dvw; overflow-x: scroll;"
   v-html="error.stack"
-/>`,
+/>
+<!-- eslint-enable -->`,
         )
 
         const additionalSetupContent = `${isJS
@@ -750,23 +780,72 @@ const handleError = () => clearError({ redirect: '/' })
     })
   }
 
-  private updateLayouts(lang: Lang) {
+  private updateLayouts(lang: Lang, isFree: boolean) {
     const layoutsDirPath = path.join(this.projectPath, 'layouts')
+    const defaultLayoutWithVerticalNavPath = path.join(layoutsDirPath, 'components', 'DefaultLayoutWithVerticalNav.vue')
     const layoutsPaths = [
       path.join(layoutsDirPath, 'blank.vue'),
-      path.join(layoutsDirPath, 'components', 'DefaultLayoutWithVerticalNav.vue'),
-      path.join(layoutsDirPath, 'components', 'DefaultLayoutWithHorizontalNav.vue'),
     ]
 
-    const modifyLayout = (layoutFilePath: string) => {
-      updateFile(layoutFilePath, data => data
-        .mustReplace(/<RouterView.*?<\/RouterView>/gms, '<slot />')
-        .mustReplace(/\/\/ SECTION: Loading Indicator.*\/\/ !SECTION/gms, '')
-        .mustReplace(/<AppLoadingIndicator.*/gm, ''),
+    if (isFree) {
+      layoutsPaths.push(
+        path.join(layoutsDirPath, 'default.vue'),
+      )
+    }
+    else {
+      layoutsPaths.push(
+        defaultLayoutWithVerticalNavPath,
+        path.join(layoutsDirPath, 'components', 'DefaultLayoutWithHorizontalNav.vue'),
       )
     }
 
+    const modifyLayout = (layoutFilePath: string) => {
+      updateFile(layoutFilePath, (data) => {
+        // Handle both definition of <RouterView>
+        let newData = data.replace(/<RouterView.*?<\/RouterView>/gms, '<slot />')
+        newData = newData.replace(/<RouterView \/>/gms, '<slot />')
+
+        if (!isFree) {
+          newData = newData
+            .mustReplace(/\/\/ SECTION: Loading Indicator.*\/\/ !SECTION/gms, '')
+            .mustReplace(/<AppLoadingIndicator.*/gm, '')
+        }
+
+        return newData
+      })
+    }
+
     layoutsPaths.forEach(modifyLayout)
+
+    if (isFree) {
+      // ℹ️ Update GitHub repo URL in navbar in Free
+      updateFile(
+        defaultLayoutWithVerticalNavPath,
+        data => data.mustReplace(
+          'https://github.com/themeselection/materio-vuetify-vuejs-admin-template-free',
+          'https://github.com/themeselection/materio-vuetify-nuxtjs-admin-template-free',
+        ),
+      )
+
+      // Update pro links
+      ;[
+        path.join(layoutsDirPath, 'components', 'NavItems.vue'),
+        path.join(this.projectPath, 'components', 'UpgradeToPro.vue'),
+      ].forEach((filePath) => {
+        updateFile(
+          filePath,
+
+          // Update URLs and revert back docs URL
+          data => data.mustReplace(
+            'materio-vuetify-vuejs-admin-template',
+            'materio-vuetify-nuxtjs-admin-template',
+          ).replace(
+            'materio-vuetify-nuxtjs-admin-template/documentation',
+            'materio-vuetify-vuejs-admin-template/documentation',
+          ),
+        )
+      })
+    }
 
     // Replace RouterView with NuxtLayout, NuxtPage & Loading indicator & SSR updates
     updateFile(
@@ -776,7 +855,6 @@ const handleError = () => clearError({ redirect: '/' })
           '<RouterView />',
           `<NuxtLayout>
             <NuxtPage />
-            <NuxtLoadingIndicator color="rgb(var(--v-theme-primary))" />
           </NuxtLayout>`,
         )
 
@@ -790,47 +868,50 @@ if (isMobile)
         ),
     )
 
-    // Use slot in nuxt
-    const defaultLayoutPath = path.join(layoutsDirPath, 'default.vue')
-    updateFile(
-      defaultLayoutPath,
-      data => data.mustReplace(
-        /(?<=<Component.*?)\/>/gms,
-        '>\n<slot />\n</Component>',
-      ),
-    )
+    if (!isFree) {
+      // Insert `<slot />` in self closing `Component` tag
+      const defaultLayoutPath = path.join(layoutsDirPath, 'default.vue')
+      updateFile(
+        defaultLayoutPath,
+        data => data.mustReplace(
+          /(?<=<Component.*?)\/>/gms,
+          '>\n<slot />\n</Component>',
+        ),
+      )
+    }
 
     // src/@layouts/utils.ts
     // https://regex101.com/r/awgAHv/1
-    const useLayoutPath = path.join(this.projectPath, '@layouts', `utils.${lang}`)
-    updateFile(
-      useLayoutPath,
-      data => data
-        .mustReplace(
-          /(?<=watch.*?configStore\.isLessThanOverlayNavBreakpoint.*?\n).*?(?=\s+}, { immediate: true }\))/gm,
-        `if (!val) {
-        configStore.appContentLayoutNav = lgAndUpNav.value
-      }
-      else {
-        if (!shouldChangeContentLayoutNav.value) {
-          setTimeout(() => {
-            configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
-          }, 500)
+    if (!isFree) {
+      updateFile(
+        path.join(this.projectPath, '@layouts', `utils.${lang}`),
+        data => data
+          .mustReplace(
+            /(?<=watch.*?configStore\.isLessThanOverlayNavBreakpoint.*?\n).*?(?=\s+}, { immediate: true }\))/gm,
+          `if (!val) {
+          configStore.appContentLayoutNav = lgAndUpNav.value
         }
         else {
-          configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
-        }
-      }`,
-        )
-        .mustReplace(
-          /watch\(\(\) => configStore.isLessThanOverlayNavBreakpoint/gm,
-            `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
+          if (!shouldChangeContentLayoutNav.value) {
+            setTimeout(() => {
+              configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
+            }, 500)
+          }
+          else {
+            configStore.appContentLayoutNav = AppContentLayoutNav.Vertical
+          }
+        }`,
+          )
+          .mustReplace(
+            /watch\(\(\) => configStore.isLessThanOverlayNavBreakpoint/gm,
+              `const shouldChangeContentLayoutNav = refAutoReset(true, 500)
 
-      shouldChangeContentLayoutNav.value = false
+        shouldChangeContentLayoutNav.value = false
 
-      watch(() => configStore.isLessThanOverlayNavBreakpoint`,
-        ),
-    )
+        watch(() => configStore.isLessThanOverlayNavBreakpoint`,
+          ),
+      )
+    }
   }
 
   private copyServerApi(isJS: boolean) {
@@ -891,29 +972,33 @@ if (isMobile)
       )
     })
 
-    const removeUnusedRouter = (filePath: string) => {
-      updateFile(
-        filePath,
-        (data) => {
-          let _data = data
-          const routerComposableStr = 'const router = useRouter()'
-          if (data.includes(routerComposableStr) && !data.includes('router.'))
-            _data = _data.mustReplace(routerComposableStr, '')
-
-          return _data
-        },
-      )
-    }
-
     // Change `router.push` to `navigateTo`
-    const filesWithRouterPush = execCmd('grep -rl "router\.push" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
+    // const filesWithRouterPush = execCmd('grep -rl "router\.push" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
+    // console.log('filesWithRouterPush :>> ', filesWithRouterPush)
     execCmd('fd --type file --exec sd "\$?router\.push" "navigateTo"', { cwd: this.projectPath })
-    filesWithRouterPush.forEach(filePath => removeUnusedRouter(filePath))
+    // filesWithRouterPush.forEach(filePath => removeUnusedRouter(filePath))
 
     // Replace `router.replace` content with `navigateTo` + { replace: true }
-    const filesWithRouterReplace = execCmd('grep -rl "router\.replace" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
+    // const filesWithRouterReplace = execCmd('grep -rl "router\.replace" --exclude-dir={.nuxt,node_modules} | xargs realpath', { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
     execCmd('fd --type file --exec sd \'\$?router\.replace\((.*)\)\' \'navigateTo($1, { replace: true })\'', { cwd: this.projectPath })
-    filesWithRouterReplace.forEach(filePath => removeUnusedRouter(filePath))
+    // filesWithRouterReplace.forEach(filePath => removeUnusedRouter(filePath))
+
+    // Remove unused router assignment
+    const routerComposableStr = 'const router = useRouter()'
+    const filesWithRouter = execCmd(`grep -rl "${routerComposableStr}" --exclude-dir={.nuxt,node_modules} | xargs realpath`, { cwd: this.projectPath, encoding: 'utf-8' })?.split('\n').filter(Boolean) || []
+
+    // Check if router word exist in file more than once
+    filesWithRouter.forEach((filePath) => {
+      const fileContent = readFileSyncUTF8(filePath)
+      if (fileContent.match(/router/g)?.length > 1)
+        return
+
+      // Remove router usage
+      updateFile(
+        filePath,
+        data => data.mustReplace(routerComposableStr, ''),
+      )
+    })
   }
 
   private async updateCustomRouteMeta(sourcePath: string) {
@@ -1186,7 +1271,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
 
     this.updatePkgJson(sourcePath)
 
-    if (!isJS)
+    if (!isJS && !isFree && !isSK)
       this.removeEslintInternalRules(this.projectPath)
 
     // Update eslint config to use .nuxt tsconfig
@@ -1208,7 +1293,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
       path.join(this.projectPath, '.eslintrc.cjs'),
       path.join(this.projectPath, '.gitignore'),
       path.join(this.projectPath, 'plugins', 'iconify', `build-icons.${lang}`),
-      path.join(this.projectPath, 'plugins', '1.router', `index.${lang}`),
+      // path.join(this.projectPath, 'plugins', '1.router', `index.${lang}`),
     ]
     filesToRemoveSrcPrefix.forEach((filePath) => {
       updateFile(
@@ -1221,32 +1306,66 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     this.updatePlugins(isSK, lang)
 
     // Update nuxt.config.ts
-    await this.updateNuxtConfig(sourcePath, lang, langConfigFile, isSK)
+    await this.updateNuxtConfig(sourcePath, lang, langConfigFile, isSK, isFree)
 
-    if (!isSK)
+    if (!(isSK || isFree))
       this.updateAdditionalRoutes(sourcePath, lang)
+
+    if (isFree) {
+      let freeConfigContent = `import type { RouterConfig } from '@nuxt/schema'
+
+// https://router.vuejs.org/api/interfaces/routeroptions.html
+export default <RouterConfig> {
+  routes: scannedRoutes => [
+    ...scannedRoutes,
+    {
+      path: '/',
+      name: 'index',
+      redirect: '/dashboard',
+    },
+  ],
+}`
+
+      // Remove types from above snippet in JS version
+      if (isJS) {
+        freeConfigContent = freeConfigContent
+          .mustReplace(/import type.*/gm, '')
+          .mustReplace('<RouterConfig>', '')
+      }
+
+      const appDirPath = path.join(this.projectPath, 'app')
+      fs.ensureDirSync(appDirPath)
+
+      const routerOptionsFilePath = path.join(appDirPath, `router.options.${lang}`)
+      writeFileSyncUTF8(routerOptionsFilePath, freeConfigContent)
+    }
 
     if (isSK)
       // We don't want additional routes in SK
       await fs.remove(path.join(this.projectPath, 'app'))
-    else
+
+    if (!(isSK || isFree))
       this.convertBeforeEachToMiddleware(sourcePath, lang)
 
     // Remove unwanted files
     await fs.remove(path.join(this.projectPath, `vite.config.${lang}`))
-    await fs.remove(path.join(this.projectPath, 'plugins', '1.router'))
 
-    // Rename definePage to definePageMeta
-    this.replaceDefinePageWithDefinePageMeta()
+    // ℹ️ We've different dir name in free version
+    await fs.remove(path.join(this.projectPath, 'plugins', isFree ? 'router' : '1.router'))
+
+    // Rename definePage to definePageMeta.
+    // There's no definePage in free pages to don't run it there
+    if (!isFree)
+      this.replaceDefinePageWithDefinePageMeta()
 
     this.update404Page(isJS)
 
-    if (!isSK)
+    if (!(isSK || isFree))
       this.remove404PageNavLink(lang)
 
-    this.updateLayouts(lang)
+    this.updateLayouts(lang, isFree)
 
-    if (!isSK)
+    if (!(isSK || isFree))
       this.copyServerApi(isJS)
 
     // Add `VueApexCharts` as client component due to SSR issues: https://github.com/apexcharts/vue-apexcharts/issues/307
@@ -1255,18 +1374,21 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
        `<script setup lang="ts">
 // eslint-disable-next-line no-restricted-imports
 import VueApexCharts from 'vue3-apexcharts'
+
+defineOptions({
+  inheritAttrs: false,
+})
 </script>
 
 <template>
-  <VueApexCharts />
+  <VueApexCharts v-bind="$attrs" />
 </template>`,
     )
 
-    this.handleRouterChanges()
+    if (!isFree)
+      this.useNuxtFetch(isJS, lang)
 
-    this.useNuxtFetch(isJS, lang)
-
-    if (!isSK)
+    if (!(isSK || isFree))
       this.useAuthModule(isJS, lang)
 
     if (!isJS)
@@ -1282,7 +1404,7 @@ import VueApexCharts from 'vue3-apexcharts'
     // )
 
     // handle SSR issue with VWindow and make it client only
-    if (!isSK) {
+    if (!(isSK || isFree)) {
       [
         path.join(this.projectPath, 'pages', 'pages', 'account-settings', '[tab].vue'),
         path.join(this.projectPath, 'pages', 'pages', 'user-profile', '[tab].vue'),
@@ -1326,24 +1448,58 @@ import VueApexCharts from 'vue3-apexcharts'
       })
     }
 
+    // ℹ️ We should run this in last to make replacement of router
+    this.handleRouterChanges()
+
+    // [Free] Define blank layout in certain files and add no-existence file
+    if (this.isFree) {
+      const pagesDir = path.join(this.projectPath, 'pages')
+      const blankLayoutPages = [
+        path.join(pagesDir, 'login.vue'),
+        path.join(pagesDir, 'register.vue'),
+      ]
+
+      blankLayoutPages.forEach((filePath) => {
+        updateFile(
+          filePath,
+          data => data.mustReplace(
+            '</script>',
+            `definePageMeta({ layout: 'blank' })
+            </script>`,
+          ),
+        )
+      })
+
+      writeFileSyncUTF8(
+        path.join(pagesDir, 'no-existence.vue'),
+        `<script lang="ts" setup>
+throw createError({
+  statusCode: 404,
+  statusMessage: 'Error Page! Just for demo!',
+  fatal: true,
+})
+</script>
+
+<template>
+  <p>This is just demo page to avoid console error and show you error.</p>
+</template>`,
+      )
+    }
+
     // Install additional packages
     const installPkgCmd = this.genInstallPkgsCmd(this.pkgsToInstall)
-    consola.start('Installing dynamic packages')
     execCmd(installPkgCmd, { cwd: this.projectPath })
 
     // Install all packages
-    consola.start('Installing packages from package.json')
     execCmd('pnpm install', { cwd: this.projectPath })
 
     // Run lint to fix linting errors
-    consola.start(`Linting code at ${this.projectPath}...`)
     execCmd('pnpm lint', { cwd: this.projectPath })
 
     // Remove ".nuxt" dir after installing packages. We don't want to ship this dir in package
     fs.removeSync(path.join(this.projectPath, '.nuxt'))
 
     this.moveToProjectsDir(isFree, isJS, isSK)
-    consola.success('You are ready to rock baby!')
   }
 
   private genNuxtApiJs() {
@@ -1351,6 +1507,7 @@ import VueApexCharts from 'vue3-apexcharts'
     const templateServerApiRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api')
     const templateServerApiJsRepoPath = getTemplatePath(this.templateConfig.templateName, 'nuxt-api-js')
 
+    // Remove JS API if exist
     if (fs.existsSync(templateServerApiJsRepoPath))
       fs.removeSync(templateServerApiJsRepoPath)
 
@@ -1360,8 +1517,31 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // Remove node_modules amd pnpm-lock.yaml
     execCmd('rm -rf node_modules pnpm-lock.yaml', { cwd: templateServerApiJsRepoPath })
+
+    // ℹ️ Handle special case where we don't have TS error but compiling using tsc give error
+    const authFilePath = path.join(templateServerApiJsRepoPath, 'server', 'api', 'auth', '[...].ts')
+    const authFileData = readFileSyncUTF8(authFilePath)
+    updateFile(
+      authFilePath,
+      data => data.mustReplace(
+        /(jwt: async|async session)/gm,
+        `// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+         // @ts-ignore tsc cli gives error due to unknown reason even with correct types
+        $1`,
+      ),
+    )
+
     // Install packages
-    execCmd('pnpm install && pnpm tsc --noEmit false && pnpm lint', { cwd: templateServerApiJsRepoPath })
+    execCmd('pnpm install && pnpm tsc --noEmit false', { cwd: templateServerApiJsRepoPath })
+
+    // Remove added comments from TS & compiled JS
+    writeFileSyncUTF8(authFilePath, authFileData)
+    updateFile(
+      authFilePath.replace('.ts', '.js'),
+      data => data
+        .mustReplace('// eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error', '')
+        .mustReplace('// @ts-ignore tsc cli gives error.*', ''),
+    )
 
     // Remove all TypeScript files
     globbySync(
@@ -1381,44 +1561,76 @@ import VueApexCharts from 'vue3-apexcharts'
   }
 
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
-    // Gen Nuxt TS Full
-    await this.genNuxt()
-    consola.success('Nuxt typescript version generated!')
-    // Report if any file is over 100KB
-    /*
-      ℹ️ We aren't compressing files like vue package because nuxt is generated from vue package
-      Hence, if there's any asset over 100KB, just report it.
-    */
-    // await reportOversizedFiles(
-    //   `${TSFull}/public/images`,
-    //   isInteractive,
-    //   {
-    //     reportPathRelativeTo: TSFull,
-    //   },
-    // )
+    // eslint-disable-next-line prefer-template
+    consola.box('🛠️ Generating Nuxt ' + (this.isFree && 'Free'))
 
-    // Generate Nuxt TS Starter
-    await this.genNuxt({ isSK: true })
-    consola.success('nuxt typescript Starter-kit generated!')
+    // TS Full
+    consola.start('Generating Nuxt TS Full')
+    await this.genNuxt({ isFree: this.isFree })
+    consola.success('Nuxt TS Full generated\n')
 
-    // Generate Nuxt-API JS version for Js Only
-    this.genNuxtApiJs()
-    consola.success('Nuxt JS API generated!')
+    // TS SK
+    // ℹ️ We do not provide starters for free version
+    if (!this.isFree) {
+      consola.start('Generating Nuxt TS SK')
+      await this.genNuxt({ isSK: true })
+      consola.success('Nuxt TS SK generated\n')
 
-    // Generate Nuxt JS Full
-    await this.genNuxt({ isJS: true })
-    consola.success('Nuxt Javascript version generated!')
+      // Nuxt-API JS version for Js Only
+      consola.start('Generating Nuxt JS API')
+      this.genNuxtApiJs()
+      consola.success('Nuxt JS API generated\n')
+    }
 
-    // // Generate Nuxt JS Starter
-    await this.genNuxt({
-      isJS: true,
-      isSK: true,
-    })
-    consola.success('Nuxt Javascript Starter-kit version generated!')
+    // JS Full
+    consola.start('Generating Nuxt JS Full')
+    await this.genNuxt({ isJS: true, isFree: this.isFree })
+    consola.success('Nuxt JS Full generated\n')
 
-    consola.info('Nuxt Package Generation Start...')
+    if (!this.isFree) {
+      // Nuxt JS SK
+      // ℹ️ We do not provide starters for free version
+      consola.start('Generating Nuxt JS SK')
+      await this.genNuxt({ isJS: true, isSK: true })
+      consola.success('Nuxt JS SK generated\n')
+    }
+
+    consola.box('📦 Working on Nuxt Package')
 
     // Create new temp dir for storing pkg
+    const { pkgJsonPaths, tempPkgTSSource, tempPkgDir } = this.isFree ? this.genFreePkg() : this.genProPkg()
+
+    // update package name in package.json
+    pkgJsonPaths.forEach((pkgJSONPath) => {
+      updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.nuxt.pkgName + (this.isFree ? '-free' : ''))
+    })
+
+    // package version for package name
+    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
+    let pkgVersionForZip: string | null = null
+
+    if (isInteractive || newPkgVersion)
+      pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSSource, 'package.json'), newPkgVersion)
+
+    // Run post process hooks
+    await hooks.postProcessGeneratedPkg(tempPkgDir)
+
+    if (!this.isFree) {
+      const zipDirPath = this.isFree ? this.templateConfig.nuxt.paths.freeTS : this.templateConfig.nuxt.projectPath
+      const zipPath = path.join(
+        zipDirPath,
+        `${this.templateConfig.nuxt.pkgName}${this.isFree ? '-free' : ''}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+      )
+
+      execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
+      consola.success(`Package generated at: ${zipPath}`)
+    }
+    else {
+      consola.success('Nuxt Free Generated 🎉')
+    }
+  }
+
+  private genProPkg() {
     const tempPkgDir = new TempLocation().tempDir
     const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
     const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
@@ -1450,8 +1662,6 @@ import VueApexCharts from 'vue3-apexcharts'
     pinPackagesVersions(packageVersions, tempPkgJSFull)
     pinPackagesVersions(packageVersions, tempPkgJSStarter)
 
-    // Remove BuyNow from both full versions
-    // TODO: removeBuyNow method is not generic
     ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath) => {
       filterFileByLine(
         path.join(projectPath, 'App.vue'),
@@ -1463,7 +1673,6 @@ import VueApexCharts from 'vue3-apexcharts'
     execCmd(`rm -rf ${path.join(tempPkgTSFull, 'pages', 'pages', 'test')}`)
     execCmd(`rm -rf ${path.join(tempPkgJSFull, 'pages', 'pages', 'test')}`)
 
-    // remove icon.css file from all version
     ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
       fs.removeSync(path.join(projectPath, 'plugins', 'iconify', 'icons.css'))
       fs.removeSync(path.join(projectPath, '.env'))
@@ -1477,25 +1686,52 @@ import VueApexCharts from 'vue3-apexcharts'
 
     // package.json files paths in all four versions
     const pkgJsonPaths = [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json'))
+    consola.info('TODO: We have this package.json path, Ensure version & name is getting updated:', pkgJsonPaths)
+    return { pkgJsonPaths, tempPkgTSSource: tempPkgTSFull, tempPkgDir }
+  }
 
-    // update package name in package.json
-    pkgJsonPaths.forEach((pkgJSONPath) => {
-      updateJSONFileField(pkgJSONPath, 'name', this.templateConfig.nuxt.pkgName)
+  private genFreePkg() {
+    const tempPkgDir = new TempLocation().tempDir
+    const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
+    const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
+
+    // Create dirs
+    fs.ensureDirSync(tempPkgTS)
+    fs.ensureDirSync(tempPkgJS)
+
+    // Copy from free version
+    this.copyProject(this.templateConfig.nuxt.paths.freeTS, tempPkgTS, this.templateConfig.packageCopyIgnorePatterns)
+    this.copyProject(this.templateConfig.nuxt.paths.freeJS, tempPkgJS, this.templateConfig.packageCopyIgnorePatterns)
+
+    // update node package version
+    const packageVersions = getPackagesVersions(this.templateConfig.nuxt.paths.TSFull)
+    pinPackagesVersions(packageVersions, tempPkgTS)
+    pinPackagesVersions(packageVersions, tempPkgJS)
+
+    ;[tempPkgTS, tempPkgJS].forEach((projectPath) => {
+      filterFileByLine(
+        path.join(projectPath, 'App.vue'),
+        line => !line.includes('BuyNow'),
+      )
     })
 
-    // package version for package name
-    // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
-    let pkgVersionForZip: string | null = null
+    // Remove test pages from both full versions
+    execCmd(`rm -rf ${path.join(tempPkgTS, 'pages', 'pages', 'test')}`)
+    execCmd(`rm -rf ${path.join(tempPkgJS, 'pages', 'pages', 'test')}`)
 
-    if (isInteractive || newPkgVersion)
-      pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
+    ;[tempPkgTS, tempPkgJS].forEach((projectPath) => {
+      fs.removeSync(path.join(projectPath, 'plugins', 'iconify', 'icons.css'))
+      fs.removeSync(path.join(projectPath, '.env'))
+    })
 
-    const zipPath = path.join(
-      this.templateConfig.nuxt.projectPath,
-      `${this.templateConfig.nuxt.pkgName}${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+    // Copy documentation.html file from root of the repo
+    fs.copyFileSync(
+      path.join(this.templateConfig.projectPath, 'documentation.html'),
+      path.join(tempPkgDir, 'documentation.html'),
     )
 
-    execCmd(`zip -rq ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
-    consola.success(`Package generated at: ${zipPath}`)
+    // package.json files paths in all four versions
+    const pkgJsonPaths = [this.templateConfig.nuxt.paths.freeTS, this.templateConfig.nuxt.paths.freeJS].map(p => path.join(p, 'package.json'))
+    return { pkgJsonPaths, tempPkgTSSource: tempPkgTS, tempPkgDir }
   }
 }

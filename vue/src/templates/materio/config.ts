@@ -1,5 +1,5 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 
 import type { TemplateBaseConfig } from '@/templates/base'
 import { themeselection as themeselectionGTMConfig } from '@/templates/base/gtmConfig'
@@ -11,8 +11,11 @@ export type MaterioConfig = TemplateBaseConfig
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materioVuePath = path.join(getTemplatePath('materio', 'vue'))
 const materioVueLaravelPath = path.join(getTemplatePath('materio', 'vue-laravel'))
-const materioVueFreePath = materioVuePath.mustReplace('vue', 'vue-free')
-const materioVueLaravelFreePath = materioVuePath.mustReplace('vue', 'vue-laravel-free')
+const materioVueFreePath = materioVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const materioVueLaravelFreePath = materioVuePath.mustReplace(/\bvue\b/g, 'vue-laravel-free')
+
+const materioNuxtPath = path.join(getTemplatePath('materio', 'nuxt'))
+const materioNuxtFreePath = materioNuxtPath.mustReplace(/\bnuxt\b/g, 'nuxt-free')
 
 export const config: MaterioConfig = {
   templateName: 'materio',
@@ -43,7 +46,14 @@ export const config: MaterioConfig = {
     '!pages',
     '!avatars',
     '!misc',
-    '!iconify-svg',
+    '!customizer-icons',
+    '!icons/payments',
+    '!icons/brands',
+  ],
+  ignoreCompressionPatterns: [
+    '**/hero-*',
+    '**/front-pages/**/product-image.*',
+    '**/front-pages/**/footer-bg*',
   ],
   paths: {
     tSFull: path.join(materioVuePath, 'typescript-version', 'full-version'),
@@ -135,6 +145,19 @@ export const config: MaterioConfig = {
     branch: 'dev',
   },
   gtm: themeselectionGTMConfig,
+  nuxt: {
+    pkgName: 'materio-nuxtjs-admin-template',
+    buyNowLink: 'https://themeselection.com/item/materio-vuetify-nuxtjs-admin-template/',
+    projectPath: materioNuxtPath,
+    paths: {
+      TSFull: path.join(materioNuxtPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(materioNuxtPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(materioNuxtPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(materioNuxtPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(materioNuxtFreePath, 'javascript-version'),
+      freeTS: path.join(materioNuxtFreePath, 'typescript-version'),
+    },
+  },
   laravel: {
     pkgName: 'materio-vuetify-vuejs-laravel-admin-template',
     buyNowLink: 'https://themeselection.com/item/materio-vuetify-vuejs-laravel-admin-template/',
@@ -147,7 +170,7 @@ export const config: MaterioConfig = {
       freeJS: path.join(materioVueLaravelFreePath, 'javascript-version'),
       freeTS: path.join(materioVueLaravelFreePath, 'typescript-version'),
     },
-    demoDeploymentBase: (demoNumber: number, isStaging: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isStaging ? '/staging' : ''}/demo-${demoNumber}/`,
+    demoDeploymentBase: (demoNumber: number, isStaging: boolean, isFree: boolean) => `/materio-vuetify-vuejs-laravel-admin-template${isFree ? '-free' : ''}${isStaging ? '/staging' : ''}/${isFree ? 'demo' : `demo-${demoNumber}`}/`,
     documentation: {
       pageTitle: 'Materio - Vuetify Vuejs Laravel Admin Template',
       docUrl: 'https://demos.themeselection.com/materio-vuetify-vuejs-admin-template/documentation/guide/laravel-integration/folder-structure.html',
