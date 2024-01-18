@@ -88,6 +88,7 @@ export class Nuxt extends Utils {
       path.join(this.projectPath, 'plugins', 'fake-api'),
       path.join(this.projectPath, '@core', 'composable', `useCookie.${lang}`),
     ]
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     thingsToRemove.map(async (thing) => {
       await fs.remove(thing)
     })
