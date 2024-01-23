@@ -287,8 +287,9 @@ export class Nuxt extends Utils {
           }
 
           // If it's vuetify plugin then enable SSR
-          if (filePath.includes('vuetify'))
+          if (filePath.includes('plugins/vuetify'))
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
+
           return updatedData
         },
       )
@@ -1279,7 +1280,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     updateFile(
       path.join(this.projectPath, '.eslintrc.cjs'),
       data => data.mustReplace(
-        'typescript: {},',
+        isJS && !isFree ? 'typescript: { project: \'./jsconfig.json\' },' : 'typescript: {},',
         `typescript: {
         project: './.nuxt/tsconfig.json',
       },`,
