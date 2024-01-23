@@ -156,11 +156,13 @@ export class GenPkg extends Utils {
     }
     consola.success('Package `postProcessGeneratedPkg` hook ran successfully\n')
 
+    // package version remove extra v from package name if it's there
+    pkgVersionForZip = newPkgVersion || `v${pkgVersionForZip}`
     // Prepare zip
     consola.start('Preparing zip')
     const zipPath = path.join(
       this.templateConfig.projectPath,
-      `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template${pkgVersionForZip ? `-v${pkgVersionForZip}` : ''}.zip`,
+      `${this.templateConfig.templateName}${this.templateConfig.templateDomain === 'ts' ? '-vuetify' : ''}-vuejs-admin-template${pkgVersionForZip ? `-${pkgVersionForZip}` : ''}.zip`,
     )
     execCmd(`zip -r ${zipPath} . -x "*.DS_Store" -x "*__MACOSX"`, { cwd: tempPkgDir })
     consola.success(`Package generated at: ${this.templateConfig.projectPath}\n`)
