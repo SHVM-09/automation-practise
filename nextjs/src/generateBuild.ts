@@ -28,6 +28,11 @@ const main = defineCommand({
       description: 'Run script for MUI marketplace',
       default: false,
     },
+    prod: {
+      type: 'boolean',
+      description: 'Run script in prod',
+      default: false,
+    },
   },
   async run({ args }) {
     // Vars
@@ -49,7 +54,7 @@ const main = defineCommand({
   
     // ────────────── Build ──────────────
     try {
-      await exec('pnpm build', { cwd: tsFullDir });
+      await exec(`vercel build ${args.prod && '--prod'} --yes --token=${process.env.VERCEL_TOKEN}`, { cwd: tsFullDir });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       process.exit(1);
