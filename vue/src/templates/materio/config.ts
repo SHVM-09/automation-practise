@@ -146,7 +146,7 @@ export const config: MaterioConfig = {
   },
   gtm: themeselectionGTMConfig,
   nuxt: {
-    pkgName: 'materio-nuxtjs-admin-template',
+    pkgName: 'materio-vuetify-nuxtjs-admin-template',
     buyNowLink: 'https://themeselection.com/item/materio-vuetify-nuxtjs-admin-template/',
     projectPath: materioNuxtPath,
     paths: {

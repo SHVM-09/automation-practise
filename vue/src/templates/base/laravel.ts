@@ -7,7 +7,7 @@ import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
 import { loadFile, writeFile } from 'magicast'
 import { addVitePlugin, updateVitePluginConfig } from 'magicast/helpers'
-import type { PackageJson } from 'type-fest'
+import type { PackageJson, TsConfigJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
@@ -135,6 +135,7 @@ export class Laravel extends Utils {
     delete vuePkgJSON.scripts.preview
 
     // update path in build:icons script
+    // @ts-expect-error update path in build:icons script
     vuePkgJSON.scripts['build:icons'] = this.replaceSrcWithResourcesLang(vuePkgJSON.scripts['build:icons'], lang)
 
     fs.writeJSONSync(pkgJSONPath, vuePkgJSON, {
@@ -182,10 +183,10 @@ export class Laravel extends Utils {
     const tsJsConfigPath = path.join(this.projectPath, `${lang}config.json`)
 
     // read tsconfig/jsconfig
-    const tsJsConfig = fs.readJsonSync(tsJsConfigPath)
+    const tsJsConfig: TsConfigJson = fs.readJsonSync(tsJsConfigPath)
 
     // adding base url in to tsconfig/jsconfig
-    if (!tsJsConfig.compilerOptions.baseUrl)
+    if (!tsJsConfig.compilerOptions?.baseUrl)
       tsJsConfig.compilerOptions = { baseUrl: './', ...tsJsConfig.compilerOptions }
 
     // Write back to tsconfig/jsconfig

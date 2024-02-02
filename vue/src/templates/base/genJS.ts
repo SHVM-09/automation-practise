@@ -64,10 +64,6 @@ export class GenJS extends Utils {
   // 👉 updateEslintConfig
   private updateEslintConfig() {
     const eslintConfigPath = path.join(this.tempDir, '.eslintrc.cjs')
-    const viteConfigPath = path.join(this.tempDir, 'vite.config.ts')
-
-    // Add import resolver package
-    execCmd('pnpm add eslint-import-resolver-custom-alias', { cwd: this.tempDir })
 
     /*
       Remove all the lines which contains word 'typescript' or 'antfu'
@@ -105,28 +101,8 @@ export class GenJS extends Utils {
     */
     eslintConfig = eslintConfig.mustReplace(/(extends: \[\n(\s+))/g, '$1\'.eslintrc-auto-import.json\',\n$2')
 
-    // Add vite aliases in eslint import config
-    const viteConfig = readFileSyncUTF8(viteConfigPath)
-    const importAliasesMatches = viteConfig.matchAll(/'(?<alias>.*)': fileURLToPath\(new URL\('(?<path>.*)',.*,/g)
-    const importAliases = Object.fromEntries([...importAliasesMatches].map((m) => {
-      if (!m.groups)
-        throw consola.error(new Error('No groups found in regex match while updating eslint config'))
-
-      return Object.values(m.groups)
-    }))
-
-    const importAliasesEslintConfig = `'eslint-import-resolver-custom-alias': {
-      'alias': ${JSON.stringify(importAliases, null, 2)},
-      'extensions': [
-        '.ts',
-        '.js',
-        '.tsx',
-        '.jsx',
-        '.mjs'
-      ],
-    },`
-
-    eslintConfig = eslintConfig.mustReplace(/(node: true,)/gm, `$1\n${importAliasesEslintConfig}`)
+    // Add import resolver config
+    eslintConfig = eslintConfig.mustReplace('typescript: {}', 'typescript: {project: \'./jsconfig.json\'}')
 
     writeFileSyncUTF8(eslintConfigPath, eslintConfig)
   }

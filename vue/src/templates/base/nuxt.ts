@@ -88,6 +88,7 @@ export class Nuxt extends Utils {
       path.join(this.projectPath, 'plugins', 'fake-api'),
       path.join(this.projectPath, '@core', 'composable', `useCookie.${lang}`),
     ]
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     thingsToRemove.map(async (thing) => {
       await fs.remove(thing)
     })
@@ -286,8 +287,9 @@ export class Nuxt extends Utils {
           }
 
           // If it's vuetify plugin then enable SSR
-          if (filePath.includes('vuetify'))
+          if (filePath.includes('plugins/vuetify'))
             updatedData = updatedData.mustReplace(/(createVuetify\({(\s+))/gm, '$1ssr: true,$2')
+
           return updatedData
         },
       )
@@ -1278,7 +1280,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
     updateFile(
       path.join(this.projectPath, '.eslintrc.cjs'),
       data => data.mustReplace(
-        'typescript: {},',
+        isJS && !isFree ? 'typescript: { project: \'./jsconfig.json\' },' : 'typescript: {},',
         `typescript: {
         project: './.nuxt/tsconfig.json',
       },`,
