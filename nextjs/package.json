@@ -19,11 +19,13 @@
     "chalk": "^5.3.0",
     "citty": "^0.1.4",
     "consola": "^3.2.3",
+    "dotenv": "^16.4.1",
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "fs": "0.0.1-security",
     "fs-extra": "^11.1.1",
     "glob": "^10.3.10",
+    "globby": "^14.0.0",
     "prettier": "^3.0.3",
     "sd": "^0.0.3",
     "ts-node": "^10.9.1"
