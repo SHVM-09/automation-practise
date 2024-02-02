@@ -46,15 +46,23 @@ const main = defineCommand({
     
     const tsFullDir = process.env.CI ? `../../${templateName}/nextjs/typescript-version/full-version` : getTsVersionPath(templateName, templateFullVersion);
     
-    if (!process.env.CI)
-      config({ path: path.join(tsFullDir, '.env') })
+    // if (!process.env.CI)
+    try {
+      await exec(`vercel env pull --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--environment=production' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
+    } catch (error) {
+      consola.error(`An error occurred while building: ${error}`);
+      consola.error(`stdout: ${String((error as any).stderr)}`);
+      process.exit(1);
+    }
+    config({ path: path.join(tsFullDir, '.env') })
   
     // ────────────── Before Build ──────────────
-    await beforeBuild(tsFullDir, args.marketplace);
+    await beforeBuild(tsFullDir, process.env.BASEPATH ?? '', args.marketplace);
   
     // ────────────── Build ──────────────
     try {
-      await exec(`vercel build ${args.prod ? '--prod ' : ''}--yes --token=${process.env.VERCEL_TOKEN}`, { cwd: path.join(tsFullDir, '..', '..') });
+      // await exec(`vercel env pull --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--environment=production' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
+      await exec(`vercel build --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--prod' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       consola.error(`stdout: ${String((error as any).stderr)}`);

@@ -4,12 +4,10 @@ import path from 'node:path';
 import { globbySync } from 'globby';
 import { getUrls } from '@/configs/getUrls';
 
-const basePath: string | undefined = process.env.BASEPATH;
-
 /**
  * Append base path to image references in TypeScript API files.
  */
-async function prependBasePathToImages(tsFullDir: string): Promise<void> {
+async function prependBasePathToImages(tsFullDir: string, basePath: string): Promise<void> {
   if (!basePath) {
     console.log('No basePath found in `process.env.BASEPATH`, skipping...');
     return;
@@ -140,13 +138,13 @@ async function updateUrlsForMarketplace(tsFullDir: string): Promise<void> {
   }));
 }
 
-async function beforeBuild(tsFullDir: string, isMarketplaceBuild: boolean): Promise<void> {
+async function beforeBuild(tsFullDir: string, basePath: string, isMarketplaceBuild: boolean): Promise<void> {
   // Update URLs
   if (isMarketplaceBuild)
     await updateUrlsForMarketplace(tsFullDir);
 
   // Append base path to image references in TypeScript API files
-  await prependBasePathToImages(tsFullDir);
+  await prependBasePathToImages(tsFullDir, basePath);
 
   // Remove Google Sign-In from Login component
   await removeGoogleSignInFromLogin(tsFullDir);
