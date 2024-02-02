@@ -24,6 +24,11 @@ async function updateUserDropdown(userDropdownPath: string) {
     // Remove import { signOut, useSession } from 'next-auth/react'
     content = content.replace(/import { signOut, useSession } from 'next-auth\/react'/g, '');
     content = content.replace(/const { data: session } = useSession\(\)/g, '');
+    content = content.replace(/import type { Locale } from '@configs\/i18n'/g, '');
+    content = content.replace(/import { getLocalizedUrl } from '@\/utils\/i18n'/g, '');
+    content = content.replace(/const { lang: locale } = useParams\(\)/g, '');
+    content = content.replace(/router.push\(getLocalizedUrl\(url, locale as Locale\)\)/g, 'router.push(url)');
+    content = content.replace(/import { useParams, useRouter } from 'next\/navigation'/g, "import { useRouter } from 'next\/navigation'");
 
     // Update handleUserLogout function
     content = content.replace(/const handleUserLogout = async \(\) => {.*catch.*?}[\n\s]+}/s, 

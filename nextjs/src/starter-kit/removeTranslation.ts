@@ -12,6 +12,7 @@ async function removeTranslation(tsSkDir: string) {
   const providerFile = path.join(tsSkDir, 'src/components/Providers.tsx');
   const logoFile = path.join(tsSkDir, 'src/components/layout/shared/Logo.tsx');
   const componentsDir = path.join(tsSkDir, 'src/components');
+  const nextConfigFile = path.join(tsSkDir, 'next.config.js');
 
   // Remove translation code from app directory files
   await removeTranslationFromAppDir(appDir);
@@ -24,6 +25,9 @@ async function removeTranslation(tsSkDir: string) {
 
   // Remove translation code from components directory files
   await removeTranslationFromComponentsDir(componentsDir);
+
+  // Remove redirects from next.config.js
+  await removeTranslationFromNextConfig(nextConfigFile);
 }
 
 
@@ -141,6 +145,20 @@ async function removeTranslationFromComponentsDir(baseDir: string): Promise<void
       consola.error(`Error processing file ${file}: ${err}`);
     }
   });
+}
+
+async function removeTranslationFromNextConfig(nextConfigFile: string) {
+  try {
+    let content = fs.readFileSync(nextConfigFile, 'utf8');
+
+    content = content.replace(/redirects: async \(\) => \{[\s\S]*?\},\s*\n/g, '\n')
+
+    // Existing removals
+    fs.writeFileSync(nextConfigFile, content);
+    consola.info(`Updated file: ${nextConfigFile}`);
+  } catch (err) {
+    consola.error(`Error processing file ${nextConfigFile}: ${err}`);
+  }
 }
 
 export default removeTranslation;

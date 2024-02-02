@@ -41,6 +41,7 @@ const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
   // List of specific files to be removed
   const unwantedFiles = [
     'src/utils/get-dictionary.ts',
+    'src/utils/i18n.ts',
     'src/components/Form.tsx',
     'src/components/DirectionalIcon.tsx',
     'src/components/Editor.tsx',
