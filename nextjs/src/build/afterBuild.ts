@@ -4,8 +4,7 @@ import { globbySync } from 'globby';
 /**
  * Main function to add base path to image references in JS and CSS files.
  */
-async function addBasePathToImages(tsFullDir: string): Promise<void> {
-  const basePath = process.env.BASEPATH;
+async function addBasePathToImages(tsFullDir: string, basePath: string): Promise<void> {
 
   // Check if basePath is available
   if (!basePath) {

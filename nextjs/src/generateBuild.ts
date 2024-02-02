@@ -1,6 +1,6 @@
 import { consola } from 'consola';
 import { promisify } from 'util';
-import path from 'path';
+import path, { basename } from 'path';
 import { exec as execCallback } from "child_process";
 import beforeBuild from './build/beforeBuild';
 import afterBuild from './build/afterBuild';
@@ -70,7 +70,7 @@ const main = defineCommand({
     }
   
     // ────────────── After Build ──────────────
-    await afterBuild(tsFullDir);
+    await afterBuild(tsFullDir, process.env.BASEPATH ?? '');
   }
 });
 
