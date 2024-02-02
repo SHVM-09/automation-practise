@@ -39,7 +39,7 @@ const main = defineCommand({
       return;
     }
     
-    const tsFullDir = process.env.CI ? '../../nextjs/typescript-version/full-version' : getTsVersionPath(templateName, templateFullVersion);
+    const tsFullDir = process.env.CI ? `../../${templateName}/nextjs/typescript-version/full-version` : getTsVersionPath(templateName, templateFullVersion);
     
     if (!process.env.CI)
       config({ path: path.join(tsFullDir, '.env') })
