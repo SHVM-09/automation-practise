@@ -61,8 +61,12 @@ const main = defineCommand({
       process.exit(1);
     }
     
-    config({ path: path.join(tsFullDir, '.env.production.local') })
-    const basePath = process.env.BASEPATH
+    const env = config({ path: path.join(tsFullDir, '.env.production.local') })
+
+    console.log('env :>> ', env);
+    console.log('env.parsed :>> ', env.parsed);
+    console.log('env.parsed.BASEPATH :>> ', env.parsed?.BASEPATH);
+    const basePath = '/materio-mui-nextjs-admin-template/demo-1'
     console.log('basePath :>> ', basePath);
   
     // ────────────── Before Build ──────────────
