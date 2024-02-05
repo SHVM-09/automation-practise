@@ -62,12 +62,7 @@ const main = defineCommand({
     }
     
     const env = config({ path: path.join(tsFullDir, '.env.local') })
-
-    console.log('env :>> ', env);
-    console.log('env.parsed :>> ', env.parsed);
-    console.log('env.parsed.BASEPATH :>> ', env.parsed?.BASEPATH);
-    const basePath = '/materio-mui-nextjs-admin-template/demo-1'
-    console.log('basePath :>> ', basePath);
+    const basePath = env.parsed?.BASEPATH
   
     // ────────────── Before Build ──────────────
     await beforeBuild(tsFullDir, basePath ?? '', args.marketplace);
