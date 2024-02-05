@@ -33,6 +33,11 @@ const main = defineCommand({
       description: 'Run script in prod',
       default: false,
     },
+    'vercel-token': {
+      type: 'string',
+      description: 'Vercel token for login',
+      required: true,
+    },
   },
   async run({ args }) {
     // Vars
@@ -48,21 +53,24 @@ const main = defineCommand({
     
     // if (!process.env.CI)
     try {
-      await exec(`vercel env pull --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--environment=production' : ''}`, { cwd: tsFullDir });
+      // INFO: We'll use production env variables even in staging
+      await exec(`vercel env pull --yes --environment=production --token=${args['vercel-token']}`, { cwd: tsFullDir });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       consola.error(`stdout: ${String((error as any).stderr)}`);
       process.exit(1);
     }
-    config({ path: path.join(tsFullDir, '.env') })
+    
+    config({ path: path.join(tsFullDir, '.env.production.local') })
+    const basePath = process.env.BASEPATH
+    console.log('basePath :>> ', basePath);
   
     // ────────────── Before Build ──────────────
-    await beforeBuild(tsFullDir, process.env.BASEPATH ?? '', args.marketplace);
+    await beforeBuild(tsFullDir, basePath ?? '', args.marketplace);
   
     // ────────────── Build ──────────────
     try {
-      // await exec(`vercel env pull --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--environment=production' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
-      await exec(`vercel build --yes --token=${process.env.VERCEL_TOKEN} ${args.prod ? '--prod' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
+      await exec(`vercel build --yes --token=${args['vercel-token']} ${args.prod ? '--prod' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       consola.error(`stdout: ${String((error as any).stderr)}`);
@@ -70,7 +78,7 @@ const main = defineCommand({
     }
   
     // ────────────── After Build ──────────────
-    await afterBuild(tsFullDir, process.env.BASEPATH ?? '');
+    await afterBuild(tsFullDir, basePath ?? '');
   }
 });
 
