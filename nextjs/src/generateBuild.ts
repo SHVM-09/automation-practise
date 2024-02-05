@@ -62,7 +62,6 @@ const main = defineCommand({
     }
     
     const env = config({ path: path.join(tsFullDir, '.env.local') })
-    console.log('env.parsed :>> ', env.parsed);
     const basePath = env.parsed?.BASEPATH
   
     // ────────────── Before Build ──────────────
