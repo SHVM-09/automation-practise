@@ -1119,7 +1119,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
   if (response && response.error) {
     const apiStringifiedError = response.error
     const apiError ${isJS ? '' : ': NuxtError'}= JSON.parse(apiStringifiedError)
-    errors.value = apiError.data
+    errors.value = apiError.data as Record<string, string | undefined>
 
     // If err => Don't execute further
     return
