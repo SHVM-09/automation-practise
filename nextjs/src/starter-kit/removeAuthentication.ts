@@ -65,11 +65,15 @@ async function updateLogin(loginFullPath: string, loginSkPath: string) {
   try {
     let content = fs.readFileSync(loginFullPath, 'utf8');
 
-    content = content.replace(/href={`\/\${locale}\/pages\/auth\/register-v2`}/g, '');
-    content = content.replace(/href={`\/\${locale}\/pages\/auth\/forgot-password-v2`}/g, '');
+    content = content.replace(/href={getLocalizedUrl\('pages\/auth\/forgot-password-v2', locale as Locale\)}/g, '');
+    content = content.replace(/href={getLocalizedUrl\('pages\/auth\/register-v2', locale as Locale\)}/g, '');
 
     // Remove import for 'next/link'
     content = content.replace(/import Link from 'next\/link'\n/g, '');
+
+    // Remove i18n imports
+    content = content.replace(/import type { Locale } from '@configs\/i18n'/g, '');
+    content = content.replace(/import { getLocalizedUrl } from '@\/utils\/i18n'/g, '');
 
     // Update import { useParams } from 'next/navigation' with import { useRouter } from 'next/navigation'
     content = content.replace(/import { useParams } from 'next\/navigation'/g, "import { useRouter } from 'next\/navigation'");
@@ -95,12 +99,12 @@ async function updateLogin(loginFullPath: string, loginSkPath: string) {
 async function updateHomePage(homePagePath: string) {
   // Replace all the content of homepage
   const content = `// Next Imports
-import { redirect } from 'next/navigation'
-
-export default function Page() {
-  redirect('/home')
-}
-`
+  import { redirect } from 'next/navigation'
+  
+  export default function Page() {
+    redirect('/home')
+  }
+  `
   fs.writeFileSync(homePagePath, content);
   consola.info(`Updated file: ${homePagePath}`);
 }
