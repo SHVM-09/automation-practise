@@ -157,7 +157,7 @@ const updateModeStorageKey = async (tsFullDir: string) => {
     // Add replace
     .replace(
       "mui-template-mode`",
-      "mui-template-mode`.replace(props.demoName ? 'demo-1' : '', props.demoName || '')"
+      "mui-template-mode-${props.demoName}`"
   )
 
   // Write back to file
