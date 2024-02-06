@@ -1,8 +1,8 @@
-import fs from 'fs/promises';
-import { readFileSync, writeFileSync } from 'fs';
-import path from 'node:path';
-import { globbySync } from 'globby';
 import { getUrls } from '@/configs/getUrls';
+import { readFileSync, writeFileSync } from 'fs';
+import fs from 'fs/promises';
+import { globbySync } from 'globby';
+import path from 'node:path';
 
 /**
  * Append base path to image references in TypeScript API files.
@@ -138,6 +138,40 @@ async function updateUrlsForMarketplace(tsFullDir: string): Promise<void> {
   }));
 }
 
+// TODO: Feel free to improve this because this is written in hurry
+const updateModeStorageKey = async (tsFullDir: string) => {
+  const themeProviderPath = path.join(tsFullDir, 'src', 'components', 'Theme', 'index.tsx');
+  let content = await fs.readFile(themeProviderPath, 'utf-8');
+
+  content = content
+    // Add type
+    .replace(
+      " } from '@core/types'",
+      ", DemoName } from '@core/types'"
+     )
+    // Add prop
+    .replace(
+      "systemMode: SystemMode",
+      "systemMode: SystemMode\n  demoName: DemoName",
+    )
+    // Add replace
+    .replace(
+      "mui-template-mode`",
+      "mui-template-mode`.replace(props.demoName ? 'demo-1' : '', props.demoName || '')"
+  )
+
+  // Write back to file
+  await fs.writeFile(themeProviderPath, content);
+
+  const providersPath = path.join(tsFullDir, 'src', 'components', 'Providers.tsx');
+  let providerContent = await fs.readFile(themeProviderPath, 'utf-8');
+  providerContent.replace(
+    "<ThemeProvider direction={direction} systemMode={systemMode}>",
+    "<ThemeProvider direction={direction} systemMode={systemMode} demoName={demoName}>"
+  )
+  await fs.writeFile(providersPath, providerContent);
+}
+
 async function beforeBuild(tsFullDir: string, basePath: string, isMarketplaceBuild: boolean): Promise<void> {
   // Update URLs
   if (isMarketplaceBuild)
@@ -154,6 +188,8 @@ async function beforeBuild(tsFullDir: string, basePath: string, isMarketplaceBui
 
   // Update Next.js configuration with custom headers
   await updateNextJsConfigWithHeaders(tsFullDir);
+
+  await updateModeStorageKey(tsFullDir);
 }
 
 export default beforeBuild;
