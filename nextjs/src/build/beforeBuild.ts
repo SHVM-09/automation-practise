@@ -160,6 +160,7 @@ const updateModeStorageKey = async (tsFullDir: string) => {
       "mui-template-mode`.replace(props.demoName ? 'demo-1' : '', props.demoName || '')"
   )
 
+  console.log('content :>>', content)
   // Write back to file
   await fs.writeFile(themeProviderPath, content);
 
@@ -169,6 +170,8 @@ const updateModeStorageKey = async (tsFullDir: string) => {
     "<ThemeProvider direction={direction} systemMode={systemMode}>",
     "<ThemeProvider direction={direction} systemMode={systemMode} demoName={demoName}>"
   )
+
+  console.log('providerContent :>>', providerContent)
   await fs.writeFile(providersPath, providerContent);
 }
 
