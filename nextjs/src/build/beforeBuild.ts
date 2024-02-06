@@ -161,7 +161,6 @@ const updateModeStorageKey = async (tsFullDir: string) => {
   )
 
   // Write back to file
-  console.log('content :>>', content)
   await fs.writeFile(themeProviderPath, content);
 
   const providersPath = path.join(tsFullDir, 'src', 'components', 'Providers.tsx');
