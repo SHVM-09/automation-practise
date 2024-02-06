@@ -45,7 +45,7 @@ async function removeTranslationFromAppDir(baseDir: string): Promise<void> {
         // Modify these regex patterns based on the specific translation code you want to remove
         content = content.replace(/import { i18n } from '@configs\/i18n'\n/g, '');
         content = content.replace(/import type { Locale } from '@configs\/i18n'\n/g, '');
-        content = content.replace(/import { getDictionary } from '@\/utils\/get-dictionary'\n/g, '');
+        content = content.replace(/import { getDictionary } from '@\/utils\/getDictionary'\n/g, '');
         content = content.replace(/const direction = i18n.langDirection\[params.lang\]/g, 'const direction = \'ltr\'');
         content = content.replace(/const dictionary = await getDictionary\(params.lang\)\n/g, '');
         content = content.replace(/lang={params\.lang}/g, 'lang="en"');
@@ -104,8 +104,8 @@ async function removeTranslationFromLogo(logoFile: string) {
     // Modify these regex patterns based on the specific translation code you want to remove
     content = content.replace(/import { useParams } from 'next\/navigation'\n/g, '');
     content = content.replace(/const { lang: locale } = useParams\(\)/g, '');
-    content = content.replace(/<Link href=\{locale \? `\/\${locale}` : '\/'\}([^>]*)>/g, "<Link href='/'$1>");
-
+    content = content.replace(/import type { Locale } from '@configs\/i18n'\n/g, '');
+    content = content.replace(/<Link href=\{getLocalizedUrl\('\/', locale as Locale\)\}([^>]*)>/g, "<Link href='/'$1>");
 
     fs.writeFileSync(logoFile, content);
     consola.info(`Updated file: ${logoFile}`);
@@ -122,8 +122,11 @@ async function removeTranslationFromComponentsDir(baseDir: string): Promise<void
     try {
       let content = fs.readFileSync(file, 'utf8');
 
+      // Remove import of getLocalizedUrl from i18n utils
+      content = content.replace(/import { getLocalizedUrl } from '@\/utils\/i18n'\n/g, '');
+
       // Remove import of getDictionary
-      content = content.replace(/import type { getDictionary } from '@\/utils\/get-dictionary'\n/g, '');
+      content = content.replace(/import type { getDictionary } from '@\/utils\/getDictionary'\n/g, '');
 
       // Remove dictionary prop from components
       content = content.replace(/<[^>]+\sdictionary=\{dictionary\}[^>]*>/g, (match) => {

@@ -38,7 +38,7 @@ async function updateStaticVerticalMenuContent(menuFilePath: string) {
     const removalPatterns = [
       /import { useParams } from 'next\/navigation'\n/,
       /import Chip from '@mui\/material\/Chip'\n/,
-      /import type { getDictionary } from '@\/utils\/get-dictionary'\n/,
+      /import type { getDictionary } from '@\/utils\/getDictionary'\n/,
       /import { SubMenu, MenuSection } from '@menu\/vertical-menu'\n/,
       /, SubMenu/,
       /, MenuSection/,
@@ -91,7 +91,7 @@ async function updateStaticHorizontalMenuContent(menuFilePath: string) {
     const removalPatterns = [
       /import { useParams } from 'next\/navigation'\n/,
       /import Chip from '@mui\/material\/Chip'\n/,
-      /import type { getDictionary } from '@\/utils\/get-dictionary'\n/,
+      /import type { getDictionary } from '@\/utils\/getDictionary'\n/,
       /import HorizontalNav, { Menu, SubMenu, MenuItem } from '@menu\/horizontal-menu'\n/,
       /\/\/ import { GenerateHorizontalMenu } from '@components\/GenerateMenu'\n/,
       /\/\/ import menuData from '@\/data\/navigation\/horizontalMenuData'\n/,
@@ -113,7 +113,7 @@ async function updateStaticHorizontalMenuContent(menuFilePath: string) {
     );
 
     const newMenuInnerContent = `
-      <MenuItem href='/home' icon={<i className='ri-home-smile-line' />}>
+      <MenuItem href='/' icon={<i className='ri-home-smile-line' />}>
         Home
       </MenuItem>
       <MenuItem href='/about' icon={<i className='ri-information-line' />}>
@@ -177,7 +177,9 @@ async function updateGenerateMenu(tsSkDir: string) {
     // Update GenerateVerticalMenu and GenerateHorizontalMenu components to remove locale usage
     content = content.replace(/const \{ lang: locale \} = useParams\(\)\n/g, '');
 
-    const hrefRegex = /const href = menuItem\.href\?.*?\n/g;
+    // const hrefRegex = /const href = menuItem\.href\?.*?\n/g;
+    // const href = menuItem.href ? menuItem.href : menuItem.href && getLocalizedUrl(menuItem.href, locale as Locale)
+    const hrefRegex = /const href = menuItem\.href\?\.startsWith\('http'\)\s+\?\s+menuItem\.href\s+:\s+menuItem\.href && getLocalizedUrl\(menuItem\.href, locale as Locale\)/g;
     content = content.replace(hrefRegex, 'const href = menuItem.href');
 
     // Write the updated content back to the file
