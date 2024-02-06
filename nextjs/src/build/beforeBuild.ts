@@ -165,7 +165,7 @@ const updateModeStorageKey = async (tsFullDir: string) => {
   await fs.writeFile(themeProviderPath, content);
 
   const providersPath = path.join(tsFullDir, 'src', 'components', 'Providers.tsx');
-  let providerContent = await fs.readFile(themeProviderPath, 'utf-8');
+  let providerContent = await fs.readFile(providersPath, 'utf-8');
   providerContent = providerContent.replace(
     "<ThemeProvider direction={direction} systemMode={systemMode}>",
     "<ThemeProvider direction={direction} systemMode={systemMode} demoName={demoName}>"
