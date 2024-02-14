@@ -54,7 +54,7 @@ const main = defineCommand({
     // if (!process.env.CI)
     try {
       // INFO: We'll use production env variables even in staging
-      await exec(`vercel env pull --yes --environment=production --token=${args['vercel-token']}`, { cwd: tsFullDir });
+      await exec(`vercel env pull --yes --environment=${args.prod ? 'production' : 'preview'} --token=${args['vercel-token']}`, { cwd: tsFullDir });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       consola.error(`stdout: ${String((error as any).stderr)}`);
