@@ -212,6 +212,6 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
       this.updateNuxtConfigForVercelIssues(),
       // this.updateGetPublicPathUtil(),
     ])
-    consola.success('Repo is updated for demos. You can now runt the build command.')
+    consola.success('Repo is updated for demos. You can now run the build command.')
   }
 }

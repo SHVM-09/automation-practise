@@ -45,7 +45,7 @@ jobs:
 
       - name: ⚙️ Setup Vercel Environment Variables
         working-directory: ${{ env.BRAND_NAME }}/nuxt/typescript-version/full-version
-        run: vercel env pull --yes --environment=$([[ "${{ inputs.is_production }}" == "true" ]] && echo --production || echo --preview) --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel env pull --yes --environment=$([[ "${{ inputs.is_production }}" == "true" ]] && echo production || echo preview) --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: 🛠️ Prepare for build command
         working-directory: automation-scripts/vue
