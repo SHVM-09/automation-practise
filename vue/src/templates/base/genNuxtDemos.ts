@@ -203,10 +203,10 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
   // }
 
   private async handleCORS() {
-    const middlewareDirPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'middleware')
+    const serverMiddlewareDirPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'middleware')
 
     const addCorsMiddleware = fs.writeFile(
-      path.join(middlewareDirPath, 'cors.global.ts'),
+      path.join(serverMiddlewareDirPath, 'cors.ts'),
       `// Thanks: https://github.com/nuxt/nuxt/issues/14598#issuecomment-1872279920
 export default defineEventHandler((event) => {
   // Answers HTTP 204 OK to CORS preflight requests using OPTIONS method :
