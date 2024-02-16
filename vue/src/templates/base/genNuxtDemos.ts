@@ -205,6 +205,8 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
   private async handleCORS() {
     const serverMiddlewareDirPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'middleware')
 
+    fs.ensureDirSync(serverMiddlewareDirPath)
+
     const addCorsMiddleware = fs.writeFile(
       path.join(serverMiddlewareDirPath, 'cors.ts'),
       `// Thanks: https://github.com/nuxt/nuxt/issues/14598#issuecomment-1872279920
