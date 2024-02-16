@@ -223,7 +223,6 @@ export default defineEventHandler((event) => {
 
     const nuxtConfigPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'nuxt.config.ts')
     const updateNuxtConfig = updateFileAsync(nuxtConfigPath, (content) => {
-      console.log('content :>> ', content)
       return content.mustReplace(
         /(?=^}\))/gm,
         `
