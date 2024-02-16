@@ -1,11 +1,11 @@
-import { consola } from 'consola'
-import { colorize } from 'consola/utils'
-import fs from 'fs-extra'
 import type { Buffer } from 'node:buffer'
 import type { ExecOptions, ExecSyncOptions, ExecSyncOptionsWithBufferEncoding, ExecSyncOptionsWithStringEncoding } from 'node:child_process'
 import { exec, execSync } from 'node:child_process'
 import process from 'node:process'
 import readline from 'node:readline'
+import fs from 'fs-extra'
+import { colorize } from 'consola/utils'
+import { consola } from 'consola'
 
 export function execCmd(command: string): Buffer
 export function execCmd(command: string, options: ExecSyncOptionsWithBufferEncoding): Buffer
@@ -60,6 +60,21 @@ export const writeFileSyncUTF8 = (path: string, data: string) => fs.writeFileSyn
  */
 export const updateFile = (path: string, modifier: UpdateFileModifier) => {
   fs.writeFileSync(
+    path,
+    modifier(fs.readFileSync(path, { encoding: 'utf-8' })),
+    { encoding: 'utf-8' },
+  )
+}
+
+// ℹ️ This is async version of updateFile. We'll use this in future and remove sync version.
+/**
+ * This is helper function to read the file content by given path.
+ * 2nd argument is callback function to modify the content of file. Return modified data as string to write it back to given path.
+ * @param path File path to read from & write to
+ * @param modifier Function that modifies the file data
+ */
+export const updateFileAsync = (path: string, modifier: UpdateFileModifier): Promise<void> => {
+  return fs.writeFile(
     path,
     modifier(fs.readFileSync(path, { encoding: 'utf-8' })),
     { encoding: 'utf-8' },

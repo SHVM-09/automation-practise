@@ -441,6 +441,7 @@ export class Nuxt extends Utils {
           ? {}
           : {
               auth: {
+                baseURL: 'process.env.AUTH_ORIGIN',
                 globalAppMiddleware: false,
                 provider: {
                   type: 'authjs',
@@ -591,6 +592,12 @@ export class Nuxt extends Utils {
   components: {`,
           )
         }
+
+        // Update baseUrl for api
+        newData = newData.mustReplace(
+          '\'process.env.AUTH_ORIGIN\'',
+          'process.env.AUTH_ORIGIN',
+        )
 
         // We don't have server in Free version
         if (!isFree) {
