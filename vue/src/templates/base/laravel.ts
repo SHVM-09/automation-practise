@@ -372,8 +372,6 @@ export class Laravel extends Utils {
   }
 
   private insertDeployLaravelDemoGhAction() {
-    // ❗ We have intentionally set template name as "materio" in placeholder workflow files instead of master to update it without worrying about some file may have branch name master and gets replaces with template name
-
     // Update/Add GitHub action
     const ghWorkflowsDir = path.join(this.templateConfig.laravel.projectPath, '.github', 'workflows')
 

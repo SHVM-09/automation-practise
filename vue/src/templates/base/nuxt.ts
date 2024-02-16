@@ -1,9 +1,10 @@
 import path from 'node:path'
-import type { GenPkgHooks } from '@types'
+import * as url from 'node:url'
 import { createDefu } from 'defu'
 import fs from 'fs-extra'
 import type { ImportItemInput } from 'magicast'
 import { loadFile, writeFile } from 'magicast'
+import type { GenPkgHooks } from '@types'
 import type { PackageJson, TsConfigJson } from 'type-fest'
 
 import { consola } from 'consola'
@@ -1639,7 +1640,30 @@ throw createError({
     }
   }
 
+  private insertDeployNuxtDemoGhAction() {
+    // Update/Add GitHub action
+    const ghWorkflowsDir = path.join(this.templateConfig.nuxt.projectPath, '.github', 'workflows')
+
+    // Make sure workflow dir exist
+    fs.ensureDirSync(ghWorkflowsDir)
+
+    // get path of workflow file from base's data dir
+    const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
+    const baseDataDirPath = path.join(__dirname, 'data')
+
+    const deployNuxtDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-nuxt-demos.yml')
+    const deployNuxtDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployNuxtDemosWorkflowSourceFilePath))
+
+    // copy file from data to github workflow dir
+    fs.copyFileSync(
+      deployNuxtDemosWorkflowSourceFilePath,
+      deployNuxtDemosWorkflowFilePath,
+    )
+  }
+
   private genProPkg() {
+    this.insertDeployNuxtDemoGhAction()
+
     const tempPkgDir = new TempLocation().tempDir
     const tempPkgTS = path.join(tempPkgDir, 'typescript-version')
     const tempPkgJS = path.join(tempPkgDir, 'javascript-version')
