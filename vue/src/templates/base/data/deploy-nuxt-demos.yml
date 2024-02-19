@@ -3,6 +3,7 @@ run-name: ${{ inputs.is_production && '🚀' || '🧪' }} Deploy - Demos
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  NITRO_PRESET: vercel
 
 on:
   workflow_dispatch:
@@ -45,7 +46,7 @@ jobs:
 
       - name: ⚙️ Setup Vercel Environment Variables
         working-directory: ${{ env.BRAND_NAME }}/nuxt/typescript-version/full-version
-        run: vercel env pull --yes --environment=$([[ "${{ inputs.is_production }}" == "true" ]] && echo production || echo preview) --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel env pull --yes --environment $([[ "${{ inputs.is_production }}" == "true" ]] && echo production || echo preview) --token ${{ secrets.VERCEL_TOKEN }}
 
       - name: 🛠️ Prepare for build command
         working-directory: automation-scripts/vue
@@ -53,7 +54,7 @@ jobs:
 
       - name: 📦 Build
         working-directory: ${{ env.BRAND_NAME }}/nuxt
-        run: vercel build --yes --token=${{ secrets.VERCEL_TOKEN }} $([[ "${{ inputs.is_production }}" == "true" ]] && echo --prod)
+        run: vercel build --yes --token ${{ secrets.VERCEL_TOKEN }} $([[ "${{ inputs.is_production }}" == "true" ]] && echo --prod)
  
       - name: 🚀 Install Vercel CLI
         run: npm i -g vercel@latest

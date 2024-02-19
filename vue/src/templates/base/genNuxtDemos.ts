@@ -202,6 +202,55 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
   //   })
   // }
 
+  private async handleCORS() {
+    const serverMiddlewareDirPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'middleware')
+
+    fs.ensureDirSync(serverMiddlewareDirPath)
+
+    const addCorsMiddleware = fs.writeFile(
+      path.join(serverMiddlewareDirPath, 'cors.ts'),
+      `// Thanks: https://github.com/nuxt/nuxt/issues/14598#issuecomment-1872279920
+export default defineEventHandler((event) => {
+  // Answers HTTP 204 OK to CORS preflight requests using OPTIONS method :
+  // if (event.method === 'OPTIONS' && isPreflightRequest(event)) {
+  if (isPreflightRequest(event)) {
+    event.node.res.statusCode = 204
+    event.node.res.statusMessage = 'No Content'
+    return 'OK'
+  }
+})`,
+    )
+
+    const nuxtConfigPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'nuxt.config.ts')
+    const updateNuxtConfig = updateFileAsync(nuxtConfigPath, (content) => {
+      return content.mustReplace(
+        /(?=^}\))/gm,
+        `
+routeRules: {
+    '/api/**': {
+      // enable CORS
+      cors: true, // if enabled, also needs cors-preflight-request.ts Nitro middleware to answer CORS preflight requests
+      headers: {
+        // CORS headers
+        'Access-Control-Allow-Origin': 'https://demos.themeselection.com', // 'http://example:6006', has to be set to the requesting domain that you want to send the credentials back to
+        'Access-Control-Allow-Methods': '*', // 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Allow-Headers': '*', // 'Origin, Content-Type, Accept, Authorization, X-Requested-With'
+        'Access-Control-Expose-Headers': '*',
+        // 'Access-Control-Max-Age': '7200', // 7200 = caching 2 hours (Chromium default), https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age#directives
+      },
+    },
+}
+        `,
+      )
+    })
+
+    await Promise.all([
+      updateNuxtConfig,
+      addCorsMiddleware,
+    ])
+  }
+
   async prepareForBuild() {
     await Promise.all([
       this.createDemosPlugin(),
@@ -212,6 +261,10 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
       this.updateNuxtConfigForVercelIssues(),
       // this.updateGetPublicPathUtil(),
     ])
+
+    // ❗ We placed this outside of Promise.all because there's already one function updating nuxt config so we need to wait for it.
+    // ℹ️ In future, to avoid above we can create queue of functions and run them one by one for single file.
+    await this.handleCORS()
     consola.success('Repo is updated for demos. You can now run the build command.')
   }
 }
