@@ -191,16 +191,16 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
     })
   }
 
-  // private async updateGetPublicPathUtil() {
-  //   const getPublicPathUtilPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'utils', 'getPublicUrl.ts')
+  private async updateGetPublicPathUtil() {
+    const getPublicPathUtilPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'utils', 'getPublicUrl.ts')
 
-  //   await updateFileAsync(getPublicPathUtilPath, (content) => {
-  //     return content.mustReplace(
-  //       /(getPublicUrl.*)/gm,
-  //       '$1\nreturn path',
-  //     )
-  //   })
-  // }
+    await updateFileAsync(getPublicPathUtilPath, (content) => {
+      return content.mustReplace(
+        /(getPublicUrl.*)/gm,
+        '$1\nreturn path',
+      )
+    })
+  }
 
   private async handleCORS() {
     const serverMiddlewareDirPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'server', 'middleware')
@@ -259,7 +259,7 @@ export default defineEventHandler((event) => {
       this.updateCookieName(),
       this.updateLayoutsPlugin(),
       this.updateNuxtConfigForVercelIssues(),
-      // this.updateGetPublicPathUtil(),
+      this.updateGetPublicPathUtil(),
     ])
 
     // ❗ We placed this outside of Promise.all because there's already one function updating nuxt config so we need to wait for it.
