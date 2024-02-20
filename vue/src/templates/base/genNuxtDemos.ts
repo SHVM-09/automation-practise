@@ -226,7 +226,7 @@ export default defineEventHandler((event) => {
       return content.mustReplace(
         /(?=^}\))/gm,
         `
-routeRules: {
+  routeRules: {
     '/api/**': {
       // enable CORS
       cors: true, // if enabled, also needs cors-preflight-request.ts Nitro middleware to answer CORS preflight requests
@@ -240,8 +240,8 @@ routeRules: {
         // 'Access-Control-Max-Age': '7200', // 7200 = caching 2 hours (Chromium default), https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Max-Age#directives
       },
     },
-}
-        `,
+  },
+`,
       )
     })
 
