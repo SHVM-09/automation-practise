@@ -25,7 +25,12 @@ async function copyFolders(paths: CopyConfig[]): Promise<void> {
     try {
         for (const { source, destination } of paths) {
             console.log(`Copying folder from ${source} to ${destination}`);
-            await fs.copy(source, destination, { overwrite: true });
+            await fs.copy(source, destination, { overwrite: true,
+              filter: (src: string) => {
+                // Exclude .prettierignore and .prettierrc.yaml files
+                const fileName = path.basename(src);
+                return !['.prettierignore', '.prettierrc.yaml'].includes(fileName);
+            }, });
             console.log(`Folder copied successfully from ${source} to ${destination}`);
         }
         console.log('Files copied successfully!');
