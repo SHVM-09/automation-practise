@@ -259,7 +259,9 @@ export default defineEventHandler((event) => {
       this.updateCookieName(),
       this.updateLayoutsPlugin(),
       this.updateNuxtConfigForVercelIssues(),
-      this.updateGetPublicPathUtil(),
+
+      // ❗ We have set rewrite in nginx so we don't need this. Even with this, We can't load images properly.
+      // this.updateGetPublicPathUtil(),
     ])
 
     // ❗ We placed this outside of Promise.all because there's already one function updating nuxt config so we need to wait for it.
