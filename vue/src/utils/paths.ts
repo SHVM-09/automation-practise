@@ -1,17 +1,17 @@
-import path from 'path'
-import * as url from 'url'
+import path from 'node:path'
+import * as url from 'node:url'
 import { removeTrailingAndLeadingSlashes } from './string'
 
 // const __filename = url.fileURLToPath(import.meta.url)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 // projectRoot => automation-scripts/vue
-export const projectPath = path.join(__dirname, '../../')
+export const projectPath = path.join(__dirname, '..', '..')
 
 // repoRoot => automation-scripts
-export const repoPath = path.join(projectPath, '../')
+export const repoPath = path.join(projectPath, '..')
 
-export const getTemplatePath = (name: string, technology: string) => path.join(repoPath, `../${name}`, technology)
+export const getTemplatePath = (name: string, technology: string) => path.join(repoPath, '..', name, technology)
 
 /**
  * Removes a prefix from a given path string.
