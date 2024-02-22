@@ -55,9 +55,6 @@ jobs:
       - name: 📦 Build
         working-directory: ${{ env.BRAND_NAME }}/nuxt
         run: vercel build --yes --token ${{ secrets.VERCEL_TOKEN }} $([[ "${{ inputs.is_production }}" == "true" ]] && echo --prod)
- 
-      - name: 🚀 Install Vercel CLI
-        run: npm i -g vercel@latest
 
       - name: 🚀 Deploy to Vercel
         working-directory: ${{ env.BRAND_NAME }}/nuxt
