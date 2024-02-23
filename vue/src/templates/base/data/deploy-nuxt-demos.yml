@@ -1,6 +1,7 @@
 name: Deploy - Demos
 run-name: ${{ inputs.is_production && '🚀' || '🧪' }} Deploy - Demos
 env:
+  # ❗ `VERCEL_ORG_ID` will be team id if project is under a team
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
   NITRO_PRESET: vercel
