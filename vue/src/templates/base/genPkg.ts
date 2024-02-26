@@ -32,18 +32,17 @@ export class GenPkg extends Utils {
 
     // Ask user to commit the compressed images
     if (isInteractive && compressedFiles.length) {
-      consola.warn('If you want to commit compressed images, make sure you don\'t have extra changes except compressed images.')
       const shouldCommit = await consola.prompt('Do you want to commit the compressed images?', {
         type: 'confirm',
       })
 
       if (shouldCommit) {
-        execCmd('git add .', { cwd: tSFull })
+        const files_to_stage = compressedFiles.map(f => f.filePath).join(' ')
+        execCmd(`git add ${files_to_stage}`, { cwd: tSFull })
         execCmd('git commit -m "chore: compress images"', { cwd: tSFull })
         consola.success('Compressed images committed successfully.')
       }
     }
-    consola.success('Image size validation completed\n')
 
     // Generate TS SK
     consola.start('Generating TS starter kit')
