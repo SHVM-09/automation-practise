@@ -1651,7 +1651,7 @@ throw createError({
     const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
     const baseDataDirPath = path.join(__dirname, 'data')
 
-    const deployNuxtDemosWorkflowSourceFilePath = path.join(baseDataDirPath, 'deploy-nuxt-demos.yml')
+    const deployNuxtDemosWorkflowSourceFilePath = path.join(baseDataDirPath, this.isFree ? 'deploy-nuxt-free-demo.yml' : 'deploy-nuxt-demos.yml')
     const deployNuxtDemosWorkflowFilePath = path.join(ghWorkflowsDir, path.basename(deployNuxtDemosWorkflowSourceFilePath))
 
     // copy file from data to github workflow dir

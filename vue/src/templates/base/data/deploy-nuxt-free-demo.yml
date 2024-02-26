@@ -1,0 +1,47 @@
+name: 🚀 Deploy - Demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    env:
+      NUXT_APP_BASE_URL: ${{ secrets.NUXT_APP_BASE_URL }}
+    steps:
+      - name: ⚙️ Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: ⬇️ Checkout template
+        uses: actions/checkout@v4
+
+      - name: 📦 Generate demo
+        working-directory: typescript-version
+        run: pnpm i && pnpm generate
+
+      - name: 🗄️ Ensure Dir on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+            mkdir -p ${{ secrets.PROD_DIR }}
+
+      - name: 🚀 Upload demo zip
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: typescript-version/.output/public
+          target: ${{ secrets.PROD_DIR }}
+          strip_components: 3
+          rm: true
