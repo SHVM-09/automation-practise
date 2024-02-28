@@ -11,7 +11,7 @@ const main = defineCommand({
   },
   run() {
     const materio = new Materio(config)
-    new GenDemo(materio.config).prepareFreeDemoForBuild()
+    new GenDemo(materio.config).injectGTMInNuxtConfig(true)
   },
 })
 

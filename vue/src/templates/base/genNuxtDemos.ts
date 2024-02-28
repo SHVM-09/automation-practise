@@ -270,9 +270,9 @@ export default defineEventHandler((event) => {
     consola.success('Repo is updated for demos. You can now run the build command.')
   }
 
-  prepareFreeDemoForBuild() {
-    const { freeTS: freeTSPath } = this.templateConfig.nuxt.paths
-    const nuxtConfigPath = path.join(freeTSPath, 'nuxt.config.ts')
+  injectGTMInNuxtConfig(isFree = false) {
+    const projectRoot = isFree ? this.templateConfig.nuxt.paths.freeTS : this.templateConfig.nuxt.paths.TSFull
+    const nuxtConfigPath = path.join(projectRoot, 'nuxt.config.ts')
 
     const extractGTMTagContent = (str: string): string => {
       const match = str.match(/<\w+>(.*)<\/\w+>/s)

@@ -13,7 +13,11 @@ const main = defineCommand({
   async run() {
     consola.info('Generating nuxt demos')
     const materio = new Materio(config)
-    await new GenDemo(materio.config).prepareForBuild()
+    const genDemoIns = new GenDemo(materio.config)
+
+    // Prepare for build
+    await genDemoIns.prepareForBuild()
+    genDemoIns.injectGTMInNuxtConfig()
   },
 })
 
