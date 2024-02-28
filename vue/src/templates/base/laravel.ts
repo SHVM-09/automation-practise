@@ -866,12 +866,10 @@ export class Laravel extends Utils {
     const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
-    if (!isFree) {
-      injectGTM(
-        path.join(TSFull, 'resources', 'views', 'application.blade.php'),
-        this.templateConfig.gtm,
-      )
-    }
+    injectGTM(
+      path.join(TSFull, 'resources', 'views', 'application.blade.php'),
+      this.templateConfig.gtm,
+    )
 
     // update index.php file
     const indexPhpPath = path.join(this.templateConfig.laravel.paths[isFree ? 'freeTS' : 'TSFull'], 'public', 'index.php')
