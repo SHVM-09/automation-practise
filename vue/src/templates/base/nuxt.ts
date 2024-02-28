@@ -592,13 +592,12 @@ export class Nuxt extends Utils {
   },
   components: {`,
           )
+          // Update baseUrl for api
+          newData = newData.mustReplace(
+            '\'process.env.AUTH_ORIGIN\'',
+            'process.env.AUTH_ORIGIN',
+          )
         }
-
-        // Update baseUrl for api
-        newData = newData.mustReplace(
-          '\'process.env.AUTH_ORIGIN\'',
-          'process.env.AUTH_ORIGIN',
-        )
 
         // We don't have server in Free version
         if (!isFree) {
@@ -1127,7 +1126,7 @@ export const useApi${!isJS ? ': typeof useFetch' : ''}= ${!isJS ? '<T>' : ''}(ur
   if (response && response.error) {
     const apiStringifiedError = response.error
     const apiError ${isJS ? '' : ': NuxtError'}= JSON.parse(apiStringifiedError)
-    errors.value = apiError.data as Record<string, string | undefined>
+    errors.value = apiError.data ${isJS ? '' : 'as Record<string, string | undefined>'} 
 
     // If err => Don't execute further
     return
