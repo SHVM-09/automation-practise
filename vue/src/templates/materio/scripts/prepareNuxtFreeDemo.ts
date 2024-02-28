@@ -3,21 +3,15 @@ import { defineCommand, runMain } from 'citty'
 
 // ❗ If you are copying this script, make sure to update this path
 import { Materio, config } from '@templates/materio'
-import consola from 'consola'
 
 const main = defineCommand({
   meta: {
-    name: 'genNuxtDemos.ts',
-    description: 'Generate nuxt demos',
+    name: 'prepareNuxtFreeDemo.ts',
+    description: 'Prepare nuxt free demo for build',
   },
-  async run() {
-    consola.info('Generating nuxt demos')
+  run() {
     const materio = new Materio(config)
-    const genDemoIns = new GenDemo(materio.config)
-
-    // Prepare for build
-    await genDemoIns.prepareForBuild()
-    genDemoIns.injectGTMInNuxtConfig()
+    new GenDemo(materio.config).injectGTMInNuxtConfig(true)
   },
 })
 
