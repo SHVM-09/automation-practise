@@ -3,7 +3,7 @@ import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
-import { updateFileAsync } from '@/utils/node'
+import { updateFile, updateFileAsync } from '@/utils/node'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) { }
@@ -268,5 +268,32 @@ export default defineEventHandler((event) => {
     // ℹ️ In future, to avoid above we can create queue of functions and run them one by one for single file.
     await this.handleCORS()
     consola.success('Repo is updated for demos. You can now run the build command.')
+  }
+
+  prepareFreeDemoForBuild() {
+    const { freeTS: freeTSPath } = this.templateConfig.nuxt.paths
+    const nuxtConfigPath = path.join(freeTSPath, 'nuxt.config.ts')
+
+    const extractGTMTagContent = (str: string): string => {
+      const match = str.match(/<\w+>(.*)<\/\w+>/s)
+
+      console.log('match :>> ', match)
+      if (match)
+        return match[1]
+      else
+        throw consola.error('Failed to extract tag content')
+    }
+
+    console.log(extractGTMTagContent(this.templateConfig.gtm.headScript))
+
+    updateFile(nuxtConfigPath, (content) => {
+      return content.mustReplace(
+        /(?<=head: {)/g,
+        `
+script: [{ children: \`${extractGTMTagContent(this.templateConfig.gtm.headScript)}\` }],
+noscript: [{ children: \`${extractGTMTagContent(this.templateConfig.gtm.bodyNoScript)}\` }],
+        `,
+      )
+    })
   }
 }
