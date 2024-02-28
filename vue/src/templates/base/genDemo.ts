@@ -78,6 +78,17 @@ export class GenDemo {
     )
   }
 
+  injectGTMInIndexHTML(isFree = false) {
+    const projectRoot = isFree ? this.templateConfig.paths.freeTS : this.templateConfig.paths.tSFull
+    const indexHtmlPath = path.join(projectRoot, 'index.html')
+
+    // inject GTM code in index.html file
+    injectGTM(
+      indexHtmlPath,
+      this.templateConfig.gtm,
+    )
+  }
+
   async generate(isStaging: boolean) {
     consola.info('isStaging: ', isStaging.toString())
 
@@ -98,19 +109,14 @@ export class GenDemo {
     // Update build command to ignore vue-tsc errors
     // this.updateBuildCommand()
 
-    const indexHtmlPath = path.join(this.templateConfig.paths.tSFull, 'index.html')
-
-    // inject GTM code in index.html file
-    injectGTM(
-      indexHtmlPath,
-      this.templateConfig.gtm,
-    )
+    this.injectGTMInIndexHTML()
 
     const contentToReplace = `  <script>
     window.isMarketplace = window.location.href.includes('marketplace')
   </script>
 </body>`
 
+    const indexHtmlPath = path.join(this.templateConfig.paths.tSFull, 'index.html')
     updateFile(
       indexHtmlPath,
       htmlContent => htmlContent
