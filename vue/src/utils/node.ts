@@ -28,14 +28,18 @@ export function execCmd(command: string, options?: ExecSyncOptions | ExecSyncOpt
 
 export function execCmdAsync(command: string): Promise<{ stdout: string; stderr: string }>
 export function execCmdAsync(command: string, options: ExecOptions): Promise<{ stdout: string; stderr: string }>
-export function execCmdAsync(command: string, options?: ExecOptions) {
-  return new Promise((resolve) => {
+export async function execCmdAsync(command: string, options?: ExecOptions) {
+  return await new Promise((resolve) => {
     exec(command, options, (error, stdout, stderr) => {
       if (error) {
         consola.error(error)
+
+        console.log(colorize('red', String(stdout)))
+
         // Stop execution
         process.exit(1)
       }
+
       if (stderr)
         consola.warn(stderr)
 
