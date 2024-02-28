@@ -20,6 +20,7 @@ export const config: VuexyConfig = {
   templateName: 'vuexy',
   templateDomain: 'pi',
   projectPath: vuexyVuePath,
+  ignoreCompressionPatterns: [],
   packageCopyIgnorePatterns: [
     // Directories
     'dist',
@@ -41,6 +42,7 @@ export const config: VuexyConfig = {
   sKImagesRemovePatterns: [
     '**/*',
     '!logo.svg',
+    '!cards',
     '!svg',
     '!iconify-svg',
     '!pages',
