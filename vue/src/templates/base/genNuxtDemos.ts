@@ -277,14 +277,11 @@ export default defineEventHandler((event) => {
     const extractGTMTagContent = (str: string): string => {
       const match = str.match(/<\w+>(.*)<\/\w+>/s)
 
-      console.log('match :>> ', match)
       if (match)
         return match[1]
       else
         throw consola.error('Failed to extract tag content')
     }
-
-    console.log(extractGTMTagContent(this.templateConfig.gtm.headScript))
 
     updateFile(nuxtConfigPath, (content) => {
       return content.mustReplace(
