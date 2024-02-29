@@ -35,27 +35,45 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 </script>
 
 <template>
+  <RouterLink to="/">
+    <div class="auth-logo d-flex align-center gap-x-3">
+      <VNodeRenderer :nodes="themeConfig.app.logo" />
+      <h1 class="auth-title">
+        {{ themeConfig.app.title }}
+      </h1>
+    </div>
+  </RouterLink>
+
   <VRow no-gutters class="auth-wrapper bg-surface">
     <VCol md="8" class="d-none d-md-flex">
-      <div class="position-relative bg-background rounded-lg w-100 ma-8 me-0">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <VImg max-width="505" :src="authThemeImg" class="auth-illustration mt-16 mb-2" />
+      <div class="position-relative bg-background w-100 me-0">
+        <div class="d-flex align-center justify-center w-100 h-100" style="padding-inline: 6.25rem;">
+          <VImg max-width="613" :src="authThemeImg" class="auth-illustration mt-16 mb-2" />
         </div>
 
-        <VImg class="auth-footer-mask" :src="authThemeMask" />
+        <img class="auth-footer-mask" :src="authThemeMask" alt="auth-footer-mask" height="280" width="100">
       </div>
     </VCol>
 
     <VCol cols="12" md="4" class="auth-card-v2 d-flex align-center justify-center">
       <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-4">
         <VCardText>
-          <VNodeRenderer :nodes="themeConfig.app.logo" class="mb-6" />
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>! 👋🏻
+            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
           </h4>
           <p class="mb-0">
             Please sign-in to your account and start the adventure
           </p>
+        </VCardText>
+        <VCardText>
+          <VAlert color="primary" variant="tonal">
+            <p class="text-sm mb-2">
+              Admin Email: <strong>admin@demo.com</strong> / Pass: <strong>admin</strong>
+            </p>
+            <p class="text-sm mb-0">
+              Client Email: <strong>client@demo.com</strong> / Pass: <strong>client</strong>
+            </p>
+          </VAlert>
         </VCardText>
         <VCardText>
           <VForm @submit.prevent="() => { }">
@@ -85,19 +103,16 @@ const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
               </VCol>
 
               <!-- create account -->
-              <VCol cols="12" class="text-center text-base">
+              <VCol cols="12" class="text-center">
                 <span>New on our platform?</span>
 
                 <a class="text-primary ms-2" href="#">
                   Create an account
                 </a>
               </VCol>
-
               <VCol cols="12" class="d-flex align-center">
                 <VDivider />
-
                 <span class="mx-4">or</span>
-
                 <VDivider />
               </VCol>
 
