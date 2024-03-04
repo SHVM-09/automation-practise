@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { glob } from 'glob';
+import { globbySync } from 'globby'
 import consola from 'consola';
 
 
@@ -36,8 +36,8 @@ async function removeTranslation(tsSkDir: string) {
  * @param baseDir - The base directory to search in.
  */
 async function removeTranslationFromAppDir(baseDir: string): Promise<void> {
-    const filePattern = path.join(baseDir, '**/*(layout|page).tsx');
-    const files = glob.sync(filePattern);
+    const filePattern = path.join(baseDir, '**/*(layout|page).tsx').replace(/\\/g, '/');
+    const files = globbySync(filePattern);
 
     files.forEach(file => {
       try {
@@ -115,8 +115,8 @@ async function removeTranslationFromLogo(logoFile: string) {
 }
 
 async function removeTranslationFromComponentsDir(baseDir: string): Promise<void> {
-  const filePattern = path.join(baseDir, '**/*.tsx');
-  const files = glob.sync(filePattern);
+  const filePattern = path.join(baseDir, '**/*.tsx').replace(/\\/g, '/');
+  const files = globbySync(filePattern);
 
   files.forEach(file => {
     try {

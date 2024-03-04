@@ -140,7 +140,7 @@ async function updateUrlsForMarketplace(tsFullDir: string): Promise<void> {
 
 // TODO: Feel free to improve this because this is written in hurry
 const updateModeStorageKey = async (tsFullDir: string) => {
-  const themeProviderPath = path.join(tsFullDir, 'src', 'components', 'theme', 'index.tsx');
+  const themeProviderPath = path.join(tsFullDir, 'src/components/theme/index.tsx');
   let content = await fs.readFile(themeProviderPath, 'utf-8');
 
   content = content
@@ -163,7 +163,7 @@ const updateModeStorageKey = async (tsFullDir: string) => {
   // Write back to file
   await fs.writeFile(themeProviderPath, content);
 
-  const providersPath = path.join(tsFullDir, 'src', 'components', 'Providers.tsx');
+  const providersPath = path.join(tsFullDir, 'src/components/Providers.tsx');
   let providerContent = await fs.readFile(providersPath, 'utf-8');
   providerContent = providerContent.replace(
     "<ThemeProvider direction={direction} systemMode={systemMode}>",

@@ -1,5 +1,5 @@
 import path from 'path';
-import { glob } from 'glob';
+import { globbySync } from 'globby';
 import consola from 'consola';
 import { copyFiles } from '@/utils/fsUtils';
 
@@ -22,7 +22,7 @@ async function copyFilesFromTsToJs(tsDir: string, jsDir: string): Promise<void> 
   consola.success('Specific files copied successfully');
 
   // Find all CSS module files
-  const absoluteStylesModuleFiles: string[] = glob.sync(`${tsDir}/src/**/*.module.css`, { nodir: true });
+  const absoluteStylesModuleFiles: string[] = globbySync(`${tsDir}/src/**/*.module.css`, { onlyFiles: true });
   
   // Convert absolute paths to relative paths
   const stylesModuleFiles = absoluteStylesModuleFiles.map(file => path.relative(tsDir, file));

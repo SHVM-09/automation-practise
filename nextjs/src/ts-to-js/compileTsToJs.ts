@@ -1,9 +1,6 @@
-import { getJsVersionPath, getTsVersionPath } from "@/utils/templatePathUtils";
-import { promisify } from 'util';
-import { exec as execCallback } from "child_process";
-import consola from "consola";
-
-const exec = promisify(execCallback);
+import consola from 'consola';
+import { getJsVersionPath, getTsVersionPath } from '../utils/templatePathUtils';
+import { execCmd } from '../utils/node';
 
 /**
  * Compiles TypeScript files to JavaScript files using the TypeScript Compiler (tsc).
@@ -21,7 +18,7 @@ async function compileTypeScriptToJavaScript(projectPath: string, outDir: string
     const maxBuffer = 1024 * 1024; // 1 megabyte
 
     // Execute the TypeScript Compiler command and wait for its completion
-    const { stdout, stderr } = await exec(command, { maxBuffer });
+    const { stderr } = await execCmd(command, { maxBuffer });
 
     // Check for errors in stderr
     if (stderr) {
@@ -53,19 +50,8 @@ const compileTsToJs = async (templateName: string, templateVersion: string) => {
   const tsDir = getTsVersionPath(templateName, templateVersion);
   const jsDir = getJsVersionPath(templateName, templateVersion);
 
-  if (templateVersion === 'both') {
-    // If 'both' versions are selected, compile both the full version and the starter kit
-    const fullVersionTSDir = getTsVersionPath(templateName, 'full-version');
-    const fullVersionJSDir = getJsVersionPath(templateName, 'full-version');
-    const starterKitTSDir = getTsVersionPath(templateName, 'starter-kit');
-    const starterKitJSDir = getJsVersionPath(templateName, 'starter-kit');
-
-    await compileTypeScriptToJavaScript(fullVersionTSDir, fullVersionJSDir);
-    await compileTypeScriptToJavaScript(starterKitTSDir, starterKitJSDir);
-  } else {
-    // Compile TypeScript to JavaScript for the selected version (full-version or starter-kit)
-    await compileTypeScriptToJavaScript(tsDir, jsDir);
-  }
+  // Compile TypeScript to JavaScript for the selected version (full-version or starter-kit)
+  await compileTypeScriptToJavaScript(tsDir, jsDir);
 }
 
 export default compileTsToJs;

@@ -7,6 +7,8 @@ import path from "path";
  * @param dirPath - The directory path to start the recursive removal process.
  */
 async function removeEslintTypeComments(dirPath: string): Promise<void> {
+  consola.start("Removing ESLint type comments in javascript-version.");
+
   try {
     // Inner function to handle the recursive directory processing
     const processDirectory = async (currentPath: string): Promise<void> => {
@@ -36,7 +38,7 @@ async function removeEslintTypeComments(dirPath: string): Promise<void> {
     await processDirectory(dirPath);
 
     // Log a success message after the entire directory tree has been processed
-    consola.success("Successfully removed ESLint type comments in javascript-version.");
+    consola.success("Removed ESLint type comments in javascript-version successfully!");
   } catch (error) {
     // Handle and log any errors that occur during the process
     consola.error(`An error occurred while processing files: ${error instanceof Error ? error.message : error}`);

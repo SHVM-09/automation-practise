@@ -1,12 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { glob } from "glob";
+import { globbySync } from 'globby';
 
 const removeUnwantedCodeAndComments = (tsSkDir: string) => {
   const baseDirs = ['src/app','src/components', 'src/layouts', 'src/views'];
   baseDirs.forEach(baseDir => {
-    const filePattern = path.join(tsSkDir, baseDir, '**/*.{ts,tsx}');
-    const files = glob.sync(filePattern);
+    const filePattern = path.join(tsSkDir, baseDir, '**/*.{ts,tsx}').replace(/\\/g, '/');
+    const files = globbySync(filePattern);
 
     files.forEach(file => {
       try {

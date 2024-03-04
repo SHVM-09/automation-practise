@@ -2,14 +2,17 @@ import path from 'path';
 import fse from "fs-extra";
 import consola from 'consola';
 import { copyDirectories, copyFiles } from '@/utils/fsUtils';
+import { execCmd } from '@/utils/node';
 
 const createStarterKit = async (tsFullDir: string, tsSkDir: string) => {
   // Create starter-kit directory
   if(!fse.existsSync(tsSkDir)) {
     await fse.mkdir(tsSkDir);
   } else {
-    consola.error("starter-kit directory already exists.");
-    return;
+    consola.info("Starter-kit directory already exists.");
+    consola.start('Removing existing starter-kit directory...');
+    await execCmd(`rm -rf ${tsSkDir}`);
+    consola.success('Removed existing starter-kit directory successfully!');
   }
 
   try {
@@ -22,7 +25,7 @@ const createStarterKit = async (tsFullDir: string, tsSkDir: string) => {
     const copyFilesArr: string[] = [
       'package.json', 'README.md', '.eslintrc.js', '.gitignore',
       'tsconfig.json', '.prettierrc.json', '.editorconfig', '.npmrc',
-      '.stylelintrc.json', 'next-env.d.ts', 
+      '.stylelintrc.json',
       'next.config.js', 'postcss.config.js', 'tailwind.config.js', 
       'src/app/globals.css', 'src/app/favicon.ico'
     ];

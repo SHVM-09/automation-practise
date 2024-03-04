@@ -68,7 +68,7 @@ const main = defineCommand({
   
     // ────────────── Build ──────────────
     try {
-      await exec(`vercel build --yes --token=${args['vercel-token']} ${args.prod ? '--prod' : ''}`, { cwd: path.join(tsFullDir, '..', '..') });
+      await exec(`vercel build --yes --token=${args['vercel-token']} ${args.prod ? '--prod' : ''}`, { cwd: path.join(tsFullDir, '../..') });
     } catch (error) {
       consola.error(`An error occurred while building: ${error}`);
       consola.error(`stdout: ${String((error as any).stderr)}`);

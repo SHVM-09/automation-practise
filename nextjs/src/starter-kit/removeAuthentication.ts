@@ -39,7 +39,7 @@ async function updateUserDropdown(userDropdownPath: string) {
 
     // Update onClick handlers in MenuItem components
     const menuItemRegex = /<MenuItem className='gap-3' onClick=\{e => handleDropdownClose\(e, '.*?'\)}>/g;
-    content = content.replace(menuItemRegex, "<MenuItem className='gap-3' onClick={e => e.preventDefault()}>");
+    content = content.replace(menuItemRegex, "<MenuItem className='gap-3' onClick={e => handleDropdownClose(e)}>");
 
     // Replace alt={session?.user?.name || ''} with alt='John Doe'
     content = content.replace(/alt=\{session\?.user\?.name \|\| ''\}/g, "alt='John Doe'");
