@@ -8,15 +8,15 @@ export const removeTestPages = async (templateDir: string): Promise<void> => {
   const isTs = templateDir.includes('typescript')
 
   // Remove test files
-  const filesToRemove = [
-    'src/views/icons-test',
-    'src/app/api/icons-test',
-    'src/app/[lang]/(dashboard)/icons-test'
-  ].map(subPath => path.join(templateDir, subPath))
+  const filesToRemove = ['src/views/icons-test', 'src/app/api/icons-test', 'src/app/[lang]/(dashboard)/icons-test'].map(
+    subPath => path.join(templateDir, subPath)
+  )
 
-  await Promise.all(filesToRemove.map(async (filePath) => {
-    await fs.rm(filePath, { recursive: true, force: true })
-  }))
+  await Promise.all(
+    filesToRemove.map(async filePath => {
+      await fs.rm(filePath, { recursive: true, force: true })
+    })
+  )
 
   // Remove test pages from the navigation menu files
   const menuFilePaths = [
@@ -24,13 +24,15 @@ export const removeTestPages = async (templateDir: string): Promise<void> => {
     `src/components/layout/vertical/VerticalMenu.${isTs ? 'tsx' : 'jsx'}`
   ].map(subPath => path.join(templateDir, subPath))
 
-  await Promise.all(menuFilePaths.map(async (filePath) => {
-    let menuContent = await fs.readFile(filePath, 'utf-8')
+  await Promise.all(
+    menuFilePaths.map(async filePath => {
+      let menuContent = await fs.readFile(filePath, 'utf-8')
 
-    menuContent = menuContent.replace(/<MenuItem.*[\n\s]+Icons Test[\n\s]+<\/MenuItem>[\n\s]+/gm, '')
+      menuContent = menuContent.replace(/<MenuItem.*[\n\s]+Icons Test[\n\s]+<\/MenuItem>[\n\s]+/gm, '')
 
-    await fs.writeFile(filePath, menuContent, 'utf-8')
-  }))
+      await fs.writeFile(filePath, menuContent, 'utf-8')
+    })
+  )
 
   // Remove test pages from the navigation menu data files
   const navLinksFiles = [
@@ -38,13 +40,15 @@ export const removeTestPages = async (templateDir: string): Promise<void> => {
     `src/data/navigation/verticalMenuData.${isTs ? 'tsx' : 'jsx'}`
   ].map(subPath => path.join(templateDir, subPath))
 
-  await Promise.all(navLinksFiles.map(async (filePath) => {
-    let navContent = await fs.readFile(filePath, 'utf-8')
+  await Promise.all(
+    navLinksFiles.map(async filePath => {
+      let navContent = await fs.readFile(filePath, 'utf-8')
 
-    navContent = navContent.replace(/,?\s*{\s*[^{}]*?label: 'Icons Test'[^{}]*?}\s*/g, '')
+      navContent = navContent.replace(/,?\s*{\s*[^{}]*?label: 'Icons Test'[^{}]*?}\s*/g, '')
 
-    await fs.writeFile(filePath, navContent, 'utf-8')
-  }))
+      await fs.writeFile(filePath, navContent, 'utf-8')
+    })
+  )
 
   // Remove test pages from the search data file
   const searchDataFilePath = path.join(templateDir, `src/data/searchData.${isTs ? 'ts' : 'js'}`)

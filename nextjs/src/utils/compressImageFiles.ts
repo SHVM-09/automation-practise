@@ -17,7 +17,11 @@ export interface OversizedFileStats {
  * @param ignorePatterns - An array of glob patterns to ignore files.
  * @returns An array of oversized file stats.
  */
-export const getOverSizedFiles = (globPattern: string, maxSizeInKb = 100, ignorePatterns: string[] = []): OversizedFileStats[] => {
+export const getOverSizedFiles = (
+  globPattern: string,
+  maxSizeInKb = 100,
+  ignorePatterns: string[] = []
+): OversizedFileStats[] => {
   const assets = globbySync(globPattern, { expandDirectories: true, ignore: ignorePatterns })
 
   const overSizedFiles: OversizedFileStats[] = []
@@ -58,7 +62,10 @@ const getFilesStrList = (files: OversizedFileStats[], reportPathRelativeTo?: str
  * @param options - The options object for compressing oversized files.
  * @returns A promise that resolves to an array of oversized file stats.
  */
-export const compressOverSizedFiles = async (globPattern: string, options: { reportPathRelativeTo?: string, maxSizeInKb?: number, ignorePatterns?: string[] } = {}): Promise<OversizedFileStats[]> => {
+export const compressOverSizedFiles = async (
+  globPattern: string,
+  options: { reportPathRelativeTo?: string; maxSizeInKb?: number; ignorePatterns?: string[] } = {}
+): Promise<OversizedFileStats[]> => {
   dotenv.config()
 
   const { reportPathRelativeTo, maxSizeInKb = 100, ignorePatterns } = options

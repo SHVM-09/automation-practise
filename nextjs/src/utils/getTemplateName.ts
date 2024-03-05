@@ -8,7 +8,7 @@ import type { TemplateRepoName } from '@/configs/getPaths'
  */
 const getTemplateName = async (): Promise<TemplateRepoName> => {
   // Prompt the user to select a template
-  const templateName = await consola.prompt('Select Template to generate JavaScript from TypeScript', {
+  const templateName = (await consola.prompt('Select Template to generate JavaScript from TypeScript', {
     type: 'select',
     options: [
       { label: 'Materio - MUI - NextJS', value: 'materio', hint: 'Materio MUI NextJS Admin Template Pro' },
@@ -18,7 +18,7 @@ const getTemplateName = async (): Promise<TemplateRepoName> => {
       { label: 'Sneat - MUI - NextJS - Free', value: 'sneat-free', hint: 'Sneat MUI NextJS Admin Template Free' },
       { label: 'Vuexy - MUI - NextJS', value: 'vuexy', hint: 'Vuexy MUI NextJS Admin Template Pro' }
     ]
-  }) as unknown as TemplateRepoName
+  })) as unknown as TemplateRepoName
 
   // Start verifying the template repository path
   consola.start('Verifying template repo path...')
@@ -27,7 +27,9 @@ const getTemplateName = async (): Promise<TemplateRepoName> => {
   const verified: boolean = await verifyRepoPath(templateName)
 
   if (!verified) {
-    consola.error('Template repo path does not exist. Please update the repo path in src/configs/getPaths.ts file and try again.')
+    consola.error(
+      'Template repo path does not exist. Please update the repo path in src/configs/getPaths.ts file and try again.'
+    )
     throw new Error('Template repo path verification failed')
   }
 

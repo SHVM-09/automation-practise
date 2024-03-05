@@ -4,7 +4,11 @@ import consola from 'consola'
 import type { TemplateRepoName } from '../configs/getPaths'
 import { templateConfig } from '../configs/templateConfig'
 
-export const updateEnvFiles = async (templateName: TemplateRepoName, templateDir: string, isMarketplace: boolean): Promise<void> => {
+export const updateEnvFiles = async (
+  templateName: TemplateRepoName,
+  templateDir: string,
+  isMarketplace: boolean
+): Promise<void> => {
   consola.start(`Updating env files in ${templateDir}...`)
 
   // Vars

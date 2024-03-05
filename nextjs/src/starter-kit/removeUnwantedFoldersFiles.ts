@@ -1,10 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import consola from 'consola';
-import { deleteFiles, deleteFolders, moveContents } from '@/utils/fsUtils';
+import fs from 'fs'
+import path from 'path'
+import consola from 'consola'
+import { deleteFiles, deleteFolders, moveContents } from '@/utils/fsUtils'
 
 const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
-
   // List of specific folders to be removed
   const unwantedFolders = [
     'src/app/api',
@@ -36,7 +35,7 @@ const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
     'src/views/react-table',
     'src/views/dashboards',
     'public/images'
-  ];
+  ]
 
   // List of specific files to be removed
   const unwantedFiles = [
@@ -54,26 +53,29 @@ const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
     'src/views/NotAuthorized.tsx',
     'src/views/Register.tsx',
     'src/middleware.ts'
-  ];
+  ]
 
   // Remove unwanted folders
-  await deleteFolders(unwantedFolders, tsSkDir);
+  await deleteFolders(unwantedFolders, tsSkDir)
 
   // Remove unwanted files
-  await deleteFiles(unwantedFiles, tsSkDir);
+  await deleteFiles(unwantedFiles, tsSkDir)
 
   // Remove all folders inside (dashboard) folder
-  const dashboardDir = path.join(tsSkDir, 'src/app/[lang]/(dashboard)');
-  await deleteAllFoldersInDirectory(dashboardDir).catch(err => consola.error(`Error: ${err}`));
+  const dashboardDir = path.join(tsSkDir, 'src/app/[lang]/(dashboard)')
+
+  await deleteAllFoldersInDirectory(dashboardDir).catch(err => {
+    consola.error(`Error: ${err}`)
+  })
 
   // Move everything from src/app/[lang] to src/app
-  await moveContents(`${tsSkDir}/src/app/[lang]`, `${tsSkDir}/src/app`);
+  await moveContents(`${tsSkDir}/src/app/[lang]`, `${tsSkDir}/src/app`)
 
   // Remove src/app/[lang] folder
-  await deleteFolders(['src/app/[lang]'], tsSkDir);
+  await deleteFolders(['src/app/[lang]'], tsSkDir)
 
   // Logging success upon completion
-  consola.success("Removed all the unwanted folders and files successfully!");
+  consola.success('Removed all the unwanted folders and files successfully!')
 }
 
 /**
@@ -83,14 +85,16 @@ const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
  */
 function listDirectories(baseDir: string): string[] {
   if (!fs.existsSync(baseDir)) {
-      consola.error(`Directory does not exist: ${baseDir}`);
-      return [];
+    consola.error(`Directory does not exist: ${baseDir}`)
+
+    return []
   }
 
   return fs.readdirSync(baseDir).filter(item => {
-      const itemPath = path.join(baseDir, item);
-      return fs.lstatSync(itemPath).isDirectory();
-  });
+    const itemPath = path.join(baseDir, item)
+
+    return fs.lstatSync(itemPath).isDirectory()
+  })
 }
 
 /**
@@ -98,13 +102,14 @@ function listDirectories(baseDir: string): string[] {
  * @param baseDir - The directory from which to delete all subdirectories.
  */
 async function deleteAllFoldersInDirectory(baseDir: string): Promise<void> {
-  const directories = listDirectories(baseDir);
+  const directories = listDirectories(baseDir)
+
   if (directories.length > 0) {
-      await deleteFolders(directories, baseDir);
-      consola.info(`All directories deleted in: ${baseDir}`);
+    await deleteFolders(directories, baseDir)
+    consola.info(`All directories deleted in: ${baseDir}`)
   } else {
-      consola.info('No directories to delete.');
+    consola.info('No directories to delete.')
   }
 }
 
-export default removeUnwantedFoldersFiles;
+export default removeUnwantedFoldersFiles

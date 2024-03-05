@@ -1,31 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-import consola from 'consola';
+import fs from 'fs'
+import path from 'path'
+import consola from 'consola'
 
 // Update Navbar Content
 const updateNavbar = async (tsSkDir: string) => {
   // ────────────── Update Vertical Menu Layout Navbar ──────────────
-  consola.info('Updating Vertical Menu Layout Navbar');
+  consola.info('Updating Vertical Menu Layout Navbar')
 
-  const verticalNavbarContentFilePath = path.join(tsSkDir, 'src/components/layout/vertical/NavbarContent.tsx');
-  await updateNavbarContent(verticalNavbarContentFilePath);
+  const verticalNavbarContentFilePath = path.join(tsSkDir, 'src/components/layout/vertical/NavbarContent.tsx')
 
-  consola.success('Updated Vertical Menu Layout Navbar');
+  await updateNavbarContent(verticalNavbarContentFilePath)
+
+  consola.success('Updated Vertical Menu Layout Navbar')
 
   // ────────────── Update Horizontal Menu Layout Navbar ──────────────
-  consola.info('Updating Horizontal Menu Layout Navbar');
+  consola.info('Updating Horizontal Menu Layout Navbar')
 
-  const horizontalNavbarContentFilePath = path.join(tsSkDir, 'src/components/layout/horizontal/NavbarContent.tsx');
-  await updateNavbarContent(horizontalNavbarContentFilePath);
+  const horizontalNavbarContentFilePath = path.join(tsSkDir, 'src/components/layout/horizontal/NavbarContent.tsx')
 
-  consola.success('Updated Horizontal Menu Layout Navbar');
+  await updateNavbarContent(horizontalNavbarContentFilePath)
+
+  consola.success('Updated Horizontal Menu Layout Navbar')
 }
 
 async function updateNavbarContent(navbarContentFilePath: string) {
   try {
-    const isVerticalLayout = navbarContentFilePath.includes('vertical');
-    let updatedContent = '';
-    
+    const isVerticalLayout = navbarContentFilePath.includes('vertical')
+    let updatedContent = ''
+
     if (isVerticalLayout) {
       // Content for Vertical Layout
       updatedContent = `'use client'
@@ -56,7 +58,7 @@ const NavbarContent = () => {
 };
 
 export default NavbarContent;
-      `;
+      `
     } else {
       // Content for Horizontal Layout
       updatedContent = `'use client'
@@ -95,13 +97,13 @@ const NavbarContent = () => {
 };
 
 export default NavbarContent;
-      `;
+      `
     }
 
-    fs.writeFileSync(navbarContentFilePath, updatedContent);
+    fs.writeFileSync(navbarContentFilePath, updatedContent)
   } catch (error) {
-    consola.error(`Error updating navbar content: ${error}`);
+    consola.error(`Error updating navbar content: ${error}`)
   }
 }
 
-export default updateNavbar;
+export default updateNavbar
