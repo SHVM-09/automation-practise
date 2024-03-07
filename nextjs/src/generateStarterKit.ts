@@ -15,6 +15,7 @@ import createSkPages from './starter-kit/createSkPages'
 import removeAuthentication from './starter-kit/removeAuthentication'
 import removeUnwantedCodeAndComments from './starter-kit/removeUnwantedCodeAndComments'
 import { execCmd } from './utils/node'
+import type { TemplateRepoName } from './configs/getPaths'
 
 const generateStarterKit = defineCommand({
   meta: {
@@ -63,7 +64,7 @@ const generateStarterKit = defineCommand({
     await removeTranslation(tsSkDir)
 
     // ────────────── Update Menu ──────────────
-    await updateMenu(tsSkDir)
+    await updateMenu(templateName as TemplateRepoName, tsSkDir)
 
     // ────────────── Update Navbar ──────────────
     await updateNavbar(tsSkDir)

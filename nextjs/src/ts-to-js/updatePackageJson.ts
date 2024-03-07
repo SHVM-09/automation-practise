@@ -31,7 +31,7 @@ const updatePackageJson = async (jsDir: string) => {
 
   try {
     const packageJsonPath = `${jsDir}/package.json`
-    const packageJsonContent = await readFileasync(packageJsonPath, 'utf8')
+    const packageJsonContent = await readFileAsync(packageJsonPath, 'utf8')
     const packageJson: PackageJson = JSON.parse(packageJsonContent)
 
     // Filter out TypeScript-related dependencies
@@ -43,7 +43,7 @@ const updatePackageJson = async (jsDir: string) => {
     updateBuildIconsScript(packageJson.scripts)
 
     // Write the updated package.json back to the file
-    await writeFileasync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8')
+    await writeFileAsync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8')
     consola.success('Updated package.json in javascript-version successfully!')
   } catch (error) {
     // Handle and log any errors during the update process

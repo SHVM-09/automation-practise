@@ -10,7 +10,6 @@ import { compressOverSizedFiles } from './utils/compressImageFiles'
 import { templateConfig } from './configs/templateConfig'
 import { updatePackagesVersions } from './utils/updatePackageJsonVersions'
 import { execCmd } from './utils/node'
-import { createTempDir } from './utils/createTempDir'
 import { copyDirectory } from './utils/copyDir'
 import { addChangelogFile } from './package/addChangelogFile'
 import { removeBuyNowButton } from './utils/removeBuyNowButton'
@@ -45,7 +44,6 @@ const main = async (): Promise<void> => {
   })
 
   // ────────────── Update Packages according to node_modules ──────────────
-  console.log('\n')
   await updatePackagesVersions(tsFullDir)
 
   // ────────────── Generate TS Starter Kit ──────────────
@@ -58,8 +56,16 @@ const main = async (): Promise<void> => {
   await execCmd(`tsx ./src/generateTsToJs.ts --templateName ${templateName} --templateVersion both`)
   consola.success('Generated JavaScript Versions successfully!\n')
 
-  // ────────────── Create Temporary Directory ──────────────
-  const tempPkgDir = createTempDir()
+  // ────────────── Create Package Directory ──────────────
+  const tempPkgDir = path.join(templateDir, 'package')
+
+  // check if package directory exists
+  if (await fs.pathExists(tempPkgDir)) {
+    await fs.remove(tempPkgDir)
+  }
+
+  // Create package directory
+  await fs.ensureDir(tempPkgDir)
 
   consola.start(`Creating package at ${tempPkgDir}`)
   const tempPkgTsDir = path.join(tempPkgDir, 'typescript-version')
@@ -70,11 +76,11 @@ const main = async (): Promise<void> => {
   const tempPkgJsSkDir = path.join(tempPkgJsDir, 'starter-kit')
 
   // Create directories
-  fs.ensureDirSync(tempPkgTsDir)
-  fs.ensureDirSync(tempPkgJsDir)
+  await fs.ensureDir(tempPkgTsDir)
+  await fs.ensureDir(tempPkgJsDir)
 
-  // ────────────── Copy Files to Temporary Directory ──────────────
-  consola.start('Copying files to temporary package directory...')
+  // ────────────── Copy Files to Package Directory ──────────────
+  consola.start('Copying files to package directory...')
   await copyDirectory(tsRootDir, tempPkgTsDir, templateConfig[templateName]?.packageIgnoreCopyPatterns)
   await copyDirectory(jsRootDir, tempPkgJsDir, templateConfig[templateName]?.packageIgnoreCopyPatterns)
   await fs.copyFile(path.join(templateDir, 'documentation.html'), path.join(tempPkgDir, 'documentation.html'))
@@ -84,7 +90,7 @@ const main = async (): Promise<void> => {
     await addChangelogFile(tempPkgDir, templateConfig[templateName] as TemplateConfig)
   }
 
-  consola.success('Copied files to temporary package directory successfully!\n')
+  consola.success('Copied files to package directory successfully!\n')
 
   // ────────────── Remove Buy Now Button ──────────────
   // params: directory, buyNowDir, layoutDir
