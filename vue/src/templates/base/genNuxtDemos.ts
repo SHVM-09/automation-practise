@@ -167,7 +167,7 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
     })
   }
 
-  private async updateNuxtConfigForVercelIssues() {
+  private async updateNuxtConfig() {
     const nuxtConfigPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'nuxt.config.ts')
 
     await updateFileAsync(nuxtConfigPath, (content) => {
@@ -188,6 +188,11 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
     },
   },`,
         )
+        // Ensure demo plugin initializes first
+        .mustReplace(
+          'plugins: [',
+          'plugins: [ \'@/plugins/demos.ts\',',
+        )
     })
   }
 
@@ -198,6 +203,17 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
       return content.mustReplace(
         /(getPublicUrl.*)/gm,
         '$1\nreturn path',
+      )
+    })
+  }
+
+  private async updateVuetifyPlugin() {
+    const vuetifyPluginPath = path.join(this.templateConfig.nuxt.paths.TSFull, 'plugins', 'vuetify', 'index.ts')
+
+    await updateFileAsync(vuetifyPluginPath, (content) => {
+      return content.mustReplace(
+        /resolveVuetifyTheme\(.*\)/g,
+        'resolveVuetifyTheme(import.meta.server ? nuxtApp.payload.demoConfig?.theme : useAppConfig().demoConfig?.theme)',
       )
     })
   }
@@ -258,7 +274,8 @@ export default defineEventHandler((event) => {
       this.updateCoreStore(),
       this.updateCookieName(),
       this.updateLayoutsPlugin(),
-      this.updateNuxtConfigForVercelIssues(),
+      this.updateVuetifyPlugin(),
+      this.updateNuxtConfig(),
 
       // ❗ We have set rewrite in nginx so we don't need this. Even with this, We can't load images properly.
       // this.updateGetPublicPathUtil(),
