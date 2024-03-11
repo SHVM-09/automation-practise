@@ -44,6 +44,7 @@ const removeUnwantedFoldersFiles = async (tsSkDir: string) => {
     'src/components/Form.tsx',
     'src/components/DirectionalIcon.tsx',
     'src/components/Editor.tsx',
+    'src/components/TablePaginationComponent.tsx',
     'src/components/layout/shared/LanguageDropdown.tsx',
     'src/components/layout/shared/NotificationsDropdown.tsx',
     'src/components/layout/shared/ShortcutsDropdown.tsx',

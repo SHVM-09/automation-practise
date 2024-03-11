@@ -46,9 +46,9 @@ async function updateUserDropdown(userDropdownPath: string) {
     )
 
     // Update onClick handlers in MenuItem components
-    const menuItemRegex = /<MenuItem className='gap-3' onClick=\{e => handleDropdownClose\(e, '.*?'\)}>/g
+    const menuItemRegex = /<MenuItem className='(.*?)' onClick=\{e => handleDropdownClose\(e, '.*?'\)}>/g
 
-    content = content.replace(menuItemRegex, "<MenuItem className='gap-3' onClick={e => handleDropdownClose(e)}>")
+    content = content.replace(menuItemRegex, "<MenuItem className='$1' onClick={e => handleDropdownClose(e)}>")
 
     // Replace alt={session?.user?.name || ''} with alt='John Doe'
     content = content.replace(/alt=\{session\?.user\?.name \|\| ''\}/g, "alt='John Doe'")
@@ -95,7 +95,7 @@ async function updateLogin(loginFullPath: string, loginSkPath: string) {
 
     // Add import for '@components/Link' after 'import Illustrations from '@components/Illustrations'
     content = content.replace(
-      /(import Illustrations from '@components\/Illustrations'\n)/,
+      /(\/\/ Component Imports\n)/g,
       "$1import Link from '@components/Link'\n"
     )
 

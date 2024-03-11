@@ -159,7 +159,7 @@ const generateTsToJs = defineCommand({
 
       // Copy Demo Configs to TypeScript Full Version
       consola.start('Copying demo configs to TypeScript full version...')
-      await copyDirectory(path.join(tsRootDir, 'demo-configs'), path.join(tsRootDir, 'full-version/demo-configs'))
+      await copyDirectory(path.join(tsRootDir, 'demo-configs'), path.join(tsRootDir, 'full-version/src/demo-configs'))
       consola.success('Copied demo configs to TypeScript full version successfully!\n')
 
       console.log('\n')
@@ -171,12 +171,12 @@ const generateTsToJs = defineCommand({
 
       // Remove Demo Configs from TypeScript Full Version
       consola.start('Removing demo configs from TypeScript full version...')
-      await execCmd(`rm -rf ${path.join(tsRootDir, 'full-version/demo-configs')}`)
+      await execCmd(`rm -rf ${path.join(tsRootDir, 'full-version/src/demo-configs')}`)
       consola.success('Removed demo configs from TypeScript full version successfully!\n')
 
       // Move Demo Configs from JS Full Version to JS Root
       consola.start('Moving demo configs from JavaScript full version to JavaScript root...')
-      await execCmd(`mv ${path.join(jsRootDir, 'full-version/demo-configs')} ${path.join(jsRootDir, 'demo-configs')}`)
+      await execCmd(`mv ${path.join(jsRootDir, 'full-version/src/demo-configs')} ${path.join(jsRootDir, 'demo-configs')}`)
       consola.success('Moved demo configs from JavaScript full version to JavaScript root successfully!\n')
 
       console.log('\n')
