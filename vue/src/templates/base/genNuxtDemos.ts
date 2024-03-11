@@ -190,7 +190,7 @@ const demoAppContentLayoutNav = nuxtApp.payload.demoConfig?.appContentLayoutNav 
         )
         // Ensure demo plugin initializes first
         .mustReplace(
-          'plugins: [',
+          /plugins: \[/g,
           'plugins: [ \'@/plugins/demos.ts\',',
         )
     })
