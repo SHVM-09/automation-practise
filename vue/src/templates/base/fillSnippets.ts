@@ -113,8 +113,8 @@ export class FillSnippets {
     // ℹ️ Let's not lint the code for now and check if other scripts does the job
     // Lint both versions
     await Promise.all([
-      execCmdAsync('pnpm lint', { cwd: this.tSFull }),
-      execCmdAsync('pnpm lint', { cwd: this.jSFull }),
+      execCmdAsync('pnpm i && pnpm lint', { cwd: this.tSFull }),
+      execCmdAsync('pnpm i && pnpm lint', { cwd: this.jSFull }),
     ])
   }
 }
