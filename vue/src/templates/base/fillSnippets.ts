@@ -2,9 +2,11 @@ import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
-
 import { toCamelCase } from '@/utils/conversions'
+
 import '@/utils/injectMustReplace'
+
+import { execCmdAsync } from '@/utils/node'
 
 export class FillSnippets {
   constructor(private tSFull: string, private jSFull: string) {
@@ -110,9 +112,9 @@ export class FillSnippets {
 
     // ℹ️ Let's not lint the code for now and check if other scripts does the job
     // Lint both versions
-    // Promise.all([
-    //   execCmdAsync('pnpm lint', { cwd: this.tSFull }),
-    //   execCmdAsync('pnpm lint', { cwd: this.jSFull }),
-    // ])
+    await Promise.all([
+      execCmdAsync('pnpm lint', { cwd: this.tSFull }),
+      execCmdAsync('pnpm lint', { cwd: this.jSFull }),
+    ])
   }
 }

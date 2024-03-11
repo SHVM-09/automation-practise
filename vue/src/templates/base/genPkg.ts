@@ -1,7 +1,6 @@
 import path from 'node:path'
 import type { GenPkgHooks } from '@types'
 import { consola } from 'consola'
-import { colorize } from 'consola/utils'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
@@ -10,7 +9,7 @@ import { GenSK } from './genSK'
 import { updatePkgJsonVersion } from '@/utils/template'
 import { TempLocation } from '@/utils/temp'
 import { execCmd } from '@/utils/node'
-import { compressOverSizedFiles, getPackagesVersions, pinPackagesVersions } from '@/utils/file'
+import { compressOverSizedFiles, getPackagesVersions, removeCaretTildeFromPackageJson, updatePackagesVersions } from '@/utils/file'
 import { Utils } from '@/templates/base/helper'
 
 export class GenPkg extends Utils {
@@ -44,6 +43,10 @@ export class GenPkg extends Utils {
       }
     }
 
+    // Update packages versions
+    const pkgVersionPromise = getPackagesVersions(tSFull)
+    // Update packages versions
+    await updatePackagesVersions(pkgVersionPromise, tSFull)
     // Generate TS SK
     consola.start('Generating TS starter kit')
     await new GenSK(this.templateConfig).genSK()
@@ -93,15 +96,6 @@ export class GenPkg extends Utils {
     this.copyProject(this.templateConfig.paths.jSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
     consola.success('Files copied successfully\n')
 
-    // update node package version in both full versions and starter kits package.json file (ts/js)
-    consola.start('Updating package.json files to pin package versions')
-    const packageVersions = getPackagesVersions(tSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSStarter)
-    pinPackagesVersions(packageVersions, tempPkgJSFull)
-    pinPackagesVersions(packageVersions, tempPkgJSStarter)
-    consola.success('Package versions pinned successfully\n')
-
     consola.start('Removing unwanted files')
     // Remove BuyNow from both full versions
     this.removeBuyNow(tempPkgTSFull)
@@ -120,13 +114,11 @@ export class GenPkg extends Utils {
     // ℹ️ If we run script non-interactively and don't pass package version, pkgVersionForZip will be null => we won't prepend version to package name
     let pkgVersionForZip: string | null = null
 
-    // ℹ️ We might not need this in future if we correctly handle `postProcessGeneratedPkg` hook
-    // Copy documentation.html file from root of the repo
-    consola.info(colorize('cyanBright', 'We have disabled copying documentation in base script because we are copying it in post process hook. Let\'s check if we really need this in PI based templates?'))
-    // fs.copyFileSync(
-    //   path.join(this.templateConfig.projectPath, 'documentation.html'),
-    //   path.join(tempPkgDir, 'documentation.html'),
-    // )
+    // Copy documentation file
+    fs.copyFileSync(
+      path.join(this.templateConfig.projectPath, 'documentation.html'),
+      path.join(tempPkgDir, 'documentation.html'),
+    )
     consola.success('Documentation file copied successfully\n')
 
     if (isInteractive || newPkgVersion) {
@@ -140,20 +132,10 @@ export class GenPkg extends Utils {
     }
     consola.success('Package version updated successfully\n')
 
-    // Ask for running `postProcessGeneratedPkg` if pixinvent
-    if (this.templateConfig.templateDomain === 'pi') {
-      consola.info(colorize('cyanBright', 'We have disabled running post process hook for PI based template due to incomplete hook'))
-      const shouldInjectInPreviousPackage = false
-      // const shouldInjectInPreviousPackage = await consola.prompt('Vue package is ready to rock, Do you want me to inject it in last pkg?', {
-      //   type: 'confirm',
-      // })
-      if (shouldInjectInPreviousPackage)
-        await this.hooks.postProcessGeneratedPkg(tempPkgDir)
-    }
-    else {
-      await this.hooks.postProcessGeneratedPkg(tempPkgDir)
-    }
-    consola.success('Package `postProcessGeneratedPkg` hook ran successfully\n')
+    // Remove caret and tilde from package.json
+    ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
+      removeCaretTildeFromPackageJson(projectPath)
+    })
 
     // package version remove extra v from package name if it's there
     pkgVersionForZip = newPkgVersion || `v${pkgVersionForZip}`
