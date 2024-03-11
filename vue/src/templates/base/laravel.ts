@@ -11,7 +11,7 @@ import type { PackageJson, TsConfigJson } from 'type-fest'
 import type { TemplateBaseConfig } from './config'
 import { Utils, injectGTM } from './helper'
 
-import { getPackagesVersions, pinPackagesVersions, reportOversizedFiles } from '@/utils/file'
+import { removeCaretTildeFromPackageJson, reportOversizedFiles } from '@/utils/file'
 import '@/utils/injectMustReplace'
 import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 import { getTemplatePath, replacePath } from '@/utils/paths'
@@ -175,6 +175,12 @@ export class Laravel extends Utils {
       quote: 'single',
       trailingComma: true,
     })
+
+    // Remove `VueDevTools();` from viteConfig file because it is not work in laravel https://github.com/vuejs/devtools-next/issues/251#issuecomment-1970912403
+    updateFile(
+      viteConfigPath,
+      data => data.mustReplace(/VueDevTools\(\),/g, ''),
+    )
   }
 
   // 👉 updateTSConfig
@@ -218,7 +224,8 @@ export class Laravel extends Utils {
     // copy vue project's root files in laravel project
     const rootFilesToCopy = globbySync(
       // ℹ️ We will manually update gitignore file because we have to merge those two files
-      ['*', '!package.json', '!index.html', '!.DS_Store', '!.gitignore', '!.env', '!.env.example'],
+      ['*', '!package.json', '!index.html', '!.DS_Store', '!.gitignore', '!.env', '!.env.example',
+        '!docker-compose.dev.yml', '!dev.Dockerfile', '!docker-compose.prod.yml', '!nginx.conf', '!.dockerignore', '!prod.Dockerfile'],
       {
         cwd: sourcePath,
         onlyFiles: true,
@@ -737,13 +744,6 @@ export class Laravel extends Utils {
     this.copyProject(this.templateConfig.laravel.paths.JSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.laravel.paths.JSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
 
-    // update node package version in both full versions and starter kits package.json file (ts/js)
-    const packageVersions = getPackagesVersions(this.templateConfig.laravel.paths.TSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSStarter)
-    pinPackagesVersions(packageVersions, tempPkgJSFull)
-    pinPackagesVersions(packageVersions, tempPkgJSStarter)
-
     // Remove BuyNow from both full versions
     // TODO: removeBuyNow method is not generic
     ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath, index) => {
@@ -767,6 +767,10 @@ export class Laravel extends Utils {
 
     // package.json files paths in all four versions
     const pkgJsonPaths = [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json'))
+    // Remove caret and tilde from package.json
+    ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
+      removeCaretTildeFromPackageJson(projectPath)
+    })
 
     // update package name in package.json
     pkgJsonPaths.forEach((pkgJSONPath) => {
@@ -779,16 +783,6 @@ export class Laravel extends Utils {
 
     if (isInteractive || newPkgVersion)
       pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSFull, 'package.json'), newPkgVersion)
-
-    // Ask for running `postProcessGeneratedPkg` if pixinvent
-    if (this.templateConfig.templateDomain === 'pi') {
-      if (await consola.prompt('Vue package is ready to rock, Do you want me to inject it in last pkg?'))
-        await hooks.postProcessGeneratedPkg(tempPkgDir)
-    }
-    else {
-      await hooks.postProcessGeneratedPkg(tempPkgDir, true)
-    }
-    consola.success('Package `postProcessGeneratedPkg` hook ran successfully\n')
 
     const zipPath = path.join(
       this.templateConfig.laravel.projectPath,

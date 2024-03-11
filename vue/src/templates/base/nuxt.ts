@@ -15,7 +15,7 @@ import { Utils } from './helper'
 import { execCmd, filterFileByLine, readFileSyncUTF8, replaceDir, updateFile, updateJSONFileField, writeFileSyncUTF8 } from '@/utils/node'
 
 import { titleCase } from '@/utils/conversions'
-import { addImport, addSfcImport, getPackagesVersions, mergeEnvFiles, pinPackagesVersions } from '@/utils/file'
+import { addImport, addSfcImport, mergeEnvFiles, removeCaretTildeFromPackageJson } from '@/utils/file'
 import '@/utils/injectMustMatch'
 import { getTemplatePath, removePathPrefix } from '@/utils/paths'
 import { TempLocation } from '@/utils/temp'
@@ -1621,9 +1621,6 @@ throw createError({
     if (isInteractive || newPkgVersion)
       pkgVersionForZip = await updatePkgJsonVersion(pkgJsonPaths, path.join(tempPkgTSSource, 'package.json'), newPkgVersion)
 
-    // Run post process hooks
-    await hooks.postProcessGeneratedPkg(tempPkgDir)
-
     if (!this.isFree) {
       const zipDirPath = this.isFree ? this.templateConfig.nuxt.paths.freeTS : this.templateConfig.nuxt.projectPath
       const zipPath = path.join(
@@ -1687,13 +1684,6 @@ throw createError({
     this.copyProject(this.templateConfig.nuxt.paths.JSFull, tempPkgJSFull, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.nuxt.paths.JSStarter, tempPkgJSStarter, this.templateConfig.packageCopyIgnorePatterns)
 
-    // update node package version in both full versions and starter kits package.json file (ts/js)
-    const packageVersions = getPackagesVersions(this.templateConfig.nuxt.paths.TSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSFull)
-    pinPackagesVersions(packageVersions, tempPkgTSStarter)
-    pinPackagesVersions(packageVersions, tempPkgJSFull)
-    pinPackagesVersions(packageVersions, tempPkgJSStarter)
-
     ;[tempPkgTSFull, tempPkgJSFull].forEach((projectPath) => {
       filterFileByLine(
         path.join(projectPath, 'App.vue'),
@@ -1716,6 +1706,11 @@ throw createError({
       path.join(tempPkgDir, 'documentation.html'),
     )
 
+    // Remove caret and tilde from package.json
+    ;[tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].forEach((projectPath) => {
+      removeCaretTildeFromPackageJson(projectPath)
+    })
+
     // package.json files paths in all four versions
     const pkgJsonPaths = [tempPkgTSFull, tempPkgTSStarter, tempPkgJSFull, tempPkgJSStarter].map(p => path.join(p, 'package.json'))
     consola.info('TODO: We have this package.json path, Ensure version & name is getting updated:', pkgJsonPaths)
@@ -1734,11 +1729,6 @@ throw createError({
     // Copy from free version
     this.copyProject(this.templateConfig.nuxt.paths.freeTS, tempPkgTS, this.templateConfig.packageCopyIgnorePatterns)
     this.copyProject(this.templateConfig.nuxt.paths.freeJS, tempPkgJS, this.templateConfig.packageCopyIgnorePatterns)
-
-    // update node package version
-    const packageVersions = getPackagesVersions(this.templateConfig.nuxt.paths.TSFull)
-    pinPackagesVersions(packageVersions, tempPkgTS)
-    pinPackagesVersions(packageVersions, tempPkgJS)
 
     ;[tempPkgTS, tempPkgJS].forEach((projectPath) => {
       filterFileByLine(

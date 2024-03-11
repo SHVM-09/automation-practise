@@ -6,7 +6,7 @@ export interface TrackableFile {
 export type Tracker = TrackableFile[]
 
 export interface OversizedFileStats {
-  filePath: string;
+  filePath: string
   size: number
 }
 

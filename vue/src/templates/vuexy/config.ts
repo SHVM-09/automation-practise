@@ -20,7 +20,18 @@ export const config: VuexyConfig = {
   templateName: 'vuexy',
   templateDomain: 'pi',
   projectPath: vuexyVuePath,
-  ignoreCompressionPatterns: [],
+  ignoreCompressionPatterns: [
+    '**/auth-v2-register-illustration-light.*',
+    '**/auth-v2-register-illustration-bordered-light.*',
+    '**/hero-dashboard-light.*',
+    '**/front-pages/**/Background.*',
+    '**/front-pages/**/cta-bg.*',
+    '**/front-pages/**/hero-dashboard-dark.*',
+    '**/front-pages/**/hero-dashboard-light.*',
+    '**/front-pages/**/hero-elements-dark.*',
+    '**/front-pages/**/hero-elements-light.*',
+    '**/front-pages/**/product-image.*',
+  ],
   packageCopyIgnorePatterns: [
     // Directories
     'dist',

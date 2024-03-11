@@ -1,12 +1,12 @@
 import '@/utils/injectMustReplace'
-import { execCmd, updateFile } from '@/utils/node'
+import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import { globbySync } from 'globby'
-import path from 'node:path'
 import type { TemplateBaseConfig } from './config'
 import { FillSnippets } from './fillSnippets'
 import { injectGTM } from './helper'
+import { execCmd, updateFile } from '@/utils/node'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) { }

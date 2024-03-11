@@ -8,7 +8,7 @@ import { globbySync } from 'globby'
 import tinify from 'tinify'
 import type { PackageJson } from 'type-fest'
 import { TempLocation } from './temp'
-import { execCmd, readFileSyncUTF8, updateFile } from '@/utils/node'
+import { execCmdAsync, readFileSyncUTF8, updateFile } from '@/utils/node'
 
 /**
  * Adds received import string as last import statement
@@ -106,6 +106,7 @@ export const compressOverSizedFiles = async (globPattern: string, isInteractive:
   const filesStr = getFilesStrList(overSizedFiles, reportPathRelativeTo)
 
   consola.box(`🐼 Compressing following files with TinyPNG:\n${filesStr}`)
+  // eslint-disable-next-line n/prefer-global/process
   tinify.key = process.env.TINY_PNG_API_KEY || ''
   for (const f of overSizedFiles)
     await tinify.fromFile(f.filePath).toFile(f.filePath)
@@ -121,46 +122,86 @@ export const compressOverSizedFiles = async (globPattern: string, isInteractive:
   return overSizedFiles
 }
 
-export const getPackagesVersions = (tsFullPath: string): PackageJson.Dependency => {
+export const getPackagesVersions = async (path: string): Promise<{
+  dependencies: Partial<Record<string, string>>
+  devDependencies: Partial<Record<string, string>>
+}> => {
+  let parsedOutput
+
   // Run the pnpm list command and capture its output
-  const output = execCmd('pnpm list --depth=0', {
-    cwd: tsFullPath,
-  })?.toString()
+  try {
+    const { stdout } = await execCmdAsync('pnpm list --depth=0 --json', { cwd: path })
+    parsedOutput = JSON.parse(stdout.trim())[0]
+  }
+  catch (error) {
+    consola.error('Error executing pnpm list or parsing output', error)
+    throw new Error('Failed to get package versions')
+  }
 
-  // Define a regular expression to match package names and versions
-  const pattern = /├─ (.*)@(.*)/
+  const dependencies: Partial<Record<string, string>> = {}
+  const devDependencies: Partial<Record<string, string>> = {}
 
-  // Split the output into lines and filter out empty lines
-  const lines = output?.trim().split('\n').filter(line => line)
+  // Simplify the assignment using a function to reduce repetition
+  const extractVersions = (pkgList: Record<string, { version: string }>) => {
+    return Object.entries(pkgList).reduce((acc, [packageName, packageObj]) => {
+      acc[packageName] = packageObj.version
+      return acc
+    }, {} as Partial<Record<string, string>>)
+  }
 
-  const packages: PackageJson.Dependency = {}
+  if (parsedOutput?.dependencies)
+    Object.assign(dependencies, extractVersions(parsedOutput.dependencies))
 
-  // Map the lines to objects containing the package name and version
-  lines?.forEach((line) => {
-    const matches = line.match(pattern)
+  if (parsedOutput?.devDependencies)
+    Object.assign(devDependencies, extractVersions(parsedOutput.devDependencies))
 
-    if (matches)
-      packages[matches[1]] = matches[2]
-  })
-
-  return packages
+  return { dependencies, devDependencies }
 }
 
-export const pinPackagesVersions = (packageVersions: PackageJson.Dependency, tempDirPath: string) => {
-  const packageObj: PackageJson = fs.readJsonSync(`${tempDirPath}/package.json`)
+export const updatePackagesVersions = async (
+  packageVersionsPromise: Promise<{
+    dependencies: Partial<Record<string, string>>
+    devDependencies: Partial<Record<string, string>>
+  }>,
+  path: string,
+): Promise<void> => {
+  const packageObj = fs.readJsonSync(`${path}/package.json`)
+  const { dependencies, devDependencies } = await packageVersionsPromise
 
-  const pkgDeps = packageObj.dependencies as PackageJson.Dependency
-  const pkgDevDeps = packageObj.devDependencies as PackageJson.Dependency
+  const updateVersions = (currentDeps: Record<string, string>, newVersions: Partial<Record<string, string>>) => {
+    Object.entries(newVersions).forEach(([packageName, packageVersion]) => {
+      if (currentDeps[packageName]) {
+        const prefix = currentDeps[packageName].match(/^[\^~]/)?.[0] || ''
+        currentDeps[packageName] = `${prefix}${packageVersion}`
+      }
+    })
+  }
 
-  Object.entries(packageVersions).forEach(([packageName, packageVersion]) => {
-    if (pkgDeps[packageName])
-      pkgDeps[packageName] = packageVersion
+  // Update dependencies and devDependencies
+  updateVersions(packageObj.dependencies, dependencies)
+  updateVersions(packageObj.devDependencies, devDependencies)
 
-    if (pkgDevDeps[packageName])
-      pkgDevDeps[packageName] = packageVersion
-  })
+  await fs.writeJson(`${path}/package.json`, packageObj, { spaces: 2 })
+}
 
-  fs.writeJsonSync(`${tempDirPath}/package.json`, packageObj, { spaces: 2 })
+export const removeCaretTildeFromPackageJson = (path: string) => {
+  const packageObj: PackageJson = fs.readJsonSync(`${path}/package.json`)
+
+  const removeVersionPrefixes = (dependencies: Partial<Record<string, string>>) => {
+    Object.entries(dependencies).forEach(([packageName, packageVersion]) => {
+      if (packageVersion?.startsWith('^') || packageVersion?.startsWith('~'))
+        dependencies[packageName] = packageVersion.slice(1)
+    })
+  }
+
+  // Update dependencies and devDependencies, if they exist
+  if (packageObj.dependencies)
+    removeVersionPrefixes(packageObj.dependencies)
+
+  if (packageObj.devDependencies)
+    removeVersionPrefixes(packageObj.devDependencies)
+
+  fs.writeJsonSync(`${path}/package.json`, packageObj, { spaces: 2 })
 }
 
 export const genRedirectionHtmlFileContent = (placeholders: { templateFullName: string; url: string }) => {
