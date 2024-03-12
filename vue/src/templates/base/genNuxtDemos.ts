@@ -3,7 +3,7 @@ import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
 import type { TemplateBaseConfig } from './config'
-import { updateFile, updateFileAsync } from '@/utils/node'
+import { execCmd, updateFile, updateFileAsync } from '@/utils/node'
 
 export class GenDemo {
   constructor(private templateConfig: TemplateBaseConfig) { }
@@ -267,6 +267,34 @@ export default defineEventHandler((event) => {
     ])
   }
 
+  private async blockModifierAPICalls() {
+    const findOutput = execCmd('fd -e vue -e ts -t f -X grep -l "\\$api("', { encoding: 'utf-8', cwd: this.templateConfig.nuxt.paths.TSFull })
+
+    const files = findOutput?.split('\n').filter(Boolean)
+
+    await Promise.all(
+      files?.map(async (filePath) => {
+        await updateFileAsync(
+          path.join(this.templateConfig.nuxt.paths.TSFull, filePath),
+          (content) => {
+            // Get all matches that has $api usage
+            const matches = content.match(/.*\$api\((.*\)|(.|\n)*?}\))/g)
+            let newContent = content
+
+            matches?.forEach((match) => {
+              // If match includes method, we'll add return; before it
+              // We assume GET methods won't have "method:" and hence we'll allow making GET requests
+              if (match.includes('method:'))
+                newContent = newContent.replace(match, `return;\n${match}`)
+            })
+
+            return newContent
+          },
+        )
+      }),
+    )
+  }
+
   async prepareForBuild() {
     await Promise.all([
       this.createDemosPlugin(),
@@ -276,6 +304,7 @@ export default defineEventHandler((event) => {
       this.updateLayoutsPlugin(),
       this.updateVuetifyPlugin(),
       this.updateNuxtConfig(),
+      this.blockModifierAPICalls(),
 
       // ❗ We have set rewrite in nginx so we don't need this. Even with this, We can't load images properly.
       // this.updateGetPublicPathUtil(),
