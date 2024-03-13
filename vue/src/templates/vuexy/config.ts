@@ -25,6 +25,7 @@ export const config: VuexyConfig = {
     '**/auth-v2-register-illustration-bordered-light.*',
     '**/hero-dashboard-light.*',
     '**/front-pages/**/Background.*',
+    '**/front-pages/**/hero-bg.*',
     '**/front-pages/**/cta-bg.*',
     '**/front-pages/**/hero-dashboard-dark.*',
     '**/front-pages/**/hero-dashboard-light.*',
