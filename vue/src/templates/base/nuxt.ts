@@ -1572,6 +1572,7 @@ throw createError({
   async genPkg(hooks: GenPkgHooks, isInteractive = true, newPkgVersion?: string) {
     // eslint-disable-next-line prefer-template
     consola.box('🛠️ Generating Nuxt ' + (this.isFree && 'Free'))
+    consola.box('🛠️ Do not forgot to create or take latest pull in  Nuxt API repo. ')
 
     // TS Full
     consola.start('Generating Nuxt TS Full')
