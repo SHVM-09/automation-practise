@@ -1,15 +1,11 @@
 import { consola } from 'consola'
-import { promisify } from 'util'
-import path, { basename } from 'path'
-import { exec as execCallback } from 'child_process'
+import path from 'path'
+import { config } from 'dotenv'
+import { defineCommand, runMain } from 'citty'
 import beforeBuild from './build/beforeBuild'
 import afterBuild from './build/afterBuild'
 import { getTsVersionPath } from './utils/templatePathUtils'
-import { config } from 'dotenv'
-import { defineCommand, runMain } from 'citty'
-
-// Promisify exec
-const exec = promisify(execCallback)
+import { execCmd } from './utils/node'
 
 const main = defineCommand({
   meta: {
@@ -55,7 +51,7 @@ const main = defineCommand({
 
     // if (!process.env.CI)
     try {
-      await exec(
+      await execCmd(
         `vercel env pull --yes --environment=${args.prod ? 'production' : 'preview'} --token=${args['vercel-token']}`,
         { cwd: tsFullDir }
       )
@@ -69,11 +65,11 @@ const main = defineCommand({
     const basePath = env.parsed?.BASEPATH
 
     // ────────────── Before Build ──────────────
-    await beforeBuild(tsFullDir, basePath ?? '', args.marketplace)
+    await beforeBuild(templateName, tsFullDir, basePath ?? '', args.marketplace)
 
     // ────────────── Build ──────────────
     try {
-      await exec(`vercel build --yes --token=${args['vercel-token']} ${args.prod ? '--prod' : ''}`, {
+      await execCmd(`vercel build --yes --token=${args['vercel-token']} ${args.prod ? '--prod' : ''}`, {
         cwd: path.join(tsFullDir, '../..')
       })
     } catch (error) {

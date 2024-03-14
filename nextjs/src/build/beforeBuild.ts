@@ -1,8 +1,44 @@
-import { getUrls } from '@/configs/getUrls'
-import { readFileSync, writeFileSync } from 'fs'
 import fs from 'fs/promises'
 import { globbySync } from 'globby'
-import path from 'node:path'
+import path from 'path'
+import { getUrls } from '@configs/getUrls'
+
+/**
+ * Update Calendar Event functions.
+ */
+const updateCalendarEventFunctions = async (tsFullDir: string): Promise<void> => {
+  const filePath = path.join(tsFullDir, 'src/views/apps/calendar/CalendarWrapper.tsx')
+
+  const handleAddEventFunction = `const handleAddEvent = async (event: AddEventType) => {
+    const event_id = new Date().getTime().toString()
+
+    // Dispatch Add Event Action
+    dispatch({ type: 'added', event: { id: parseInt(event_id), ...event } })
+  }
+
+`
+
+  const handleUpdateEventFunction = `const handleUpdateEvent = async (event: EventType) => {
+    dispatch({ type: 'updated', event })
+  }
+
+`
+
+  const handleDeleteEventFunction = `const handleDeleteEvent = async (eventId: EventType['id']) => {
+    dispatch({ type: 'deleted', eventId })
+  }
+
+`
+
+  let content = await fs.readFile(filePath, 'utf-8')
+
+  content = content
+    .replace(/const handleAddEvent = async \([^)]*\)\s*=>\s*{[\s\S]*?}\n\n/gm, handleAddEventFunction)
+    .replace(/const handleUpdateEvent = async \([^)]*\)\s*=>\s*{[\s\S]*?}\n\n/gm, handleUpdateEventFunction)
+    .replace(/const handleDeleteEvent = async \([^)]*\)\s*=>\s*{[\s\S]*?}\n\n/gm, handleDeleteEventFunction)
+
+  await fs.writeFile(filePath, content)
+}
 
 /**
  * Append base path to image references in TypeScript API files.
@@ -34,23 +70,23 @@ async function prependBasePathToImages(tsFullDir: string, basePath: string): Pro
 /**
  * Remove Google Sign-In from Login component.
  */
-function removeGoogleSignInFromLogin(tsFullDir: string): void {
+const removeGoogleSignInFromLogin = async (tsFullDir: string): Promise<void> => {
   const loginFilePath = path.join(tsFullDir, 'src/views/Login.tsx')
-  let content = readFileSync(loginFilePath, 'utf-8')
+  let content = await fs.readFile(loginFilePath, 'utf-8')
 
   content = content.replace(/<Divider.*?<\/Button>/gms, '').replace(/import Divider.*/g, '')
-  writeFileSync(loginFilePath, content, 'utf-8')
+  await fs.writeFile(loginFilePath, content, 'utf-8')
 }
 
 /**
  * Remove Icon Test feature from project files.
  */
-async function removeIconTestFeature(tsFullDir: string): Promise<void> {
+const removeIconTestFeature = async (tsFullDir: string): Promise<void> => {
   const searchDataFilePath = path.join(tsFullDir, 'src/data/searchData.ts')
-  let content = readFileSync(searchDataFilePath, 'utf-8')
+  let content = await fs.readFile(searchDataFilePath, 'utf-8')
 
   content = content.replace(/(?<=id: '41'.*){.*icons-test.*?},.*?(?={)/gms, '')
-  writeFileSync(searchDataFilePath, content, 'utf-8')
+  await fs.writeFile(searchDataFilePath, content, 'utf-8')
 
   const filesToRemove = ['src/views/icons-test', 'src/app/api/icons-test', 'src/app/[lang]/(dashboard)/icons-test'].map(
     subPath => path.join(tsFullDir, subPath)
@@ -69,10 +105,10 @@ async function removeIconTestFeature(tsFullDir: string): Promise<void> {
 
   await Promise.all(
     menuFilePaths.map(async filePath => {
-      let menuContent = readFileSync(filePath, 'utf-8')
+      let menuContent = await fs.readFile(filePath, 'utf-8')
 
       menuContent = menuContent.replace(/<MenuItem.*[\n\s]+Icons Test[\n\s]+<\/MenuItem>[\n\s]+/gm, '')
-      writeFileSync(filePath, menuContent, 'utf-8')
+      await fs.writeFile(filePath, menuContent, 'utf-8')
     })
   )
 
@@ -82,10 +118,10 @@ async function removeIconTestFeature(tsFullDir: string): Promise<void> {
 
   await Promise.all(
     navLinksFiles.map(async filePath => {
-      let navContent = readFileSync(filePath, 'utf-8')
+      let navContent = await fs.readFile(filePath, 'utf-8')
 
       navContent = navContent.replace(/[\n\s]+{[\s\n]+label: 'Icons Test',.*?}/gms, '')
-      writeFileSync(filePath, navContent, 'utf-8')
+      await fs.writeFile(filePath, navContent, 'utf-8')
     })
   )
 }
@@ -93,9 +129,10 @@ async function removeIconTestFeature(tsFullDir: string): Promise<void> {
 /**
  * Update Next.js configuration with custom headers.
  */
-function updateNextJsConfigWithHeaders(tsFullDir: string): void {
+const updateNextJsConfigWithHeaders = async (templateName: string, tsFullDir: string): Promise<void> => {
   const nextConfigFilePath = path.join(tsFullDir, 'next.config.js')
-  let configContent = readFileSync(nextConfigFilePath, 'utf-8')
+  let configContent = await fs.readFile(nextConfigFilePath, 'utf-8')
+  const siteName = (templateName === 'vuexy' || templateName === 'materialize') ? 'pixinvent' : 'themeselection'
 
   const headersConfig = `
     async headers() {
@@ -104,7 +141,7 @@ function updateNextJsConfigWithHeaders(tsFullDir: string): void {
           source: "/api/:path*",
           headers: [
             { key: "Access-Control-Allow-Credentials", value: "true" },
-            { key: "Access-Control-Allow-Origin", value: "https://demos.themeselection.com" },
+            { key: "Access-Control-Allow-Origin", value: "https://demos.${siteName}.com" },
             { key: "Access-Control-Allow-Methods", value: "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
             { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
           ]
@@ -114,7 +151,7 @@ function updateNextJsConfigWithHeaders(tsFullDir: string): void {
   `
 
   configContent = configContent.replace(/( +)(reactStrictMode: false)/gms, `$1$2,\n$1${headersConfig}`)
-  writeFileSync(nextConfigFilePath, configContent, 'utf-8')
+  await fs.writeFile(nextConfigFilePath, configContent, 'utf-8')
 }
 
 async function updateUrlsForMarketplace(tsFullDir: string): Promise<void> {
@@ -185,11 +222,14 @@ const updateModeStorageKey = async (tsFullDir: string) => {
   await fs.writeFile(providersPath, providerContent)
 }
 
-async function beforeBuild(tsFullDir: string, basePath: string, isMarketplaceBuild: boolean): Promise<void> {
+async function beforeBuild(templateName: string, tsFullDir: string, basePath: string, isMarketplaceBuild: boolean): Promise<void> {
   // Update URLs
   if (isMarketplaceBuild) {
     await updateUrlsForMarketplace(tsFullDir)
   }
+
+  // Update Calendar Event functions
+  await updateCalendarEventFunctions(tsFullDir)
 
   // Append base path to image references in TypeScript API files
   await prependBasePathToImages(tsFullDir, basePath)
@@ -201,7 +241,7 @@ async function beforeBuild(tsFullDir: string, basePath: string, isMarketplaceBui
   await removeIconTestFeature(tsFullDir)
 
   // Update Next.js configuration with custom headers
-  await updateNextJsConfigWithHeaders(tsFullDir)
+  await updateNextJsConfigWithHeaders(templateName, tsFullDir)
 
   await updateModeStorageKey(tsFullDir)
 }
