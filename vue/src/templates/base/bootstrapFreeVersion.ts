@@ -1,7 +1,7 @@
 import '@/utils/injectMustReplace'
+import path from 'node:path'
 import { consola } from 'consola'
 import fs from 'fs-extra'
-import path from 'path'
 import type { TemplateBaseConfig } from './config'
 
 export class BootstrapFreeVersion {
@@ -57,7 +57,7 @@ export class BootstrapFreeVersion {
 
     const todos = [
       'Update Icons from pro version',
-      'Review the content change'
+      'Review the content change',
     ]
     todos.forEach(todo => consola.info(todo))
   }
