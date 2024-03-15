@@ -9,6 +9,7 @@ const writeFileAsync = promisify(fs.writeFile)
 // Interface for the structure of package.json
 interface PackageJson {
   dependencies: Record<string, string>
+  devDependencies: Record<string, string>
   scripts: Record<string, string>
   [key: string]: any
 }
@@ -37,6 +38,9 @@ const updatePackageJson = async (jsDir: string) => {
     // Filter out TypeScript-related dependencies
     packageJson.dependencies = Object.fromEntries(
       Object.entries(packageJson.dependencies).filter(([packageName]) => !isTypescriptRelated(packageName))
+    )
+    packageJson.devDependencies = Object.fromEntries(
+      Object.entries(packageJson.devDependencies).filter(([packageName]) => !isTypescriptRelated(packageName))
     )
 
     // Update build:icons script if it exists
