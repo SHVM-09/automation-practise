@@ -53,7 +53,7 @@ export class Laravel extends Utils {
   private bootstrapLaravelInTempDir(lang: Lang, sourcePath: string) {
     // Create new laravel project
     execCmd(
-      `composer create laravel/laravel ${this.templateConfig.laravel.pkgName}`,
+      `composer create laravel/laravel:^11.0 ${this.templateConfig.laravel.pkgName}`,
       { cwd: this.tempDir },
     )
 
