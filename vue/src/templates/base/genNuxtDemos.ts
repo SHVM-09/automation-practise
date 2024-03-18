@@ -268,7 +268,7 @@ export default defineEventHandler((event) => {
   }
 
   private async blockModifierAPICalls() {
-    const findOutput = execCmd('grep --include=\*.{vue,ts} --exclude-dir=node_modules -Rl . -e "\\$api\("', { encoding: 'utf-8', cwd: this.templateConfig.nuxt.paths.TSFull })
+    const findOutput = execCmd('grep --include=*.vue --include=*.ts --exclude-dir=node_modules -Rnw . -e "\\$api\(" | cut -d ":" -f 1', { encoding: 'utf-8', cwd: this.templateConfig.nuxt.paths.TSFull })
 
     console.log('findOutput :>> ', findOutput)
 
