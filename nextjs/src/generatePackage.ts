@@ -60,14 +60,17 @@ const main = async (): Promise<void> => {
   const tempPkgDir = path.join(templateDir, 'package')
 
   // check if package directory exists
-  if (await fs.pathExists(tempPkgDir)) {
+  if (await fs.exists(tempPkgDir)) {
+    consola.info('Package directory already exists.')
+    consola.start('Removing existing package directory...')
     await fs.remove(tempPkgDir)
+    consola.success('Removed existing package directory successfully!\n')
   }
 
   // Create package directory
   await fs.ensureDir(tempPkgDir)
 
-  consola.start(`Creating package at ${tempPkgDir}`)
+  consola.info(`Package directory created at ${tempPkgDir}.\n`)
   const tempPkgTsDir = path.join(tempPkgDir, 'typescript-version')
   const tempPkgTsFullDir = path.join(tempPkgTsDir, 'full-version')
   const tempPkgTsSkDir = path.join(tempPkgTsDir, 'starter-kit')
@@ -112,7 +115,11 @@ const main = async (): Promise<void> => {
 
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   dirArray.forEach(async dir => {
-    await execCmd(`sd '": "(\\^|\\~)' '": "' ${dir}/package.json`)
+    let content = await fs.readFile(`${dir}/package.json`, 'utf-8')
+
+    content = content.replace(/"((?!@types\/).*)": "(\^|\~)/gm, '"$1": "')
+
+    await fs.writeFile(`${dir}/package.json`, content, 'utf-8')
   })
   consola.success('Removed caret and tilde from all package.json files successfully!\n')
 
