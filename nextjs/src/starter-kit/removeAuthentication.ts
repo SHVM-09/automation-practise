@@ -1,12 +1,14 @@
 import fs from 'fs'
 import path from 'path'
 import consola from 'consola'
+import { templateConfig } from '@configs/templateConfig'
+import type { TemplateRepoName } from '@configs/getPaths'
 
-const removeAuthentication = async (tsFullDir: string, tsSkDir: string) => {
+const removeAuthentication = async (templateName: TemplateRepoName, tsFullDir: string, tsSkDir: string) => {
   // Update user dropdown
   const userDropdownPath = path.join(tsSkDir, 'src/components/layout/shared/UserDropdown.tsx')
 
-  await updateUserDropdown(userDropdownPath)
+  await updateUserDropdown(templateName, userDropdownPath)
 
   // Update login page
   const loginFullPath = path.join(tsFullDir, 'src/views/pages/auth/LoginV2.tsx')
@@ -20,7 +22,7 @@ const removeAuthentication = async (tsFullDir: string, tsSkDir: string) => {
   await updateHomePage(homePagePath)
 }
 
-async function updateUserDropdown(userDropdownPath: string) {
+async function updateUserDropdown(templateName: TemplateRepoName, userDropdownPath: string) {
   try {
     let content = fs.readFileSync(userDropdownPath, 'utf8')
 
@@ -59,8 +61,8 @@ async function updateUserDropdown(userDropdownPath: string) {
     // Replace {session?.user?.name || ''} with 'John Doe'
     content = content.replace(/\{session\?.user\?.name \|\| ''\}/g, 'John Doe')
 
-    // Replace {session?.user?.email || ''} with 'admin@materio.com'
-    content = content.replace(/\{session\?.user\?.email \|\| ''\}/g, 'admin@materio.com')
+    // Replace {session?.user?.email || ''} with 'admin@template.com'
+    content = content.replace(/\{session\?.user\?.email \|\| ''\}/g, `admin@${templateConfig[templateName]?.shortName}.com`)
 
     fs.writeFileSync(userDropdownPath, content)
     consola.info(`Updated file: ${userDropdownPath}`)

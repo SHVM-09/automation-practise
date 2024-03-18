@@ -54,6 +54,12 @@ export const templateConfig: Configs = {
     fullName: 'Vuexy - MUI Next.js Admin Template',
     shortName: 'Vuexy',
     ignoreCompressionPatterns: [
+      '**/*/menu-bg-image.png',
+      '**/*/cards/1.png',
+      '**/*/pages/profile-banner.png',
+      '**/*/illustrations/auth/v2-register-dark-border.png',
+      '**/*/illustrations/auth/v2-register-dark.png',
+      '**/*/illustrations/characters-with-objects/2.png'
     ],
     packageIgnoreCopyPatterns: [
       // Directories
