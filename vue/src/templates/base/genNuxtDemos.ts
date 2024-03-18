@@ -270,8 +270,6 @@ export default defineEventHandler((event) => {
   private async blockModifierAPICalls() {
     const findOutput = execCmd('grep --include=*.vue --include=*.ts --exclude-dir=node_modules -Rnw . -e "\\$api\(" | cut -d ":" -f 1', { encoding: 'utf-8', cwd: this.templateConfig.nuxt.paths.TSFull })
 
-    console.log('findOutput :>> ', findOutput)
-
     const files = findOutput?.split('\n').filter(Boolean)
 
     await Promise.all(
