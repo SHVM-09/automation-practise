@@ -287,7 +287,7 @@ export default defineEventHandler((event) => {
               // If match includes method, we'll add return; before it
               // We assume GET methods won't have "method:" and hence we'll allow making GET requests
               if (match.includes('method:'))
-                newContent = newContent.replace(match, `return;\n${match}`)
+                newContent = newContent.replace(match, `return; \n${match}`)
             })
 
             return newContent
