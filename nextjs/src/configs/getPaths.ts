@@ -19,10 +19,10 @@ export const getMasterRepoPaths: MasterRepoPaths = {
 }
 
 export const getTemplateRepoPaths: TemplateRepoPaths = {
-  materio: path.join(__dirname, '../../../../materio/materio-mui-nextjs-admin-template'), // Path to materio template repo
-  'materio-free': path.join(__dirname, '../../../../materio/materio-nextjs-free'), // Path to materio-free template repo
-  sneat: path.join(__dirname, '../../../../sneat/sneat-nextjs'), // Path to sneat template repo
-  'sneat-free': path.join(__dirname, '../../../../sneat/sneat-nextjs-free'), // Path to sneat-free template repo
-  vuexy: path.join(__dirname, '../../../../vuexy/vuexy-nextjs-admin-template'), // Path to vuexy template repo
-  materialize: path.join(__dirname, '../../../../materialize/materialize-nextjs') // Path to materialize template repo
+  materio: path.join(__dirname, '../../../../materio/nextjs-mui'), // Path to materio template repo
+  'materio-free': path.join(__dirname, '../../../../materio/nextjs-mui-free'), // Path to materio-free template repo
+  sneat: path.join(__dirname, '../../../../sneat/nextjs-mui'), // Path to sneat template repo
+  'sneat-free': path.join(__dirname, '../../../../sneat/nextjs-mui-free'), // Path to sneat-free template repo
+  vuexy: path.join(__dirname, '../../../../vuexy/nextjs-mui'), // Path to vuexy template repo
+  materialize: path.join(__dirname, '../../../../materialize/nextjs-mui') // Path to materialize template repo
 }

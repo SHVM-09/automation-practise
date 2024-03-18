@@ -6,15 +6,14 @@ import { templateConfig } from '../configs/templateConfig'
 
 export const updateEnvFiles = async (
   templateName: TemplateRepoName,
-  templateDir: string,
-  isMarketplace: boolean
+  templateDir: string
 ): Promise<void> => {
   consola.start(`Updating env files in ${templateDir}...`)
 
   // Vars
   const envPath = path.join(templateDir, '.env')
   const envExamplePath = path.join(templateDir, '.env.example')
-  const docsURL = templateConfig[templateName]?.links[isMarketplace ? 'marketplaceDocs' : 'docs']
+  const docsURL = templateConfig[templateName]?.links.docs
 
   // Read .env file
   let envContent = await fs.readFile(envPath, 'utf8')
