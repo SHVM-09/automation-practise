@@ -4,6 +4,7 @@ import consola from 'consola'
 export const installLintFormat = async (directory: string) => {
   consola.start(`Installing node_modules and running for linting & formatting in ${directory}...`)
 
+  // Change directory to the directory
   process.chdir(directory)
 
   // Remove pnpm-lock.yaml

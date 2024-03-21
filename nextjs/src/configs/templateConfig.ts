@@ -8,7 +8,6 @@ export interface TemplateConfig {
   links: {
     changelog: string
     docs: string
-    marketplaceDocs?: string
   }
   menuIcons: {
     home: string
@@ -23,7 +22,10 @@ export const templateConfig: Configs = {
     fullName: 'Materio - MUI Next.js Admin Template',
     shortName: 'Materio',
     ignoreCompressionPatterns: [
-      // '**/activity-timeline.png'
+      '**/*/menu-bg-image.png',
+      '**/*/cards/1.png',
+      '**/*/cards/activity-timeline.png',
+      '**/*/illustrations/characters/9.png'
     ],
     packageIgnoreCopyPatterns: [
       // Directories
@@ -31,15 +33,17 @@ export const templateConfig: Configs = {
       '**/.github',
       '**/.next',
       '**/node_modules',
+      '**/hook-examples',
+      '**/menu-examples',
 
       // Files
+      '**/*/menu-bg-image.png',
       '**/*.log',
       '**/*.zip'
     ],
     links: {
       changelog: 'https://demos.themeselection.com/materio-mui-nextjs-admin-template/changelog.html',
-      docs: 'https://demos.themeselection.com/materio-mui-nextjs-admin-template/documentation',
-      marketplaceDocs: 'https://demos.themeselection.com/marketplace/materio-mui-nextjs-admin-template/documentation'
+      docs: 'https://demos.themeselection.com/materio-mui-nextjs-admin-template/documentation'
     },
     menuIcons: {
       home: 'ri-home-smile-line',
@@ -50,6 +54,12 @@ export const templateConfig: Configs = {
     fullName: 'Vuexy - MUI Next.js Admin Template',
     shortName: 'Vuexy',
     ignoreCompressionPatterns: [
+      '**/*/menu-bg-image.png',
+      '**/*/cards/1.png',
+      '**/*/pages/profile-banner.png',
+      '**/*/illustrations/auth/v2-register-dark-border.png',
+      '**/*/illustrations/auth/v2-register-dark.png',
+      '**/*/illustrations/characters-with-objects/2.png'
     ],
     packageIgnoreCopyPatterns: [
       // Directories
@@ -57,8 +67,11 @@ export const templateConfig: Configs = {
       '**/.github',
       '**/.next',
       '**/node_modules',
+      '**/hook-examples',
+      '**/menu-examples',
 
       // Files
+      '**/*/menu-bg-image.png',
       '**/*.log',
       '**/*.zip'
     ],

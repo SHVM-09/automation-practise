@@ -101,9 +101,9 @@ const main = async (): Promise<void> => {
   await removeBuyNowButton(tempPkgJsFullDir, 'src/components/buy-now-button', 'src/app/[lang]/layout.jsx')
 
   // ────────────── Update env files ──────────────
-  // params: templateName, templateDir, isMarketplace
-  await updateEnvFiles(templateName, tempPkgTsFullDir, isMarketplace)
-  await updateEnvFiles(templateName, tempPkgJsFullDir, isMarketplace)
+  // params: templateName, templateDir
+  await updateEnvFiles(templateName, tempPkgTsFullDir)
+  await updateEnvFiles(templateName, tempPkgJsFullDir)
 
   // ────────────── Remove test pages ──────────────
   await removeTestPages(tempPkgTsFullDir)
@@ -117,7 +117,7 @@ const main = async (): Promise<void> => {
   dirArray.forEach(async dir => {
     let content = await fs.readFile(`${dir}/package.json`, 'utf-8')
 
-    content = content.replace(/"((?!@types\/).*)": "(\^|\~)/gm, '"$1": "')
+    content = content.replace(/"((?!@types\/).*)": "(\^|\\~)/gm, '"$1": "')
 
     await fs.writeFile(`${dir}/package.json`, content, 'utf-8')
   })
@@ -160,7 +160,16 @@ const main = async (): Promise<void> => {
   iconGeneratedFileArray.forEach(async iconGeneratedFile => {
     await execCmd(`rm -rf ${iconGeneratedFile}`)
   })
-  consola.success('Removed icon generated files successfully!')
+  consola.success('Removed icon generated files successfully!\n')
+
+  // ────────────── Update package according to Marketplace ──────────────
+  if (isMarketplace) {
+    consola.start('Updating package according to Marketplace...')
+    await execCmd('fd -H -I --type file --exec sd "\'https://themeselection.com\'" "\'https://mui.com/store/contributors/themeselection\'"', { cwd: tempPkgDir })
+    await execCmd('fd -H -I --type file --exec sd "\'https://themeselection.com/license\'" "\'https://mui.com/store/license\'"', { cwd: tempPkgDir })
+    await execCmd('fd -H -I --type file --exec sd "https://demos.themeselection.com/materio-mui-nextjs-admin-template/documentation" "https://demos.themeselection.com/marketplace/materio-mui-nextjs-admin-template/documentation"', { cwd: tempPkgDir })
+    consola.success('Updated package according to Marketplace successfully!')
+  }
 }
 
 main().catch(error => {

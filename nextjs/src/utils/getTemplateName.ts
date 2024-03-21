@@ -1,6 +1,6 @@
 import { consola } from 'consola'
 import { verifyRepoPath } from '@/utils/templatePathUtils'
-import type { TemplateRepoName } from '@/configs/getPaths'
+import type { TemplateRepoName } from '@configs/getPaths'
 
 /**
  * Prompt the user to select a template name and verify its repository path.

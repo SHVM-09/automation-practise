@@ -160,7 +160,7 @@ async function removeTranslationFromNextConfig(nextConfigFile: string) {
   try {
     let content = fs.readFileSync(nextConfigFile, 'utf8')
 
-    content = content.replace(/redirects: async \(\) => \{[\s\S]*?\},\s*\n/g, '\n')
+    content = content.replace(/\s*?redirects: async \(\) => \{[\s\S]*?\},/g, '')
 
     // Existing removals
     fs.writeFileSync(nextConfigFile, content)

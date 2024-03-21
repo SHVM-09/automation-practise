@@ -1,6 +1,6 @@
 import { consola } from 'consola'
 import { folderExist } from '@/utils/fsUtils'
-import { getTemplateRepoPaths } from '@/configs/getPaths'
+import { getTemplateRepoPaths } from '@configs/getPaths'
 
 /**
  * Prompt the user to select a template version and verify the corresponding paths.

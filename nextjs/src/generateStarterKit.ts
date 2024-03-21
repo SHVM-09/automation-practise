@@ -58,7 +58,7 @@ const generateStarterKit = defineCommand({
     await removeUnwantedFoldersFiles(tsSkDir)
 
     // ────────────── Remove Authentication ──────────────
-    await removeAuthentication(tsFullDir, tsSkDir)
+    await removeAuthentication(templateName as TemplateRepoName, tsFullDir, tsSkDir)
 
     // ────────────── Remove Translation ──────────────
     await removeTranslation(tsSkDir)
@@ -89,7 +89,7 @@ const generateStarterKit = defineCommand({
 
     consola.start('Install node modules in starter-kit folder')
 
-    // Change to the JavaScript full-version folder
+    // Change to the TypeScript starter-kit folder
     process.chdir(tsSkDir)
 
     // Install node_modules in javascript's full-version folder

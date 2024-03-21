@@ -4,7 +4,7 @@
 import * as fs from 'fs'
 
 // Import functions and types
-import { getTemplateRepoPaths } from '@/configs/getPaths'
+import { getTemplateRepoPaths } from '@configs/getPaths'
 
 // Verify repo path
 export function verifyRepoPath(repoName: string) {

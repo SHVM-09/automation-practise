@@ -23,7 +23,8 @@ async function copyFilesFromTsToJs(tsDir: string, jsDir: string): Promise<void> 
     '.env',
     '.env.example',
     'src/app/globals.css',
-    'src/app/favicon.ico'
+    'src/app/favicon.ico',
+    'src/views/apps/invoice/preview/print.css'
   ]
 
   // Copy specific files

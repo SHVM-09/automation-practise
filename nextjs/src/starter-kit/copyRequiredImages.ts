@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs-extra'
 import consola from 'consola'
-import { getImagePaths } from '@/configs/getImages'
+import { getImagePaths } from '@configs/getImages'
 
 const copyRequiredImages = async (templateName: string, tsFullDir: string, tsSkDir: string) => {
   consola.info('Copying required images...')
