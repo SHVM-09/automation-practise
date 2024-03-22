@@ -885,12 +885,16 @@ export class Laravel extends Utils {
     })()
 
     updateFile(indexPhpPath, (data) => {
+      // Add app bind in index.php file to handle all requests
+      const replacement = `$app = require_once __DIR__.'${laravelCoreRelativePath}bootstrap/app.php';
+app()->usePublicPath(__DIR__);
+$app->handleRequest(Request::capture());`
       return data
         .mustReplace(/(?<=__DIR__.')([\.\/]+)(?=\w)/g, laravelCoreRelativePath)
 
-        // Add app bind
-        // TODO: Handle unwanted slash by mistake
-        .mustReplace(/->handleRequest\(Request::capture\(\)\);\n/gm, '\napp()->usePublicPath(__DIR__);\n')
+      // replace last block of code start with require_once with the above replacement code for app bind
+      // TODO: Handle unwanted slash by mistake
+        .mustReplace(/\(require_once.*\n.*/gm, replacement)
     })
 
     if (!isFree) {
