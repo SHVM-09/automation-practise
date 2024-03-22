@@ -868,6 +868,9 @@ export class Laravel extends Utils {
     // Generate application key
     execCmd('php artisan key:generate', { cwd: TSFull })
 
+    // Run migration
+    execCmd('php artisan migrate', { cwd: TSFull })
+
     const envContent = readFileSyncUTF8(envPath)
 
     // inject GTM code in index.html file
