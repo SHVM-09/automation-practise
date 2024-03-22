@@ -843,12 +843,23 @@ export class Laravel extends Utils {
     const TSFull = isFree ? this.templateConfig.laravel.paths.freeTS : this.templateConfig.laravel.paths.TSFull
 
     const envPath = path.join(TSFull, '.env')
+    const databasePath = path.join(TSFull, 'database', 'database.sqlite')
 
+    // create .env file if not exist in laravel project
     if (!fs.existsSync(envPath)) {
       fs.copyFileSync(
         path.join(TSFull, '.env.example'),
         envPath,
       )
+    }
+
+    // create database.sqlite file if not exist in laravel project
+    if (!fs.existsSync(databasePath)) {
+      fs.copyFileSync(
+        path.join(TSFull, '.env.example'),
+        envPath,
+      )
+      fs.createFileSync(databasePath)
     }
 
     if (!isFree)
