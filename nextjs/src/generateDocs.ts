@@ -38,9 +38,9 @@ const generateDocs = defineCommand({
     let isMarketplace = args.isMarketplace
     let isProduction = args.isProduction
 
-    if (isMarketplace === undefined && args.templateName === undefined && (templateName === 'materio' || templateName === 'sneat')) {
+    if (isMarketplace === undefined && args.templateName === undefined && templateName === 'materio') {
       isMarketplace = await consola.prompt('Is this a marketplace package?', { type: 'confirm', initial: false })
-    } else if (isMarketplace && (templateName === 'materio' || templateName === 'sneat')) {
+    } else if (isMarketplace && templateName === 'materio') {
       isMarketplace = true
     } else {
       isMarketplace = false
