@@ -1,9 +1,9 @@
-import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as fs from 'fs-extra';
 
 interface CopyConfig {
-    source: string;
-    destination: string;
+  source: string;
+  destination: string;
 }
 
 const initPath = '../../';
@@ -12,10 +12,12 @@ const masterDaisy = `${initPath}master-daisyui`;
 const masterPreline = `${initPath}master-preline`;
 const destination = `${initPath}sneat-tailwindcss`;
 
+// const tsConfigPath = path.join(__dirname, 'tsconfig.json'); // Provide the correct path to the tsconfig.json file
+
 const sourcePaths: CopyConfig[] = [
-    { source: path.join(masterDaisy, 'src'), destination: path.join(destination, 'src') },
+    // { source: path.join(masterDaisy, 'src'), destination: path.join(destination, 'src') },
     { source: path.join(masterPreline, 'src'), destination: path.join(destination, 'src', 'js') },
-    { source: path.join(masterPreline, 'node-scripts'), destination: path.join(destination, 'src', 'node-scripts') },
+    { source: path.join(masterPreline, 'dts-config.js'), destination: path.join(destination, 'dts-config.js') },
     { source: path.join(masterPreline, 'plugin.js'), destination: path.join(destination,'src', 'plugin.js') },
     { source: path.join(masterPreline, 'webpack.config.js'), destination: path.join(destination, 'webpack.config.js') },
     { source: path.join(masterPreline, 'tsconfig.json'), destination: path.join(destination, 'tsconfig.json') }
