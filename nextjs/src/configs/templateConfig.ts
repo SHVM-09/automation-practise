@@ -5,6 +5,8 @@ export interface TemplateConfig {
   shortName: string
   ignoreCompressionPatterns: string[]
   packageIgnoreCopyPatterns: string[]
+  docsBaseUrl: string
+  docsStagingBaseUrl: string
   links: {
     changelog: string
     docs: string
@@ -41,6 +43,8 @@ export const templateConfig: Configs = {
       '**/*.log',
       '**/*.zip'
     ],
+    docsBaseUrl: '/materio-mui-nextjs-admin-template/documentation',
+    docsStagingBaseUrl: '/materio-mui-nextjs-admin-template/staging/documentation',
     links: {
       changelog: 'https://demos.themeselection.com/materio-mui-nextjs-admin-template/changelog.html',
       docs: 'https://demos.themeselection.com/materio-mui-nextjs-admin-template/documentation'
@@ -75,6 +79,8 @@ export const templateConfig: Configs = {
       '**/*.log',
       '**/*.zip'
     ],
+    docsBaseUrl: '/vuexy-nextjs-admin-template/documentation',
+    docsStagingBaseUrl: '/vuexy-nextjs-admin-template/staging/documentation',
     links: {
       changelog: 'https://demos.pixinvent.com/vuexy/changelog.html',
       docs: 'https://demos.pixinvent.com/vuexy-nextjs-admin-template/documentation'

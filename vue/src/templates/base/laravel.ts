@@ -843,7 +843,9 @@ export class Laravel extends Utils {
     const TSFull = isFree ? this.templateConfig.laravel.paths.freeTS : this.templateConfig.laravel.paths.TSFull
 
     const envPath = path.join(TSFull, '.env')
+    const databasePath = path.join(TSFull, 'database', 'database.sqlite')
 
+    // create .env file if not exist in laravel project
     if (!fs.existsSync(envPath)) {
       fs.copyFileSync(
         path.join(TSFull, '.env.example'),
@@ -851,11 +853,23 @@ export class Laravel extends Utils {
       )
     }
 
+    // create database.sqlite file if not exist in laravel project
+    if (!fs.existsSync(databasePath)) {
+      fs.copyFileSync(
+        path.join(TSFull, '.env.example'),
+        envPath,
+      )
+      fs.createFileSync(databasePath)
+    }
+
     if (!isFree)
       execCmd(`rm -rf ${path.join(TSFull, 'resources', 'ts', 'pages', 'pages', 'test')}`)
 
     // Generate application key
     execCmd('php artisan key:generate', { cwd: TSFull })
+
+    // Run migration
+    execCmd('php artisan migrate', { cwd: TSFull })
 
     const envContent = readFileSyncUTF8(envPath)
 
@@ -885,12 +899,16 @@ export class Laravel extends Utils {
     })()
 
     updateFile(indexPhpPath, (data) => {
+      // Add app bind in index.php file to handle all requests
+      const replacement = `$app = require_once __DIR__.'${laravelCoreRelativePath}bootstrap/app.php';
+app()->usePublicPath(__DIR__);
+$app->handleRequest(Request::capture());`
       return data
         .mustReplace(/(?<=__DIR__.')([\.\/]+)(?=\w)/g, laravelCoreRelativePath)
 
-        // Add app bind
-        // TODO: Handle unwanted slash by mistake
-        .mustReplace(/(?<=^\$app.*\n)/gm, '\napp()->usePublicPath(__DIR__);\n')
+      // replace last block of code start with require_once with the above replacement code for app bind
+      // TODO: Handle unwanted slash by mistake
+        .mustReplace(/\(require_once.*\n.*/gm, replacement)
     })
 
     if (!isFree) {
