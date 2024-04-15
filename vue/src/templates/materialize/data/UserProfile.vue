@@ -1,130 +1,145 @@
 <script setup lang="ts">
-import avatar1 from '@images/avatars/avatar-1.png'
+import avatar1 from '@images/avatars/avatar-1.png';
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar';
+
+const userProfileList = [
+  { type: 'divider' },
+  {
+    type: 'navItem',
+    icon: 'ri-user-line',
+    title: 'Profile',
+    href: '#',
+  },
+  {
+    type: 'navItem',
+    icon: 'ri-settings-4-line',
+    title: 'Settings',
+    href: '#',
+  },
+  {
+    type: 'navItem',
+    icon: 'ri-file-text-line',
+    title: 'Billing Plan',
+    href: '#',
+    chipsProps: { color: 'error', text: '4', size: 'small' },
+  },
+  { type: 'divider' },
+  {
+    type: 'navItem',
+    icon: 'ri-money-dollar-circle-line',
+    title: 'Pricing',
+    href: '#',
+  },
+  {
+    type: 'navItem',
+    icon: 'ri-question-line',
+    title: 'FAQ',
+    href: '#',
+  },
+]
 </script>
 
 <template>
   <VBadge
     dot
-    location="bottom right"
-    offset-x="3"
-    offset-y="3"
     bordered
+    location="bottom right"
+    offset-x="2"
+    offset-y="2"
     color="success"
+    class="user-profile-badge"
   >
     <VAvatar
       class="cursor-pointer"
-      color="primary"
-      variant="tonal"
+      size="38"
     >
-      <VImg :src="avatar1" />
+      <VImg :src="avatar1"/>
 
       <!-- SECTION Menu -->
       <VMenu
         activator="parent"
         width="230"
         location="bottom end"
-        offset="14px"
+        offset="15px"
       >
         <VList>
-          <!-- 👉 User Avatar & Name -->
-          <VListItem>
-            <template #prepend>
-              <VListItemAction start>
-                <VBadge
-                  dot
-                  location="bottom right"
-                  offset-x="3"
-                  offset-y="3"
-                  color="success"
+          <VListItem class="px-4">
+            <div class="d-flex gap-x-2 align-center">
+              <VAvatar>
+                <VImg :src="avatar1"/>
+              </VAvatar>
+
+              <div>
+                <div class="text-body-2 font-weight-medium text-high-emphasis">
+                  John Doe
+                </div>
+                <div class="text-capitalize text-caption text-disabled">
+                  Admin
+                </div>
+              </div>
+            </div>
+          </VListItem>
+
+          <PerfectScrollbar :options="{ wheelPropagation: false }">
+            <template
+              v-for="item in userProfileList"
+              :key="item.title"
+            >
+              <VListItem
+                v-if="item.type === 'navItem'"
+                :href="item.href"
+                class="px-4"
+              >
+                <template #prepend>
+                  <VIcon
+                    :icon="item.icon"
+                    size="22"
+                  />
+                </template>
+
+                <VListItemTitle>{{ item.title }}</VListItemTitle>
+
+                <template
+                  v-if="item.chipsProps"
+                  #append
                 >
-                  <VAvatar
-                    color="primary"
-                    variant="tonal"
-                  >
-                    <VImg :src="avatar1" />
-                  </VAvatar>
-                </VBadge>
-              </VListItemAction>
-            </template>
+                  <VChip
+                    v-bind="item.chipsProps"
+                    variant="elevated"
+                  />
+                </template>
+              </VListItem>
 
-            <VListItemTitle class="font-weight-semibold">
-              John Doe
-            </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
-          </VListItem>
-
-          <VDivider class="my-2" />
-
-          <!-- 👉 Profile -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-user"
-                size="22"
+              <VDivider
+                v-else
+                class="my-1"
               />
             </template>
 
-            <VListItemTitle>Profile</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 Settings -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-settings"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Settings</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 Pricing -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-currency-dollar"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Pricing</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 FAQ -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-help"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>FAQ</VListItemTitle>
-          </VListItem>
-
-          <!-- Divider -->
-          <VDivider class="my-2" />
-
-          <!-- 👉 Logout -->
-          <VListItem to="/login">
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="tabler-logout"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Logout</VListItemTitle>
-          </VListItem>
+            <VListItem class="px-4">
+              <VBtn
+                block
+                color="error"
+                size="small"
+                append-icon="ri-logout-box-r-line"
+                :to="{name: 'login'}"
+              >
+                Logout
+              </VBtn>
+            </VListItem>
+          </PerfectScrollbar>
         </VList>
       </VMenu>
       <!-- !SECTION -->
     </VAvatar>
   </VBadge>
 </template>
+
+<style lang="scss">
+.user-profile-badge {
+  &.v-badge--bordered.v-badge--dot .v-badge__badge::after {
+    color: rgb(var(--v-theme-background));
+  }
+}
+</style>
+

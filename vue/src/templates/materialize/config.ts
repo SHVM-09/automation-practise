@@ -12,6 +12,8 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const materializeVuePath = path.join(getTemplatePath('materialize', 'vue'))
 const materializeVueLaravelPath = path.join(getTemplatePath('materialize', 'vue-laravel'))
 const materializeVueFreePath = materializeVuePath.mustReplace(/\bvue\b/g, 'vue-free')
+const materializeNuxtPath = path.join(getTemplatePath('materialize', 'nuxt'))
+const materializeNuxtFreePath = path.join(getTemplatePath('materialize', 'nuxt-free'))
 
 export const config: MaterializeConfig = {
   templateName: 'materialize',
@@ -38,11 +40,16 @@ export const config: MaterializeConfig = {
   sKImagesRemovePatterns: [
     '**/*',
     '!logo.svg',
+    '!cards',
     '!svg',
     '!iconify-svg',
     '!pages',
     '!avatars',
+    '!illustrations',
     '!misc',
+    '!icons/payments',
+    '!icons/brands',
+    '!customizer-icons',
   ],
   ignoreCompressionPatterns: [],
   paths: {
@@ -156,6 +163,19 @@ export const config: MaterializeConfig = {
     changelog: {
       pageTitle: 'Materialize - Vuejs Laravel Admin Template Changelog',
       url: 'https://demos.pixinvent.com/materialize/changelog.html',
+    },
+  },
+  nuxt: {
+    pkgName: 'materialize-nuxtjs-admin-template',
+    buyNowLink: 'https://1.envato.market/materialize_admin',
+    projectPath: materializeNuxtPath,
+    paths: {
+      TSFull: path.join(materializeNuxtPath, 'typescript-version', 'full-version'),
+      TSStarter: path.join(materializeNuxtPath, 'typescript-version', 'starter-kit'),
+      JSFull: path.join(materializeNuxtPath, 'javascript-version', 'full-version'),
+      JSStarter: path.join(materializeNuxtPath, 'javascript-version', 'starter-kit'),
+      freeJS: path.join(materializeNuxtFreePath, 'javascript-version'),
+      freeTS: path.join(materializeNuxtFreePath, 'typescript-version'),
     },
   },
 }
